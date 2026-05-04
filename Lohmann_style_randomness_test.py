@@ -200,6 +200,9 @@ def simulate_lohmann_one_process(
         window_ka,
         grid_step_ka,
     )
+    # print dataset.analysis_start_ka, dataset.analysis_end_ka, size=ages.size, rate_per_kyr, and duration_ka for debugging
+    print(f"{dataset.dataset_id}: start={dataset.analysis_start_ka} ka, end={dataset.analysis_end_ka} ka, n_events={ages.size}, rate={rate_per_kyr:.3f} per kyr, duration={duration_ka:.1f} kyr")
+
     observed_counts = moving_event_counts(ages, centers, window_ka)
     observed_es = rms_deviation(observed_counts, expected_count)
 
@@ -209,11 +212,16 @@ def simulate_lohmann_one_process(
     for i in range(n_monte_carlo):
         conditional_events = np.sort(
             rng.uniform(dataset.analysis_start_ka, dataset.analysis_end_ka, size=ages.size)
-        )
+        ) 
+        # Simulate a homogeneous Poisson process with fixed rate lambda:
+        # first draw the total number of events in the interval,
+        # then draw event times uniformly conditional on that total count.
+
         counts = moving_event_counts(conditional_events, centers, window_ka)
         conditional_counts[i] = counts
         conditional_es[i] = rms_deviation(counts, expected_count)
 
+        # the null for Poisson events is a Poisson distribution with the same rate
         n_events = int(rng.poisson(rate_per_kyr * duration_ka))
         poisson_events = np.sort(
             rng.uniform(dataset.analysis_start_ka, dataset.analysis_end_ka, size=n_events)
