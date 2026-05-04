@@ -1,0 +1,25 @@
+dataset_id,dataset_label,model_id,term,beta,rate_ratio_per_unit
+strong_monsoon_start,Strong monsoon starts,stationary,intercept,-1.8971199848858813,0.15
+strong_monsoon_start,Strong monsoon starts,climate_lr04_co2,intercept,-1.94753962385276,0.14262455029654442
+strong_monsoon_start,Strong monsoon starts,climate_lr04_co2,lr04_scaled,1.3859174607388718,3.998492682548029
+strong_monsoon_start,Strong monsoon starts,climate_lr04_co2,co2_scaled,-0.003779333400578527,0.9962277992914615
+strong_monsoon_start,Strong monsoon starts,pre_phase,intercept,-1.9642244358035632,0.1402646286661642
+strong_monsoon_start,Strong monsoon starts,pre_phase,pre_phase_sin,0.19694683968119678,1.2176793067651375
+strong_monsoon_start,Strong monsoon starts,pre_phase,pre_phase_cos,0.5026236631092725,1.6530526394170746
+strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,intercept,-2.027924845295933,0.13160834565163643
+strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,lr04_scaled,1.5310903855110325,4.623215161761186
+strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,co2_scaled,-0.09165441115679669,0.9124204173819872
+strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,pre_phase_sin,0.10854467483015111,1.1146547044356192
+strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,pre_phase_cos,0.5681705291136214,1.76503501570289
+weak_monsoon_start,Weak monsoon starts,stationary,intercept,-1.9181733940837136,0.146875
+weak_monsoon_start,Weak monsoon starts,climate_lr04_co2,intercept,-2.0066421958065326,0.13443933859967291
+weak_monsoon_start,Weak monsoon starts,climate_lr04_co2,lr04_scaled,-0.009462923660280918,0.9905817089060137
+weak_monsoon_start,Weak monsoon starts,climate_lr04_co2,co2_scaled,-2.000016831372601,0.13533300537720427
+weak_monsoon_start,Weak monsoon starts,pre_phase,intercept,-1.9752768545437602,0.1387229008605909
+weak_monsoon_start,Weak monsoon starts,pre_phase,pre_phase_sin,-0.34915180325532646,0.7052860574237034
+weak_monsoon_start,Weak monsoon starts,pre_phase,pre_phase_cos,-0.30682511789134986,0.7357792642857033
+weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,intercept,-2.064601315565793,0.12686886112659468
+weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,lr04_scaled,0.059854182853554136,1.061681723858326
+weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,co2_scaled,-1.9714782343329036,0.1392508585961232
+weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,pre_phase_sin,-0.4078859321055787,0.6650547358892894
+weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,pre_phase_cos,-0.26008041018720024,0.770989587893876

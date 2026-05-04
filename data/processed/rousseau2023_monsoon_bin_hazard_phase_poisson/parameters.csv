@@ -1,0 +1,2 @@
+analysis_start_ka,analysis_end_ka,bin_width_ka,response,main_model,pre_phase_convention
+0.0,640.0,0.2,event_count_per_0p2kyr_bin,log(lambda)=intercept+LR04_scaled+CO2_scaled+sin(pre_phase)+cos(pre_phase),precession-index minima=0 rad; maxima=pi rad

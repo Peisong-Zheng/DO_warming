@@ -1,0 +1,69 @@
+% Supporting Information draft for the DO-like Asian monsoon transition paper.
+% Citations are author-year placeholders for later bibliography integration.
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage[version=4]{mhchem}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\title{Supporting Information: Event-Timing Tests}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Supporting Information}
+
+\subsection*{Text S1. Lohmann-style stationary occurrence test}
+
+We used a Lohmann-style moving-window event-count test to evaluate whether the Rousseau et al. (2023) weak and strong monsoon-start chronologies are compatible with stationary random occurrence. Each event catalogue was tested separately over the same 0--640 ka BP analysis interval. For a catalogue with \(N\) events over duration \(T\), the stationary rate was estimated as
+\[
+\hat{\lambda} = \frac{N}{T}.
+\]
+We counted the number of events \(E(t_m)\) in a moving window of width \(W=20\) kyr. Window centers \(t_m\) were placed every 0.2 kyr from 10 to 630 ka, so that every moving window was fully contained within the analysis interval. Under stationary occurrence, the expected number of events per moving window is
+\[
+E_0 = \hat{\lambda}W.
+\]
+The scalar event-count statistic was the root-mean-square departure of observed moving-window counts from this constant expectation:
+\[
+E_S =
+\left[
+\frac{1}{M}
+\sum_{m=1}^{M}
+\{E(t_m)-E_0\}^{2}
+\right]^{1/2},
+\]
+where \(M\) is the number of window centers. Large \(E_S\) values indicate stronger temporal clustering or depletion than expected from a stationary process.
+
+Two Monte Carlo null models were used. In the unconditional stationary Poisson null, each realization drew the total event count from \(\mathrm{Poisson}(\hat{\lambda}T)\), then assigned event ages uniformly within 0--640 ka. In the conditional fixed-\(N\) null, the total number of events was fixed to the observed \(N\), and only event ages were randomized uniformly. The unconditional null tests both total-count variability and timing variability under a stationary Poisson process, whereas the fixed-\(N\) null asks whether the observed timing pattern is unusual after conditioning on the observed event count. We generated 5000 realizations for each null model. One-sided Monte Carlo \(p\) values were computed as the fraction of simulated \(E_S\) values greater than or equal to the observed value, with a plus-one correction.
+
+For strong monsoon starts, \(N=96\), \(\hat{\lambda}=0.150\) kyr\(^{-1}\), and \(E_0=3.00\) events per 20 kyr window. The observed statistic was \(E_S=2.010\). This result is marginal under the unconditional Poisson null (\(p_P=0.083\)) but significant under the fixed-\(N\) null (\(p_N=0.045\)). For weak monsoon starts, \(N=94\), \(\hat{\lambda}=0.1469\) kyr\(^{-1}\), and \(E_0=2.94\) events per 20 kyr window. The observed statistic was \(E_S=2.189\), significant under both the unconditional Poisson null (\(p_P=0.013\)) and the fixed-\(N\) null (\(p_N=0.0044\)). These results indicate that the weak sequence is inconsistent with stationary random occurrence and that both event catalogues show non-uniform timing once the observed event count is fixed.
+
+\subsection*{Text S2. Orbital phase assignment and Rayleigh tests}
+
+We used circular phase tests to ask whether weak and strong monsoon starts occur preferentially at particular precession or obliquity phases. The precession index and obliquity series were each converted into a phase variable using their local extrema. Local minima and maxima were detected, and adjacent extrema of the same type were removed so that extrema alternated. Minima were assigned phase \(0\), maxima were assigned phase \(\pi\), and consecutive half-cycles differed by \(\pi\) in unwrapped phase. The unwrapped phase was linearly interpolated to event ages and then wrapped to \([0,2\pi)\). Under this convention, precession-index minima correspond to \(0^\circ\), and precession-index maxima correspond to \(180^\circ\). Events whose phases required extrapolation outside the detected extrema were excluded from the corresponding Rayleigh test.
+
+For each event type and orbital driver, we applied the Rayleigh test for non-uniformity on the circle. Given event phases \(\theta_j\), the resultant vector is
+\[
+\mathbf{R} =
+\left(
+\sum_{j=1}^{n}\cos\theta_j,\,
+\sum_{j=1}^{n}\sin\theta_j
+\right),
+\]
+and the mean resultant length is
+\[
+\bar{R} = \frac{\|\mathbf{R}\|}{n}.
+\]
+The mean phase is \(\arg(\mathbf{R})\), and the Rayleigh statistic is
+\[
+z = n\bar{R}^{2}.
+\]
+We used the standard finite-sample correction for the Rayleigh \(p\) value. A significant result indicates departure from circular uniformity but does not by itself adjust for slow background-state covariates; that adjustment is handled in the binned Poisson hazard model in the main text.
+
+Strong monsoon starts show significant precession-phase clustering. Their mean precession phase is \(21.9^\circ\), the mean resultant length is \(\bar{R}=0.254\), and the Rayleigh \(p\) value is \(p=0.0019\). Weak monsoon starts also show significant precession-phase clustering, but in a nearly opposite part of the precession cycle: their mean precession phase is \(226.7^\circ\), \(\bar{R}=0.235\), and \(p=0.0054\). In contrast, obliquity phases do not show significant clustering. Strong monsoon starts have an obliquity-phase Rayleigh \(p=0.682\), and weak monsoon starts have \(p=0.632\). One weak-start event required phase extrapolation for obliquity and was excluded from that test, giving \(n=93\) for the weak obliquity case. These results identify precession phase, rather than obliquity phase, as the orbital phase most clearly associated with the timing of the weak and strong monsoon-start events.
+
+\end{document}
