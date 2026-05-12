@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  12 MAY 2026 08:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  12 MAY 2026 10:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -387,41 +387,44 @@ vips/lm/lm-mathex.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm
 -mathsy.enc}]
 [2] [3] [4]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 110.
+(Font)              <10> on input line 122.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 110.
+(Font)              <7> on input line 122.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 110.
+(Font)              <5> on input line 122.
  [5
 
-] [6]
+]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <9> on input line 194.
+ [6]
 <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig03b_rayleigh_phase_p
-olar_obliquity.pdf, id=34, 511.57674pt x 272.31221pt>
+olar_obliquity.pdf, id=40, 511.57674pt x 272.31221pt>
 File: ../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig03b_rayleigh_ph
 ase_polar_obliquity.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig03b_rayleigh_pha
 se_polar_obliquity.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_orbital_phase_rayleigh
-/fig03b_rayleigh_phase_polar_obliquity.pdf  used on input line 177.
+/fig03b_rayleigh_phase_polar_obliquity.pdf  used on input line 216.
 (pdftex.def)             Requested size: 469.75502pt x 250.05658pt.
 <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig04_phase_ecdf_unifor
-m_check.pdf, id=35, 749.7009pt x 298.69347pt>
+m_check.pdf, id=41, 749.7009pt x 298.69347pt>
 File: ../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig04_phase_ecdf_u
 niform_check.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig04_phase_ecdf_un
 iform_check.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_orbital_phase_rayleigh
-/fig04_phase_ecdf_uniform_check.pdf  used on input line 186.
+/fig04_phase_ecdf_uniform_check.pdf  used on input line 225.
 (pdftex.def)             Requested size: 469.75502pt x 187.15695pt.
 <../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig02_adj
-usted_model_comparison_delta_aicc.pdf, id=36, 911.49506pt x 351.67087pt>
+usted_model_comparison_delta_aicc.pdf, id=42, 911.49506pt x 351.67087pt>
 File: ../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig0
 2_adjusted_model_comparison_delta_aicc.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig02
 _adjusted_model_comparison_delta_aicc.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_predictive_hazard_hist
 ory_resolution/fig02_adjusted_model_comparison_delta_aicc.pdf  used on input li
-ne 203.
+ne 242.
 (pdftex.def)             Requested size: 469.75502pt x 181.24397pt.
  [7
 
@@ -429,58 +432,58 @@ ne 203.
 polar_obliquity.pdf> <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fi
 g04_phase_ecdf_uniform_check.pdf>]
 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig06_sen
-sitivity_aicc_and_likelihood_tests.pdf, id=79, 1049.1116pt x 669.62709pt>
+sitivity_aicc_and_likelihood_tests.pdf, id=85, 1049.1116pt x 669.62709pt>
 File: ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 6_sensitivity_aicc_and_likelihood_tests.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig06
 _sensitivity_aicc_and_likelihood_tests.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_bin_hazard_phase_poiss
 on_sensitivity/fig06_sensitivity_aicc_and_likelihood_tests.pdf  used on input l
-ine 215.
+ine 254.
 (pdftex.def)             Requested size: 469.75502pt x 299.83763pt.
  [8 <../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig02
 _adjusted_model_comparison_delta_aicc.pdf>]
 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig07_ext
-ended_baseline_predictor_correlation.pdf, id=98, 383.62833pt x 329.25833pt>
+ended_baseline_predictor_correlation.pdf, id=104, 383.62833pt x 329.25833pt>
 File: ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 7_extended_baseline_predictor_correlation.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig07
 _extended_baseline_predictor_correlation.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_bin_hazard_phase_poiss
 on_sensitivity/fig07_extended_baseline_predictor_correlation.pdf  used on input
- line 226.
+ line 265.
 (pdftex.def)             Requested size: 319.42996pt x 274.15852pt.
  [9 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig06
 _sensitivity_aicc_and_likelihood_tests.pdf>]
 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig04_bas
-e_vs_extended_hazards.pdf, id=117, 923.16107pt x 389.63892pt>
+e_vs_extended_hazards.pdf, id=123, 923.16107pt x 389.63892pt>
 File: ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 4_base_vs_extended_hazards.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig04
 _base_vs_extended_hazards.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_bin_hazard_phase_poiss
-on_sensitivity/fig04_base_vs_extended_hazards.pdf  used on input line 239.
+on_sensitivity/fig04_base_vs_extended_hazards.pdf  used on input line 278.
 (pdftex.def)             Requested size: 469.75502pt x 198.2673pt.
  [10 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 7_extended_baseline_predictor_correlation.pdf>]
 <../figures/rousseau2023_composite_age_uncertainty_sensitivity/fig09_age_offset
-s_and_significance_fraction.pdf, id=133, 805.54889pt x 496.69286pt>
+s_and_significance_fraction.pdf, id=139, 805.54889pt x 496.69286pt>
 File: ../figures/rousseau2023_composite_age_uncertainty_sensitivity/fig09_age_o
 ffsets_and_significance_fraction.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_composite_age_uncertainty_sensitivity/fig09_age_of
 fsets_and_significance_fraction.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_composite_age_uncertainty_sens
-itivity/fig09_age_offsets_and_significance_fraction.pdf  used on input line 254
+itivity/fig09_age_offsets_and_significance_fraction.pdf  used on input line 293
 .
 (pdftex.def)             Requested size: 281.85587pt x 173.79204pt.
 <../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig03_conditional_pr
-e_phase_after_climate.pdf, id=134, 412.26447pt x 593.5828pt>
+e_phase_after_climate.pdf, id=140, 412.26447pt x 593.5828pt>
 File: ../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig03_condition
 al_pre_phase_after_climate.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig03_conditiona
 l_pre_phase_after_climate.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_lagged_te_predictive_i
-nfo/fig03_conditional_pre_phase_after_climate.pdf  used on input line 264.
+nfo/fig03_conditional_pre_phase_after_climate.pdf  used on input line 303.
 (pdftex.def)             Requested size: 319.42996pt x 459.93134pt.
  [11 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 4_base_vs_extended_hazards.pdf> <../figures/rousseau2023_composite_age_uncertai
@@ -493,28 +496,32 @@ L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 4326 strings out of 467525
- 79189 string characters out of 5418982
- 519130 words of memory out of 5000000
- 33169 multiletter control sequences out of 15000+600000
- 695839 words of font info for 78 fonts, out of 8000000 for 9000
+ 4338 strings out of 467525
+ 79333 string characters out of 5418982
+ 519152 words of memory out of 5000000
+ 33176 multiletter control sequences out of 15000+600000
+ 705386 words of font info for 83 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 64i,12n,71p,1452b,548s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 64i,17n,71p,1452b,598s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/lo
 cal/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texliv
 e/2026/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2026/tex
 mf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/local/texlive/2026/texmf-dist/fo
 nts/type1/public/lm/lmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/p
-ublic/lm/lmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lm
-r17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr7.pfb></us
-r/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texl
-ive/2026/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2026/t
-exmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/local/texlive/2026/texmf-dist/f
-onts/type1/public/lm/lmsy8.pfb>
-Output written on SI.pdf (12 pages, 447289 bytes).
+ublic/lm/lmmi9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lm
+r10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr17.pfb></u
+sr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/local/tex
+live/2026/texmf-dist/fonts/type1/public/lm/lmr7.pfb></usr/local/texlive/2026/te
+xmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2026/texmf-dist/fon
+ts/type1/public/lm/lmr9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/pub
+lic/lm/lmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lms
+y6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></us
+r/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/tex
+live/2026/texmf-dist/fonts/type1/public/lm/lmsy9.pfb>
+Output written on SI.pdf (12 pages, 514747 bytes).
 PDF statistics:
- 255 PDF objects out of 1000 (max. 8388607)
- 149 compressed objects within 2 object streams
+ 283 PDF objects out of 1000 (max. 8388607)
+ 166 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  41 words of extra memory for PDF output out of 10000 (max. 10000000)
 

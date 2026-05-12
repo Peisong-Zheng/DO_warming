@@ -1,16 +1,17 @@
 # Fdb version 4
-["bibtex main"] 0 "main.aux" "main.bbl" "main" 0 0
-  "main.aux" 0 -1 0 "pdflatex"
-  "references.bib" 0 -1 0 ""
+["bibtex main"] 1778554932.1857 "main.aux" "main.bbl" "main" 1778554933.76185 0
+  "./reference.bib" 1778554930.44356 8688 8c12e4d39b85e4f60066c589fb098cf9 ""
+  "/usr/local/texlive/2026/texmf-dist/bibtex/bst/aguplus/agu.bst" 1198374113 41998 e266928ecbf9a9be38e50b756398467d ""
+  "main.aux" 1778554933.46758 4939 3b7e5eb6581bf998b67e45ad6444c03f "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1778510388.81829 "/Users/pz/VScode/DO_warming/monsoon_paper/main.tex" "main.pdf" "main" 1778510390.15666 0
+["pdflatex"] 1778554932.34488 "/Users/pz/VScode/DO_warming/monsoon_paper/main.tex" "main.pdf" "main" 1778554933.76204 0
   "../figures/fig02/fig02.pdf" 1778053126.0781 238307 bebc79c4f1a2bc6f0b68aaf4a2685cba ""
-  "../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig01_single_driver_lagged_information.pdf" 1778508573.54414 24958 6338365b835951cff5b411781dcad897 ""
-  "../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig01_adjusted_inputs_and_fitted_hazards.pdf" 1778504349.43958 167393 d7ddd892cf3b33ef2ae46c5962288001 ""
-  "/Users/pz/VScode/DO_warming/monsoon_paper/main.tex" 1778509981.25289 30115 b1071ebfcd28f84302a77673832ad4dd ""
+  "../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig01_single_driver_lagged_information.pdf" 1778513687.65605 24958 7cb6110e5fca812f9de21afc4eb0ac9b ""
+  "../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig01_adjusted_inputs_and_fitted_hazards.pdf" 1778512604.29137 161241 d68dfebea6292afd545b8bec75588589 ""
+  "/Users/pz/VScode/DO_warming/monsoon_paper/main.tex" 1778554839.84288 31679 ccf0c9ccaae47be15b65950905def160 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc" 1254269338 2375 baa924870cfb487815765f9094cf3728 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc" 1202520719 3486 c7eadf5dcc57b3b2d11736679f6636ba ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc" 1202520719 2405 5dcf2c1b967ee25cc46c58cd52244aed ""
@@ -26,6 +27,7 @@
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/ec-lmr17.tfm" 1254269338 12156 ca1ae6a3c8564e89597f1f993fba1608 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/ec-lmr6.tfm" 1254269338 12048 c1068d0f4772be9b0ec447692e1d6d82 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/ec-lmr8.tfm" 1254269338 12064 a35db870f0b76c338d749c56dc030ef5 ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/ec-lmri10.tfm" 1254269338 17148 9556e1b5f936b77a796f68d2d559ba99 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/lmbsy10.tfm" 1148093231 1300 2df9da0fc09d4a8c772b3dd386a47c6a ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/lmbsy7.tfm" 1148093231 1304 535e0954c1961c817723e44bc6a9662c ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/lmex10.tfm" 1148093231 992 ce925c9346c7613270a79afbee98c070 ""
@@ -57,6 +59,7 @@
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr10.pfb" 1255129361 119235 f35b44530a1d90eb90fe15d9cba67ea0 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr17.pfb" 1255129361 119752 1bd8d06e4079df624bf59ce3ad7c9aa6 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr8.pfb" 1255129361 122174 a7a08406857c9530a0320a2517f60370 ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmri10.pfb" 1255129361 112593 fda2373ba4420af33949610de4c28fe8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmss8.pfb" 1255129361 94400 e33ecfb646a9f148e2e53da01a9168fe ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy10.pfb" 1254269338 27863 09ce3735688ffde955e72da27c95b61a ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb" 1254269338 27802 5c876bb2c4040caaf035d60bd74a86bd ""
@@ -95,14 +98,15 @@
   "/usr/local/texlive/2026/texmf-dist/tex/latex/lm/t1lmr.fd" 1616454256 1867 996fe743d88a01aca041ed22cc10e1bb ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/mhchem/mhchem.sty" 1706648908 133877 abeecc93dabd0b08364240f40830f21b ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/natbib/natbib.sty" 1291685959 45456 1c8843383c0bd05870c45fa0ebea6cc2 ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/placeins/placeins.sty" 1137110565 4087 636308456f60d2b31cbf97867db5708d ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/tools/calc.sty" 1748806692 10374 2ffd4f27c7f90b8a300608069537743c ""
   "/usr/local/texlive/2026/texmf-dist/web2c/texmf.cnf" 1770478701 43630 e9fa012910491fe5ae08a72c3c2997a7 ""
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1778509680 5573038 b99aad5e4898a9034e953632f940512b ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1778509655 3636778 cda36ec2833bcb835c452b7c5babcf90 ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "main.aux" 1778510389.94363 2900 dc59f7821a3fadbf2af47933f3838413 "pdflatex"
-  "main.bbl" 0 -1 0 "bibtex main"
-  "main.tex" 1778509981.25289 30115 b1071ebfcd28f84302a77673832ad4dd ""
+  "main.aux" 1778554933.46758 4939 3b7e5eb6581bf998b67e45ad6444c03f "pdflatex"
+  "main.bbl" 1778554932.34223 5846 6e2ee3e9474436217cc2b55d86aae6c0 "bibtex main"
+  "main.tex" 1778554839.84288 31679 ccf0c9ccaae47be15b65950905def160 ""
   (generated)
   "main.aux"
   "main.log"

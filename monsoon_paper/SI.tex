@@ -93,11 +93,23 @@ For every randomized catalogue we repeated the Lohmann-style moving-window rando
 
 \subsection*{Text S5. Lagged predictive-information diagnostics}
 
-The main text defines the lagged predictive-information framework. Here we report the main diagnostic values. In the single-driver scans after the event-process baseline, strong starts have best lags of 2.4 kyr for LR04, 1.8 kyr for \(\ce{CO2}\), and 0 kyr for precession phase. The corresponding best information gains are 0.101, 0.120, and 0.133 bits/event. Weak starts have best lags of 0 kyr for LR04, 0.8 kyr for \(\ce{CO2}\), and 0 kyr for precession phase, with best information gains of 0.113, 0.153, and 0.065 bits/event. The weak-start single-driver precession scan has a nominal \(p=0.013\) at its best lag but is not significant after false-discovery-rate correction (\(q=0.126\)).
+The main text defines the lagged predictive-information framework as a temporal-alignment diagnostic rather than a causal-delay estimator. Here we report the main diagnostic values. In the single-driver scans after the event-process baseline, strong starts have best lags of 2.4 kyr for LR04, 1.8 kyr for \(\ce{CO2}\), and 0 kyr for precession phase. The corresponding best information gains are 0.101, 0.120, and 0.133 bits/event. Weak starts have best lags of 0 kyr for LR04, 0.8 kyr for \(\ce{CO2}\), and 0 kyr for precession phase, with best information gains of 0.113, 0.153, and 0.065 bits/event. The weak-start single-driver precession scan has a nominal \(p=0.013\) at its best lag but is not significant after false-discovery-rate correction (\(q=0.126\)).
 
-The conditional precession-phase scans are more relevant to the main question. For strong starts, precession phase adds information after LR04 and \(\ce{CO2}\) at their best single-driver lags, with maximum gain at 0 kyr (0.148 bits/event, \(p=8.8\times10^{-5}\), \(q=3.8\times10^{-4}\)). For weak starts, the same test also peaks at 0 kyr (0.110 bits/event, \(p=6.5\times10^{-4}\), \(q=0.0079\)). When LR04, \(\ce{CO2}\), and precession phase are constrained to share the same lag, the best precession-phase lag is 0 kyr for strong starts and 0.8 kyr for weak starts. These results support the interpretation that the precession signal is near-synchronous in the event-timing framework, whereas LR04 and \(\ce{CO2}\) act more like slow background controls.
+The conditional precession-phase scans are more relevant to the main question. For strong starts, precession phase adds information after LR04 and \(\ce{CO2}\) at their best single-driver lags, with maximum gain at 0 kyr (0.148 bits/event, \(p=8.8\times10^{-5}\), \(q=3.8\times10^{-4}\)). For weak starts, the same test also peaks at 0 kyr (0.110 bits/event, \(p=6.5\times10^{-4}\), \(q=0.0079\)). When LR04, \(\ce{CO2}\), and precession phase are constrained to share the same lag, the best precession-phase lag is 0 kyr for strong starts and 0.8 kyr for weak starts. These near-zero maxima indicate that event probability is most strongly organized by the contemporaneous orbital phase in this binned framework; they should not be interpreted as resolving the causal direction or response time of precessional forcing. LR04 and \(\ce{CO2}\), in contrast, behave more like slow background controls.
 
 The full conditional lag curves are shown in Figure~\ref{fig:conditional_lagged_precession}.
+
+\subsection*{Text S6. Sparse-bin and bootstrap likelihood diagnostics}
+
+The 0.2 kyr event bins are intentionally sparse. This sparsity does not by itself imply zero inflation: for an event rate of approximately 0.03 events per bin, a Poisson process predicts about 97\% empty bins. We therefore compared observed empty-bin fractions with fitted Poisson expectations and computed Pearson dispersion diagnostics. In the full adjusted model, the observed and expected empty-bin fractions are 0.9701 and 0.9708 for strong starts, and 0.9691 and 0.9699 for weak starts. The corresponding Pearson dispersion estimates are 0.872 and 0.916. Thus, the main fitted models do not show evidence for excess zeros or overdispersion.
+
+We also checked the two central nested likelihood-ratio tests using reduced-model parametric bootstrap null distributions. For each bootstrap replicate, event catalogues were simulated under the fitted reduced model, same-type event history was recomputed from the simulated catalogue, and both reduced and full models were refitted. This dynamic-history bootstrap preserves the serial dependence induced by the overlapping 5 kyr history windows, rather than treating \(H_i\) as a fixed independent covariate. We used 2000 bootstrap replicates for each event type and comparison; all refits converged. The empirical \(p\) value was computed as
+\[
+p_{\mathrm{boot}}=
+\frac{1+\#\{\mathrm{LR}^{(b)}\geq \mathrm{LR}_{\mathrm{obs}}\}}
+{1+B},
+\]
+with \(B=2000\). The bootstrap distributions are slightly heavier-tailed than the asymptotic \(\chi^2\) reference, but all four central comparisons remain significant (Table~\ref{tab:bootstrap_lrt_diagnostics}).
 
 \clearpage
 \section*{Tables}
@@ -165,6 +177,33 @@ Antarctic temperature unique in full model & +2.01 & 0.929 & +1.98 & 0.849 \\
 Obliquity unique in full model & +1.98 & 0.857 & +0.82 & 0.274 \\
 Eccentricity unique in full model & +1.74 & 0.599 & +1.99 & 0.884 \\
 \(65^\circ\)N insolation unique in full model & +1.61 & 0.523 & -1.20 & 0.073 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{
+Reduced-model parametric bootstrap likelihood-ratio diagnostics for the two central adjusted predictive-model comparisons.
+The bootstrap regenerated event catalogues under the fitted reduced model, recomputed same-type event history, and refitted the reduced and full models for each replicate.
+This preserves the serial dependence induced by overlapping 5 kyr history windows.
+The empirical \(p\) value is \((1+\#\{\mathrm{LR}^{(b)}\geq\mathrm{LR}_{\mathrm{obs}}\})/(1+B)\), with \(B=2000\).
+}
+\label{tab:bootstrap_lrt_diagnostics}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.28\textwidth}
+                >{\centering\arraybackslash}p{0.10\textwidth}
+                >{\centering\arraybackslash}p{0.08\textwidth}
+                >{\centering\arraybackslash}p{0.11\textwidth}
+                >{\centering\arraybackslash}p{0.11\textwidth}
+                >{\centering\arraybackslash}p{0.09\textwidth}@{}}
+\toprule
+Comparison & Event & LR & \(\chi^2\) \(p\) & Bootstrap \(p\) & Exceed. \\
+\midrule
+LR04+\(\ce{CO2}\) after event-process baseline & Strong & 13.73 & 0.00104 & 0.00250 & 4/2000 \\
+LR04+\(\ce{CO2}\) after event-process baseline & Weak & 21.69 & \(1.95\times10^{-5}\) & 0.00050 & 0/2000 \\
+Precession phase after adjusted climate & Strong & 19.74 & \(5.16\times10^{-5}\) & 0.00050 & 0/2000 \\
+Precession phase after adjusted climate & Weak & 14.52 & 0.00070 & 0.00200 & 3/2000 \\
 \bottomrule
 \end{tabular}
 \end{table}
