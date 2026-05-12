@@ -560,14 +560,18 @@ def draw_model_delta_aicc(ax: plt.Axes, summary: pd.DataFrame, dataset_id: str) 
     model_labels = sub["model_label"].replace(
         {"Baseline + LR04 + CO2 + pre phase": "Baseline + LR04 + CO2 + pre phase (base)"}
     )
+    base_aicc = float(sub.loc["base_adjusted_climate_phase", "AICc"])
+    delta_aicc_from_base = sub["AICc"] - base_aicc
     colors = [MODEL_COLORS.get(model_id, "#999999") for model_id in sub.index]
     y = np.arange(len(sub))
-    ax.barh(y, sub["delta_AICc"], color=colors, alpha=0.86)
+    ax.barh(y, delta_aicc_from_base, color=colors, alpha=0.86)
+    ax.axvline(0.0, color="#222222", lw=0.8)
     ax.set_yticks(y)
     ax.set_yticklabels(model_labels)
     ax.invert_yaxis()
-    ax.set_xlabel("Delta AICc")
+    ax.set_xlabel("Delta AICc vs base")
     ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
+    ax.set_xlim(min(-2.0, float(delta_aicc_from_base.min()) - 0.8), float(delta_aicc_from_base.max()) + 2.0)
     ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
 
 
@@ -642,10 +646,10 @@ def draw_likelihood_tests_merged(
 
 
 def plot_model_delta_aicc(summary: pd.DataFrame, write_pdf: bool) -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(15.2, 6.4))
+    fig, axes = plt.subplots(1, 2, figsize=(17.2, 6.4))
     for ax, dataset_id in zip(axes, DATASET_SETTINGS):
         draw_model_delta_aicc(ax, summary, dataset_id)
-    fig.subplots_adjust(left=0.23, right=0.98, top=0.92, bottom=0.12, wspace=0.58)
+    fig.subplots_adjust(left=0.23, right=0.98, top=0.92, bottom=0.12, wspace=0.78)
     save_figure(fig, "fig01_sensitivity_delta_AICc", write_pdf)
 
 
@@ -664,7 +668,7 @@ def plot_aicc_and_likelihood_tests_combined(
     fig, axes = plt.subplots(
         2,
         2,
-        figsize=(15.2, 9.6),
+        figsize=(17.2, 9.6),
         gridspec_kw={"height_ratios": [1.0, 1.05]},
     )
     xlim = 1.6
@@ -689,7 +693,7 @@ def plot_aicc_and_likelihood_tests_combined(
     axes[1, 1].text(
         -0.20, 1.05, "d", transform=axes[1, 1].transAxes, fontweight="bold", fontsize=12
     )
-    fig.subplots_adjust(left=0.23, right=0.98, top=0.95, bottom=0.08, hspace=0.28, wspace=0.58)
+    fig.subplots_adjust(left=0.22, right=0.98, top=0.95, bottom=0.08, hspace=0.28, wspace=0.82)
     save_figure(fig, "fig06_sensitivity_aicc_and_likelihood_tests", write_pdf)
 
 
@@ -742,11 +746,13 @@ def plot_base_vs_extended_rates(
         ax.vlines(
             events["bin_center_ka"],
             0.0,
-            events["event_count"],
+            1.0,
+            transform=ax.get_xaxis_transform(),
             color=settings["color"],
             lw=0.8,
             alpha=0.45,
             label="observed event bins",
+            zorder=1,
         )
         for model_id, color, label in [
             ("base_adjusted_climate_phase", "#C51B7D", "base: adjusted LR04+CO2+phase"),
@@ -756,7 +762,14 @@ def plot_base_vs_extended_rates(
                 fitted_rates["dataset_id"].eq(dataset_id)
                 & fitted_rates["model_id"].eq(model_id)
             ]
-            ax.plot(rates["bin_center_ka"], rates["lambda_per_kyr"], color=color, lw=1.2, label=label)
+            ax.plot(
+                rates["bin_center_ka"],
+                rates["lambda_per_kyr"],
+                color=color,
+                lw=1.2,
+                label=label,
+                zorder=3,
+            )
         test = likelihood_tests[
             likelihood_tests["dataset_id"].eq(dataset_id)
             & likelihood_tests["comparison_id"].eq("all_extras_after_base")
@@ -772,7 +785,7 @@ def plot_base_vs_extended_rates(
             bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#bbbbbb", "alpha": 0.86},
         )
         ax.set_ylabel("rate / kyr")
-        ax.grid(True, color="#e6e6e6", lw=0.6)
+        ax.grid(False)
         ax.text(
             -0.045,
             1.03,
@@ -865,9 +878,10 @@ def plot_focused_baseline_correlation(correlation_table: pd.DataFrame, write_pdf
             value = corr.iloc[i, j]
             text_color = "white" if abs(value) >= 0.65 else "#202020"
             ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=8, color=text_color)
-    cbar = fig.colorbar(image, ax=ax, pad=0.015)
+    cbar = fig.colorbar(image, ax=ax, fraction=0.025, pad=0.09, shrink=0.68, aspect=35)
     cbar.set_label("Pearson correlation")
-    fig.subplots_adjust(bottom=0.20, left=0.23, right=0.93, top=0.98)
+    cbar.ax.tick_params(labelsize=8, length=2.5)
+    fig.subplots_adjust(bottom=0.20, left=0.23, right=0.84, top=0.98)
     save_figure(fig, "fig07_extended_baseline_predictor_correlation", write_pdf)
 
 

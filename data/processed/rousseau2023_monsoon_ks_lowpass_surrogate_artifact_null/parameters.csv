@@ -1,0 +1,2 @@
+run_name,lowpass_cutoff_period_ka,filter_order,resample_step_ka,edge_trim_for_residual_stats_ka,n_surrogates,random_seed,surrogate_method,max_ar_order,detector_n_windows,detector_d_cut,detector_n_cut,detector_sigma_cut,detector_change_cut,information_leakage_control
+rousseau2023_monsoon_ks_lowpass_surrogate_artifact_null,10.0,4,0.1,20.0,50,20260512,gaussian_arp,40,15,0.7,3,1.5,,No published Rousseau transition ages are used. The observed reference is the raw Cheng composite processed with the same TiPES-style detector.

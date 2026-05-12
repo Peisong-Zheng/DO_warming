@@ -1,0 +1,7 @@
+variant_id,variant_label,event_type,event_label,n_detected_events,n_published_events,matched_to_published,unmatched_detected,unmatched_published,precision,recall,match_tolerance_ka
+raw,Raw composite,strong_monsoon_start,Strong monsoon starts,95,96,84,11,12,0.8842105263157894,0.875,0.8
+raw,Raw composite,weak_monsoon_start,Weak monsoon starts,101,100,88,13,12,0.8712871287128713,0.88,0.8
+no_pre_18_25kyr,18-25 kyr removed,strong_monsoon_start,Strong monsoon starts,107,96,77,30,19,0.719626168224299,0.8020833333333334,0.8
+no_pre_18_25kyr,18-25 kyr removed,weak_monsoon_start,Weak monsoon starts,111,100,79,32,21,0.7117117117117117,0.79,0.8
+no_pre_15_30kyr,15-30 kyr removed,strong_monsoon_start,Strong monsoon starts,118,96,77,41,19,0.652542372881356,0.8020833333333334,0.8
+no_pre_15_30kyr,15-30 kyr removed,weak_monsoon_start,Weak monsoon starts,113,100,83,30,17,0.7345132743362832,0.83,0.8

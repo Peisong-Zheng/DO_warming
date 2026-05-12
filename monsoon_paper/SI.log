@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  12 MAY 2026 10:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  12 MAY 2026 12:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -220,6 +220,13 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
 )
+(/usr/local/texlive/2026/texmf-dist/tex/latex/natbib/natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip67
+\bibsep=\skip68
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count306
+)
 (/usr/local/texlive/2026/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
 \Gin@req@height=\dimen172
@@ -227,7 +234,7 @@ Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
 )
 (/usr/local/texlive/2026/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count306
+\c@float@type=\count307
 \float@exts=\toks24
 \float@box=\box55
 \@float@everytoks=\toks25
@@ -245,12 +252,12 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \cmidrulesep=\dimen181
 \cmidrulekern=\dimen182
 \defaultaddspace=\dimen183
-\@cmidla=\count307
-\@cmidlb=\count308
+\@cmidla=\count308
+\@cmidlb=\count309
 \@aboverulesep=\dimen184
 \@belowrulesep=\dimen185
-\@thisruleclass=\count309
-\@lastruleclass=\count310
+\@thisruleclass=\count310
+\@lastruleclass=\count311
 \@thisrulewidth=\dimen186
 )
 (/usr/local/texlive/2026/texmf-dist/tex/latex/tools/array.sty
@@ -259,11 +266,11 @@ Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
 \ar@mcellbox=\box57
 \extrarowheight=\dimen188
 \NC@list=\toks26
-\extratabsurround=\skip67
-\backup@length=\skip68
+\extratabsurround=\skip69
+\backup@length=\skip70
 \ar@cellbox=\box58
 )
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 19
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 20
 .
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/t1lmr.fd
@@ -271,20 +278,20 @@ File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) (./SI.aux)
 \openout1 = `SI.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 20.
+LaTeX Font Info:    ... okay on input line 20.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -321,20 +328,20 @@ LaTeX Font Info:    ... okay on input line 19.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 
-Package chemgreek Info: Activating mapping `default' on line 19.
+Package chemgreek Info: Activating mapping `default' on line 20.
 
 (/usr/local/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count311
+\scratchcounter=\count312
 \scratchdimen=\dimen189
 \scratchbox=\box59
-\nofMPsegments=\count312
-\nofMParguments=\count313
+\nofMPsegments=\count313
+\nofMParguments=\count314
 \everyMPshowfont=\toks27
-\MPscratchCnt=\count314
+\MPscratchCnt=\count315
 \MPscratchDim=\dimen190
-\MPnumerator=\count315
-\makeMPintoPDFobject=\count316
+\MPnumerator=\count316
+\makeMPintoPDFobject=\count317
 \everyMPtoPDFconversion=\toks28
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -346,37 +353,37 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 2
-2.
+3.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 2
-2.
+3.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-22.
+23.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-22.
+23.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 22.
+(Font)              <12> on input line 23.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 22.
+(Font)              <8> on input line 23.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 22.
+(Font)              <6> on input line 23.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 28.
+(Font)              <10.95> on input line 29.
  [1
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/loc
@@ -387,16 +394,16 @@ vips/lm/lm-mathex.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm
 -mathsy.enc}]
 [2] [3] [4]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 122.
+(Font)              <10> on input line 123.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 122.
+(Font)              <7> on input line 123.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 122.
+(Font)              <5> on input line 123.
  [5
 
 ]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 194.
+(Font)              <9> on input line 195.
  [6]
 <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig03b_rayleigh_phase_p
 olar_obliquity.pdf, id=40, 511.57674pt x 272.31221pt>
@@ -405,7 +412,7 @@ ase_polar_obliquity.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig03b_rayleigh_pha
 se_polar_obliquity.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_orbital_phase_rayleigh
-/fig03b_rayleigh_phase_polar_obliquity.pdf  used on input line 216.
+/fig03b_rayleigh_phase_polar_obliquity.pdf  used on input line 217.
 (pdftex.def)             Requested size: 469.75502pt x 250.05658pt.
 <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig04_phase_ecdf_unifor
 m_check.pdf, id=41, 749.7009pt x 298.69347pt>
@@ -414,95 +421,95 @@ niform_check.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig04_phase_ecdf_un
 iform_check.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_orbital_phase_rayleigh
-/fig04_phase_ecdf_uniform_check.pdf  used on input line 225.
+/fig04_phase_ecdf_uniform_check.pdf  used on input line 226.
 (pdftex.def)             Requested size: 469.75502pt x 187.15695pt.
+ [7
+
+ <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig03b_rayleigh_phase_
+polar_obliquity.pdf>]
 <../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig02_adj
-usted_model_comparison_delta_aicc.pdf, id=42, 911.49506pt x 351.67087pt>
+usted_model_comparison_delta_aicc.pdf, id=70, 911.49506pt x 351.67087pt>
 File: ../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig0
 2_adjusted_model_comparison_delta_aicc.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig02
 _adjusted_model_comparison_delta_aicc.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_predictive_hazard_hist
 ory_resolution/fig02_adjusted_model_comparison_delta_aicc.pdf  used on input li
-ne 242.
+ne 243.
 (pdftex.def)             Requested size: 469.75502pt x 181.24397pt.
- [7
-
- <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig03b_rayleigh_phase_
-polar_obliquity.pdf> <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fi
-g04_phase_ecdf_uniform_check.pdf>]
 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig06_sen
-sitivity_aicc_and_likelihood_tests.pdf, id=85, 1049.1116pt x 669.62709pt>
+sitivity_aicc_and_likelihood_tests.pdf, id=71, 1169.94708pt x 669.62709pt>
 File: ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 6_sensitivity_aicc_and_likelihood_tests.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig06
 _sensitivity_aicc_and_likelihood_tests.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_bin_hazard_phase_poiss
 on_sensitivity/fig06_sensitivity_aicc_and_likelihood_tests.pdf  used on input l
-ine 254.
-(pdftex.def)             Requested size: 469.75502pt x 299.83763pt.
- [8 <../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig02
-_adjusted_model_comparison_delta_aicc.pdf>]
+ine 255.
+(pdftex.def)             Requested size: 469.75502pt x 268.86786pt.
+ [8 <../figures/rousseau2023_monsoon_orbital_phase_rayleigh/fig04_phase_ecdf_un
+iform_check.pdf> <../figures/rousseau2023_monsoon_predictive_hazard_history_res
+olution/fig02_adjusted_model_comparison_delta_aicc.pdf>]
 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig07_ext
-ended_baseline_predictor_correlation.pdf, id=104, 383.62833pt x 329.25833pt>
+ended_baseline_predictor_correlation.pdf, id=105, 370.46701pt x 284.83496pt>
 File: ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 7_extended_baseline_predictor_correlation.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig07
 _extended_baseline_predictor_correlation.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_bin_hazard_phase_poiss
 on_sensitivity/fig07_extended_baseline_predictor_correlation.pdf  used on input
- line 265.
-(pdftex.def)             Requested size: 319.42996pt x 274.15852pt.
+ line 266.
+(pdftex.def)             Requested size: 319.42996pt x 245.60956pt.
  [9 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig06
 _sensitivity_aicc_and_likelihood_tests.pdf>]
 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig04_bas
-e_vs_extended_hazards.pdf, id=123, 923.16107pt x 389.63892pt>
+e_vs_extended_hazards.pdf, id=124, 923.16107pt x 389.63892pt>
 File: ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 4_base_vs_extended_hazards.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig04
 _base_vs_extended_hazards.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_bin_hazard_phase_poiss
-on_sensitivity/fig04_base_vs_extended_hazards.pdf  used on input line 278.
+on_sensitivity/fig04_base_vs_extended_hazards.pdf  used on input line 279.
 (pdftex.def)             Requested size: 469.75502pt x 198.2673pt.
  [10 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 7_extended_baseline_predictor_correlation.pdf>]
 <../figures/rousseau2023_composite_age_uncertainty_sensitivity/fig09_age_offset
-s_and_significance_fraction.pdf, id=139, 805.54889pt x 496.69286pt>
+s_and_significance_fraction.pdf, id=140, 805.54889pt x 496.69286pt>
 File: ../figures/rousseau2023_composite_age_uncertainty_sensitivity/fig09_age_o
 ffsets_and_significance_fraction.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_composite_age_uncertainty_sensitivity/fig09_age_of
 fsets_and_significance_fraction.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_composite_age_uncertainty_sens
-itivity/fig09_age_offsets_and_significance_fraction.pdf  used on input line 293
+itivity/fig09_age_offsets_and_significance_fraction.pdf  used on input line 294
 .
 (pdftex.def)             Requested size: 281.85587pt x 173.79204pt.
 <../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig03_conditional_pr
-e_phase_after_climate.pdf, id=140, 412.26447pt x 593.5828pt>
+e_phase_after_climate.pdf, id=141, 412.26447pt x 593.5828pt>
 File: ../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig03_condition
 al_pre_phase_after_climate.pdf Graphic file (type pdf)
 <use ../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig03_conditiona
 l_pre_phase_after_climate.pdf>
 Package pdftex.def Info: ../figures/rousseau2023_monsoon_lagged_te_predictive_i
-nfo/fig03_conditional_pre_phase_after_climate.pdf  used on input line 303.
+nfo/fig03_conditional_pre_phase_after_climate.pdf  used on input line 304.
 (pdftex.def)             Requested size: 319.42996pt x 459.93134pt.
  [11 <../figures/rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity/fig0
 4_base_vs_extended_hazards.pdf> <../figures/rousseau2023_composite_age_uncertai
-nty_sensitivity/fig09_age_offsets_and_significance_fraction.pdf>] [12 <../figur
-es/rousseau2023_monsoon_lagged_te_predictive_info/fig03_conditional_pre_phase_a
-fter_climate.pdf>] (./SI.aux)
+nty_sensitivity/fig09_age_offsets_and_significance_fraction.pdf>] (./SI.bbl [12
+ <../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig03_conditional_p
+re_phase_after_climate.pdf>]) [13] (./SI.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 4338 strings out of 467525
- 79333 string characters out of 5418982
- 519152 words of memory out of 5000000
- 33176 multiletter control sequences out of 15000+600000
- 705386 words of font info for 83 fonts, out of 8000000 for 9000
+ 4713 strings out of 467525
+ 84230 string characters out of 5418982
+ 525573 words of memory out of 5000000
+ 33543 multiletter control sequences out of 15000+600000
+ 709649 words of font info for 84 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 64i,17n,71p,1452b,598s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 64i,17n,71p,1452b,599s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/lo
 cal/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texliv
 e/2026/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2026/tex
@@ -514,14 +521,15 @@ sr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/local/tex
 live/2026/texmf-dist/fonts/type1/public/lm/lmr7.pfb></usr/local/texlive/2026/te
 xmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2026/texmf-dist/fon
 ts/type1/public/lm/lmr9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/pub
-lic/lm/lmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lms
-y6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></us
-r/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/tex
-live/2026/texmf-dist/fonts/type1/public/lm/lmsy9.pfb>
-Output written on SI.pdf (12 pages, 514747 bytes).
+lic/lm/lmri10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lms
+y10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy6.pfb></u
+sr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/local/te
+xlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/texlive/2026/
+texmf-dist/fonts/type1/public/lm/lmsy9.pfb>
+Output written on SI.pdf (13 pages, 537858 bytes).
 PDF statistics:
- 283 PDF objects out of 1000 (max. 8388607)
- 166 compressed objects within 2 object streams
+ 292 PDF objects out of 1000 (max. 8388607)
+ 172 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  41 words of extra memory for PDF output out of 10000 (max. 10000000)
 

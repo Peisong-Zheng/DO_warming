@@ -821,12 +821,12 @@ def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.Data
         ].iloc[0]
         ax.text(
             0.98,
-            0.95,
+            0.05,
             "Phase after baseline+LR04+CO$_2$\n"
             f"p={format_p_value(phase_test['LR_p_value'])}",
             transform=ax.transAxes,
             ha="right",
-            va="top",
+            va="bottom",
             bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#bbbbbb", "alpha": 0.9},
         )
         ax.text(

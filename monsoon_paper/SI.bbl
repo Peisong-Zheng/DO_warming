@@ -1,0 +1,37 @@
+\begin{thebibliography}{5}
+\providecommand{\natexlab}[1]{#1}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+
+\bibitem[{\textit{Bereiter et~al.}(2015)\textit{Bereiter, Eggleston, Schmitt,
+  Nehrbass-Ahles, Stocker, Fischer, Kipfstuhl, and
+  Chappellaz}}]{bereiter2015revision}
+Bereiter, B., S.~Eggleston, J.~Schmitt, C.~Nehrbass-Ahles, T.~F. Stocker,
+  H.~Fischer, S.~Kipfstuhl, and J.~Chappellaz, Revision of the epica dome c co2
+  record from 800 to 600 kyr before present, \textit{Geophysical Research
+  Letters}, \textit{42}(2), 542--549, 2015.
+
+\bibitem[{\textit{Cheng et~al.}(2016)}]{cheng2016asian}
+Cheng, H., et~al., The asian monsoon over the past 640,000 years and ice age
+  terminations, \textit{nature}, \textit{534}(7609), 640--646, 2016.
+
+\bibitem[{\textit{Laskar et~al.}(2004)\textit{Laskar, Robutel, Joutel,
+  Gastineau, Correia, and Levrard}}]{laskar2004long}
+Laskar, J., P.~Robutel, F.~Joutel, M.~Gastineau, A.~Correia, and B.~Levrard, A
+  long-term numerical solution for the insolation quantities of the earth,
+  \textit{Astronomy \& Astrophysics}, \textit{428}(1), 261--285, 2004.
+
+\bibitem[{\textit{Lisiecki and Raymo}(2005)}]{lisiecki2005pliocene}
+Lisiecki, L.~E., and M.~E. Raymo, A pliocene-pleistocene stack of 57 globally
+  distributed benthic $\delta$18o records, \textit{Paleoceanography},
+  \textit{20}(1), 2005.
+
+\bibitem[{\textit{Rousseau et~al.}(2023)\textit{Rousseau, Bagniewski, and
+  Cheng}}]{rousseau2023reliable}
+Rousseau, D.-D., W.~Bagniewski, and H.~Cheng, A reliable benchmark of the last
+  640,000 years millennial climate variability, \textit{Scientific Reports},
+  \textit{13}(1), 22,851, 2023.
+
+\end{thebibliography}
