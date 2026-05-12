@@ -33,8 +33,8 @@ RUN_NAME = "rousseau2023_monsoon_orbital_phase_rayleigh"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
-STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_strong_monsoon_start_times.csv"
-WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_weak_monsoon_start_times.csv"
+STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv"
+WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv"
 PRE_TXT = PROJECT_ROOT / "data/raw/pre_800_inter100.txt"
 OBL_TXT = PROJECT_ROOT / "data/raw/obl_800_inter100.txt"
 
@@ -56,8 +56,8 @@ DRIVER_SETTINGS = {
 }
 
 EVENT_COLORS = {
-    "strong_monsoon_start": "#6a3d9a",
-    "weak_monsoon_start": "#d95f02",
+    "strong_monsoon_start": "#d95f02",
+    "weak_monsoon_start": "#6a3d9a",
 }
 
 
@@ -275,14 +275,40 @@ def sample_event_phases(events: pd.DataFrame, phase_products: dict[str, OrbitalP
 
 
 def rayleigh_p_value_from_z(z: float, n: int) -> float:
-    """Rayleigh p value using the finite-n correction used in this script."""
+    """Rayleigh p value using the finite-n correction used in this script.
+
+    In the Rayleigh test, the null hypothesis is circular uniformity. The test
+    statistic used below is z = n * Rbar^2, where Rbar is the mean resultant
+    length of the event-phase vectors. For large n, the upper-tail probability
+    is approximately exp(-z). The extra terms in the parentheses are a standard
+    finite-sample correction to that asymptotic p value.
+    """
     if n <= 0 or not np.isfinite(z):
         return np.nan
+
+    # Large-sample Rayleigh approximation:
+    #     p ≈ exp(-z)
+    #
+    # This is the probability, under uniform phases, of obtaining a resultant
+    # vector at least as concentrated as the observed one. It is accurate when n
+    # is large, but our event catalogues have only ~100 events, so we apply the
+    # usual expansion in powers of 1/n:
+    #
+    #     p ≈ exp(-z) * [1 + O(1/n) + O(1/n^2)]
+    #
+    # The first correction term is (2z - z^2)/(4n), and the second correction
+    # term is the polynomial divided by 288 n^2. These terms slightly adjust the
+    # p value for finite event counts without changing the Rayleigh statistic z.
+    # Reference: 
+    # Fisher, N. I. (1993). Statistical Analysis of Circular Data. Cambridge University Press.
+    # https://metricgate.com/docs/rayleigh-uniformity-test/
     p = np.exp(-z) * (
         1.0
         + (2.0 * z - z**2) / (4.0 * n)
         - (24.0 * z - 132.0 * z**2 + 76.0 * z**3 - 9.0 * z**4) / (288.0 * n**2)
     )
+    # Numerical approximations can very rarely fall just outside [0, 1]; clip to
+    # keep the returned value interpretable as a probability.
     return float(np.clip(p, 0.0, 1.0))
 
 
@@ -598,7 +624,6 @@ def plot_polar_rayleigh(
                 bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.72, "pad": 1.4},
             )
             ax.set_title(
-                f"{DRIVER_SETTINGS[driver]['label']}\n"
                 f"{sub['event_label'].iloc[0]}\n"
                 rf"N={n_used}, $\bar{{R}}$={mean_r:.2f}, p={float(res['rayleigh_p']):.3f}",
                 va="bottom",
@@ -622,17 +647,18 @@ def plot_polar_rayleigh_single_driver(
     fig, axes = plt.subplots(
         1,
         len(event_types),
-        figsize=(10.8, 5.0),
+        figsize=(7.2, 3.4),
         subplot_kw={"projection": "polar"},
     )
     axes = np.atleast_1d(axes)
     bins = np.linspace(0.0, 2.0 * np.pi, 19)
     width = bins[1] - bins[0]
     theta_grid = np.linspace(0.0, 2.0 * np.pi, 361)
+    panel_label_start = 2 if driver == "pre" else 0
 
     for j, event_type in enumerate(event_types):
         ax = axes[j]
-        panel_label = chr(ord("a") + j)
+        panel_label = chr(ord("a") + panel_label_start + j)
         sub = event_phases[
             event_phases["driver"].eq(driver)
             & event_phases["event_type"].eq(event_type)
@@ -669,12 +695,37 @@ def plot_polar_rayleigh_single_driver(
                 alpha=0.9,
                 zorder=4,
             )
+            if driver == "pre":
+                threshold_label_angle = np.deg2rad(135.0 if event_type == "strong_monsoon_start" else 135.0)
+                ax.text(
+                    threshold_label_angle,
+                    threshold_radius * 1.98,
+                    r"$\bar{R}_{0.05}$",
+                    ha="center",
+                    va="center",
+                    fontsize=8,
+                    color="#303030",
+                    bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.72, "pad": 1.2},
+                    zorder=5,
+                )
         ax.annotate(
             "",
             xy=(mean_phase, mean_r * max_count),
             xytext=(mean_phase, 0),
             arrowprops={"arrowstyle": "->", "lw": 2.0, "color": "#202020"},
         )
+        if driver == "pre":
+            ax.text(
+                mean_phase,
+                mean_r * max_count + 1.05,
+                f"{float(res['mean_phase_deg']):.1f}°",
+                ha="left",
+                va="center",
+                fontsize=8.5,
+                color="#202020",
+                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.72, "pad": 1.0},
+                zorder=5,
+            )
         ax.set_theta_zero_location("E")
         ax.set_theta_direction(1)
         ax.set_xticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
@@ -682,8 +733,12 @@ def plot_polar_rayleigh_single_driver(
         ax.set_rlabel_position(35)
         ax.tick_params(axis="x", pad=4, labelsize=9)
         ax.tick_params(axis="y", labelsize=8)
+        if driver == "pre":
+            ax.set_ylim(0.0, 11.75)
+            ax.set_yticks([2, 4, 6, 8, 10])
+            ax.grid(True, color="#b8b8b8", lw=0.7, alpha=0.42)
         ax.text(
-            0.02,
+            0.03,
             0.98,
             panel_label,
             transform=ax.transAxes,
@@ -693,19 +748,19 @@ def plot_polar_rayleigh_single_driver(
             fontweight="bold",
             bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.8, "pad": 1.6},
         )
-        ax.text(
-            0.02,
-            0.06,
-            rf"$\bar{{R}}_{{0.05}}$={rbar_threshold:.2f}",
-            transform=ax.transAxes,
-            ha="left",
-            va="bottom",
-            fontsize=8,
-            color="#303030",
-            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.72, "pad": 1.4},
-        )
+        if driver != "pre":
+            ax.text(
+                0.02,
+                0.06,
+                rf"$\bar{{R}}_{{0.05}}$={rbar_threshold:.2f}",
+                transform=ax.transAxes,
+                ha="left",
+                va="bottom",
+                fontsize=8,
+                color="#303030",
+                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.72, "pad": 1.4},
+            )
         ax.set_title(
-            f"{DRIVER_SETTINGS[driver]['label']}\n"
             f"{sub['event_label'].iloc[0]}\n"
             rf"N={n_used}, $\bar{{R}}$={mean_r:.2f}, p={float(res['rayleigh_p']):.3f}",
             va="bottom",
@@ -740,7 +795,7 @@ def plot_split_polar_rayleigh(
 
 def plot_phase_ecdf(event_phases: pd.DataFrame, write_pdf: bool) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.2), sharey=True)
-    for ax, driver in zip(axes, DRIVER_SETTINGS):
+    for ax_idx, (ax, driver) in enumerate(zip(axes, DRIVER_SETTINGS)):
         driver_events = event_phases[
             event_phases["driver"].eq(driver)
             & ~event_phases["phase_extrapolated"].astype(bool)
@@ -763,10 +818,20 @@ def plot_phase_ecdf(event_phases: pd.DataFrame, write_pdf: bool) -> None:
         ax.set_title(f"{DRIVER_SETTINGS[driver]['label']} phase ECDF", loc="left")
         ax.set_xlabel("Phase fraction (0=min, 0.5=max)")
         ax.grid(True, color="#e6e6e6", lw=0.7)
+        ax.text(
+            -0.04,
+            1.04,
+            chr(ord("a") + ax_idx),
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=12,
+            fontweight="bold",
+            clip_on=False,
+        )
     axes[0].set_ylabel("Empirical CDF")
     axes[-1].legend(frameon=False, loc="lower right")
-    fig.suptitle("Event phase distributions compared with uniform phase", y=0.995, fontsize=14)
-    fig.subplots_adjust(top=0.84, wspace=0.18)
+    fig.subplots_adjust(top=0.88, wspace=0.18)
     save_figure(fig, "fig04_phase_ecdf_uniform_check", write_pdf)
 
 

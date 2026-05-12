@@ -1,191 +1,197 @@
-order,start_time_ka_BP,original_value_in_SOM,CI_label,source_table,source_row_index_after_header,event_age_ka,event_index,event_type,event_label,source
-1,10.824,"10,824",,Extended Data Table S1,2,10.824,1,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-2,11.514,"11,514",,Extended Data Table S1,3,11.514,2,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-3,14.617,"14,617",A1,Extended Data Table S1,5,14.617,3,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-4,23.685,"23,685",A2,Extended Data Table S1,7,23.685,4,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-5,27.955,"27,955",A3,Extended Data Table S1,11,27.955,5,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-6,29.43,"29,430",A4,Extended Data Table S1,13,29.43,6,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-7,32.675,"32,675",A5,Extended Data Table S1,16,32.675,7,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-8,33.995,"33,995",A6,Extended Data Table S1,18,33.995,8,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-9,35.535,"35,535",A7,Extended Data Table S1,20,35.535,9,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-10,38.305,"38,305",A8,Extended Data Table S1,22,38.305,10,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-11,41.595,"41,595",A10,Extended Data Table S1,24,41.595,11,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-12,43.615,"43,615",A11,Extended Data Table S1,26,43.615,12,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-13,47.25,"47,250",A12,Extended Data Table S1,29,47.25,13,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-14,49.65,"49,650",A13,Extended Data Table S1,32,49.65,14,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-15,53.8,"53,800",A14,Extended Data Table S1,33,53.8,15,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-16,54.37,"54,370",,Extended Data Table S1,34,54.37,16,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-17,55.745,"55,745",A15,Extended Data Table S1,36,55.745,17,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-18,58.21,"58,210",A16,Extended Data Table S1,38,58.21,18,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-19,59.785,"59,785",A17,Extended Data Table S1,39,59.785,19,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-20,65.48,"65,480",A18,Extended Data Table S1,40,65.48,20,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-21,69.18,"69,180",,Extended Data Table S1,42,69.18,21,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-22,72.285,"72,285",A19,Extended Data Table S1,45,72.285,22,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-23,75.28,"75,280",,Extended Data Table S1,47,75.28,23,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-24,76.245,"76,245",A20,Extended Data Table S1,48,76.245,24,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-25,84.13,"84,130",,Extended Data Table S1,51,84.13,25,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-26,85.0,"85,000",A21,Extended Data Table S1,52,85.0,26,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-27,89.79,"89,790",A22,Extended Data Table S1,54,89.79,27,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-28,105.15,"105,150",A23,Extended Data Table S1,57,105.15,28,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-29,108.55,"108,550",A24,Extended Data Table S1,60,108.55,29,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-30,128.55,"128,550",,Extended Data Table S1,65,128.55,30,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-31,130.45,"130,450",?,Extended Data Table S1,66,130.45,31,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-32,147.65,"147,650",B7,Extended Data Table S1,67,147.65,32,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-33,149.05,"149,050",B8,Extended Data Table S1,68,149.05,33,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-34,151.75,"151,750",B10,Extended Data Table S1,70,151.75,34,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-35,157.05,"157,050",B11,Extended Data Table S1,71,157.05,35,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-36,158.15,"158,150",,Extended Data Table S1,72,158.15,36,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-37,160.5,"160,500",B12,Extended Data Table S1,74,160.5,37,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-38,163.8,"163,800",B13,Extended Data Table S1,76,163.8,38,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-39,168.75,"168,750",,Extended Data Table S1,79,168.75,39,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-40,169.55,"169,550",B15,Extended Data Table S1,80,169.55,40,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-41,173.15,"173,150",B16,Extended Data Table S1,83,173.15,41,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-42,176.25,"176,250",B17,Extended Data Table S1,86,176.25,42,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-43,177.95,"177,950",,Extended Data Table S1,87,177.95,43,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-44,182.55,"182,550",,Extended Data Table S1,90,182.55,44,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-45,190.65,"190,650",B19,Extended Data Table S1,93,190.65,45,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-46,192.75,"192,750",B20,Extended Data Table S1,95,192.75,46,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-47,198.95,"198,950",B21,Extended Data Table S1,97,198.95,47,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-48,219.05,"219,050",B23,Extended Data Table S1,102,219.05,48,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-49,225.2,"225,200",B24,Extended Data Table S1,104,225.2,49,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-50,230.75,"230,750",B25?,Extended Data Table S1,106,230.75,50,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-51,241.65,"241,650",B26?,Extended Data Table S1,110,241.65,51,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-52,248.25,"248,250",B28?,Extended Data Table S1,113,248.25,52,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-53,251.15,"251,150",,Extended Data Table S1,115,251.15,53,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-54,258.75,"258,750",,Extended Data Table S1,119,258.75,54,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-55,264.0,"264,000",,Extended Data Table S1,122,264.0,55,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-56,272.85,"272,850",,Extended Data Table S1,123,272.85,56,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-57,293.9,"293,900",,Extended Data Table S1,131,293.9,57,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-58,315.45,"315,450",,Extended Data Table S1,136,315.45,58,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-59,316.35,"316,350",,Extended Data Table S1,137,316.35,59,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-60,332.45,"332,450",,Extended Data Table S1,141,332.45,60,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-61,334.05,"334,050",,Extended Data Table S1,144,334.05,61,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-62,337.35,"337,350",,Extended Data Table S1,145,337.35,62,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-63,351.45,"351,450",,Extended Data Table S1,149,351.45,63,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-64,365.65,"365,650",,Extended Data Table S1,152,365.65,64,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-65,368.1,"368,100",,Extended Data Table S1,154,368.1,65,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-66,370.75,"370,750",,Extended Data Table S1,157,370.75,66,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-67,375.95,"375,950",,Extended Data Table S1,161,375.95,67,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-68,377.45,"377,450",,Extended Data Table S1,162,377.45,68,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-69,390.8,"390,800",,Extended Data Table S1,166,390.8,69,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-70,393.6,"393,600",,Extended Data Table S1,167,393.6,70,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-71,412.25,"412,250",,Extended Data Table S1,169,412.25,71,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-72,426.05,"426,050",,Extended Data Table S1,171,426.05,72,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-73,447.4,"447,400",,Extended Data Table S1,177,447.4,73,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-74,449.45,"449,450",,Extended Data Table S1,178,449.45,74,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-75,458.9,"458,900",,Extended Data Table S1,182,458.9,75,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-76,463.15,"463,150",,Extended Data Table S1,185,463.15,76,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-77,465.95,"465,950",,Extended Data Table S1,186,465.95,77,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-78,472.75,"472,750",,Extended Data Table S1,190,472.75,78,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-79,483.65,"483,650",,Extended Data Table S1,195,483.65,79,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-80,504.15,"504,150",,Extended Data Table S1,197,504.15,80,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-81,531.75,"531,750",,Extended Data Table S1,204,531.75,81,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-82,548.25,"548,250",,Extended Data Table S1,207,548.25,82,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-83,553.55,"553,550",,Extended Data Table S1,210,553.55,83,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-84,555.65,"555,650",,Extended Data Table S1,212,555.65,84,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-85,559.15,"559,150",,Extended Data Table S1,214,559.15,85,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-86,561.25,"561,250",,Extended Data Table S1,216,561.25,86,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-87,562.25,"562,250",,Extended Data Table S1,217,562.25,87,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-88,580.3,"580,300",,Extended Data Table S1,220,580.3,88,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-89,582.95,"582,950",,Extended Data Table S1,221,582.95,89,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-90,593.9,"593,900",,Extended Data Table S1,226,593.9,90,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-91,604.0,"604,000",,Extended Data Table S1,229,604.0,91,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-92,625.65,"625,650",,Extended Data Table S1,233,625.65,92,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-93,627.55,"627,550",,Extended Data Table S1,234,627.55,93,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-94,630.1,"630,100",,Extended Data Table S1,236,630.1,94,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-95,633.3,"633,300",,Extended Data Table S1,238,633.3,95,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-96,638.1,"638,100",,Extended Data Table S1,243,638.1,96,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_strong_monsoon_start_times.csv
-1,3.5,"3,500",,Extended Data Table S1,1,3.5,1,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-2,12.779,"12,779",,Extended Data Table S1,4,12.779,2,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-3,17.835,"17,835",,Extended Data Table S1,6,17.835,3,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-4,24.59,"24,590",,Extended Data Table S1,8,24.59,4,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-5,26.65,"26,650",,Extended Data Table S1,9,26.65,5,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-6,27.555,"27,555",,Extended Data Table S1,10,27.555,6,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-7,28.715,"28,715",,Extended Data Table S1,12,28.715,7,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-8,30.42,"30,420",,Extended Data Table S1,14,30.42,8,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-9,31.975,"31,975",,Extended Data Table S1,15,31.975,9,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-10,33.42,"33,420",,Extended Data Table S1,17,33.42,10,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-11,34.75,"34,750",,Extended Data Table S1,19,34.75,11,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-12,36.75,"36,750",,Extended Data Table S1,21,36.75,12,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-13,39.955,"39,955",,Extended Data Table S1,23,39.955,13,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-14,42.475,"42,475",,Extended Data Table S1,25,42.475,14,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-15,44.485,"44,485",,Extended Data Table S1,27,44.485,15,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-16,45.73,"45,730",,Extended Data Table S1,28,45.73,16,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-17,48.47,"48,470",,Extended Data Table S1,30,48.47,17,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-18,48.92,"48,920",,Extended Data Table S1,31,48.92,18,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-19,55.23,"55,230",,Extended Data Table S1,35,55.23,19,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-20,56.32,"56,320",,Extended Data Table S1,37,56.32,20,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-21,68.655,"68,655",,Extended Data Table S1,41,68.655,21,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-22,69.575,"69,575",,Extended Data Table S1,43,69.575,22,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-23,70.155,"70,155",,Extended Data Table S1,44,70.155,23,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-24,73.4,"73,400",,Extended Data Table S1,46,73.4,24,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-25,77.51,"77,510",,Extended Data Table S1,49,77.51,25,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-26,88.425,"88,425",,Extended Data Table S1,53,88.425,26,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-27,98.65,"98,650",,Extended Data Table S1,55,98.65,27,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-28,100.35,"100,350",,Extended Data Table S1,56,100.35,28,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-29,105.75,"105,750",,Extended Data Table S1,58,105.75,29,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-30,106.35,"106,350",,Extended Data Table S1,59,106.35,30,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-31,117.45,"117,450",,Extended Data Table S1,61,117.45,31,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-32,120.55,"120,550",,Extended Data Table S1,62,120.55,32,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-33,151.05,"151,050",,Extended Data Table S1,69,151.05,33,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-34,158.95,"158,950",,Extended Data Table S1,73,158.95,34,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-35,162.0,"162,000",,Extended Data Table S1,75,162.0,35,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-36,165.15,"165,150",,Extended Data Table S1,77,165.15,36,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-37,166.8,"166,800",,Extended Data Table S1,78,166.8,37,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-38,170.25,"170,250",,Extended Data Table S1,81,170.25,38,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-39,171.05,"171,050",,Extended Data Table S1,82,171.05,39,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-40,174.85,"174,850",,Extended Data Table S1,84,174.85,40,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-41,179.65,"179,650",,Extended Data Table S1,89,179.65,41,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-42,187.75,"187,750",,Extended Data Table S1,91,187.75,42,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-43,191.75,"191,750",,Extended Data Table S1,94,191.75,43,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-44,193.25,"193,250",,Extended Data Table S1,96,193.25,44,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-45,201.15,"201,150",,Extended Data Table S1,98,201.15,45,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-46,209.25,"209,250",,Extended Data Table S1,100,209.25,46,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-47,221.05,"221,050",,Extended Data Table S1,103,221.05,47,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-48,228.65,"228,650",,Extended Data Table S1,105,228.65,48,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-49,232.65,"232,650",,Extended Data Table S1,108,232.65,49,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-50,234.15,"234,150",,Extended Data Table S1,109,234.15,50,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-51,246.75,"246,750",,Extended Data Table S1,112,246.75,51,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-52,250.05,"250,050",,Extended Data Table S1,114,250.05,52,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-53,252.15,"252,150",,Extended Data Table S1,116,252.15,53,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-54,256.05,"256,050",,Extended Data Table S1,117,256.05,54,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-55,259.65,"259,650",,Extended Data Table S1,120,259.65,55,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-56,276.95,"276,950",,Extended Data Table S1,125,276.95,56,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-57,281.4,"281,400",,Extended Data Table S1,128,281.4,57,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-58,284.7,"284,700",,Extended Data Table S1,129,284.7,58,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-59,307.25,"307,250",,Extended Data Table S1,135,307.25,59,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-60,318.05,"318,050",,Extended Data Table S1,138,318.05,60,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-61,324.15,"324,150",,Extended Data Table S1,139,324.15,61,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-62,341.15,"341,150",,Extended Data Table S1,146,341.15,62,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-63,349.55,"349,550",,Extended Data Table S1,148,349.55,63,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-64,364.35,"364,350",,Extended Data Table S1,151,364.35,64,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-65,367.35,"367,350",,Extended Data Table S1,153,367.35,65,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-66,368.65,"368,650",,Extended Data Table S1,155,368.65,66,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-67,369.55,"369,550",,Extended Data Table S1,156,369.55,67,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-68,371.55,"371,550",,Extended Data Table S1,158,371.55,68,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-69,371.95,"371,950",,Extended Data Table S1,159,371.95,69,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-70,378.65,"378,650",,Extended Data Table S1,163,378.65,70,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-71,398.85,"398,850",,Extended Data Table S1,168,398.85,71,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-72,430.15,"430,150",,Extended Data Table S1,172,430.15,72,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-73,441.85,"441,850",,Extended Data Table S1,175,441.85,73,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-74,453.55,"453,550",,Extended Data Table S1,180,453.55,74,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-75,457.6,"457,600",,Extended Data Table S1,181,457.6,75,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-76,460.15,"460,150",,Extended Data Table S1,183,460.15,76,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-77,467.35,"467,350",,Extended Data Table S1,188,467.35,77,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-78,475.35,"475,350",,Extended Data Table S1,191,475.35,78,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-79,479.05,"479,050",,Extended Data Table S1,193,479.05,79,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-80,500.1,"500,100",,Extended Data Table S1,196,500.1,80,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-81,513.95,"513,950",,Extended Data Table S1,199,513.95,81,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-82,521.95,"521,950",,Extended Data Table S1,201,521.95,82,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-83,535.0,"535,000",,Extended Data Table S1,205,535.0,83,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-84,552.7,"552,700",,Extended Data Table S1,209,552.7,84,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-85,554.2,"554,200",,Extended Data Table S1,211,554.2,85,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-86,556.95,"556,950",,Extended Data Table S1,213,556.95,86,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-87,560.45,"560,450",,Extended Data Table S1,215,560.45,87,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-88,569.5,"569,500",,Extended Data Table S1,218,569.5,88,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-89,589.8,"589,800",,Extended Data Table S1,224,589.8,89,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-90,614.9,"614,900",,Extended Data Table S1,230,614.9,90,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-91,629.0,"629,000",,Extended Data Table S1,235,629.0,91,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-92,632.3,"632,300",,Extended Data Table S1,237,632.3,92,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-93,635.2,"635,200",,Extended Data Table S1,240,635.2,93,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
-94,639.2,"639,200",,Extended Data Table S1,244,639.2,94,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_weak_monsoon_start_times.csv
+order,start_time_ka_BP,original_value_in_table,transition_type,ks_window_kyr,relation_to_other_ks_window,paired_other_window_age_ka,difference_0p4_minus_0p6_ka,source_table,source_pdf_page,source_row_index_in_table,event_age_ka,event_index,event_type,event_label,source
+1,10.824,10.824,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,11.129,-0.305,Rousseau et al. 2023 Scientific Reports Table 1,5,2,10.824,1,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+2,11.514,11.514,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,3,11.514,2,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+3,14.617,14.617,strong_monsoon_start,0.4-4,common_same_date,14.617,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,5,14.617,3,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+4,23.685,23.685,strong_monsoon_start,0.4-4,common_same_date,23.685,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,7,23.685,4,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+5,27.955,27.955,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,11,27.955,5,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+6,29.43,29.43,strong_monsoon_start,0.4-4,common_same_date,29.43,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,13,29.43,6,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+7,32.675,32.675,strong_monsoon_start,0.4-4,common_same_date,32.675,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,16,32.675,7,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+8,33.995,33.995,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,34.065,-0.07,Rousseau et al. 2023 Scientific Reports Table 1,5,18,33.995,8,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+9,35.535,35.535,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,35.6,-0.065,Rousseau et al. 2023 Scientific Reports Table 1,5,20,35.535,9,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+10,38.305,38.305,strong_monsoon_start,0.4-4,common_same_date,38.305,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,22,38.305,10,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+11,41.595,41.595,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,41.635,-0.04,Rousseau et al. 2023 Scientific Reports Table 1,5,24,41.595,11,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+12,43.615,43.615,strong_monsoon_start,0.4-4,common_same_date,43.615,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,26,43.615,12,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+13,47.25,47.25,strong_monsoon_start,0.4-4,common_same_date,47.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,29,47.25,13,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+14,49.65,49.65,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,32,49.65,14,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+15,53.8,53.8,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,53.745,0.055,Rousseau et al. 2023 Scientific Reports Table 1,5,33,53.8,15,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+16,54.37,54.37,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,34,54.37,16,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+17,55.745,55.745,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,36,55.745,17,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+18,58.21,58.21,strong_monsoon_start,0.4-4,common_same_date,58.21,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,38,58.21,18,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+19,59.785,59.785,strong_monsoon_start,0.4-4,common_same_date,59.785,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,39,59.785,19,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+20,65.48,65.48,strong_monsoon_start,0.4-4,common_same_date,65.48,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,40,65.48,20,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+21,69.18,69.18,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,42,69.18,21,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+22,72.285,72.285,strong_monsoon_start,0.4-4,common_same_date,72.285,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,45,72.285,22,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+23,75.28,75.28,strong_monsoon_start,0.4-4,common_same_date,75.28,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,47,75.28,23,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+24,76.245,76.245,strong_monsoon_start,0.4-4,common_same_date,76.245,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,48,76.245,24,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+25,84.13,84.13,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,84.03,0.1,Rousseau et al. 2023 Scientific Reports Table 1,5,51,84.13,25,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+26,85.0,85.0,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,52,85.0,26,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+27,89.79,89.79,strong_monsoon_start,0.4-4,common_same_date,89.79,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,54,89.79,27,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+28,105.15,105.15,strong_monsoon_start,0.4-4,common_same_date,105.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,57,105.15,28,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+29,108.55,108.55,strong_monsoon_start,0.4-4,common_same_date,108.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,60,108.55,29,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+30,128.55,128.55,strong_monsoon_start,0.4-4,common_same_date,128.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,63,128.55,30,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+31,130.45,130.45,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,64,130.45,31,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+32,147.65,147.65,strong_monsoon_start,0.4-4,common_same_date,147.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,71,147.65,32,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+33,149.05,149.05,strong_monsoon_start,0.4-4,common_same_date,149.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,72,149.05,33,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+34,151.75,151.75,strong_monsoon_start,0.4-4,common_same_date,151.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,74,151.75,34,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+35,157.05,157.05,strong_monsoon_start,0.4-4,common_same_date,157.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,75,157.05,35,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+36,158.15,158.15,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,76,158.15,36,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+37,160.5,160.5,strong_monsoon_start,0.4-4,common_same_date,160.5,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,78,160.5,37,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+38,163.8,163.8,strong_monsoon_start,0.4-4,common_same_date,163.8,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,80,163.8,38,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+39,168.75,168.75,strong_monsoon_start,0.4-4,common_same_date,168.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,83,168.75,39,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+40,169.55,169.55,strong_monsoon_start,0.4-4,common_same_date,169.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,84,169.55,40,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+41,173.15,173.15,strong_monsoon_start,0.4-4,common_same_date,173.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,87,173.15,41,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+42,176.25,176.25,strong_monsoon_start,0.4-4,common_same_date,176.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,89,176.25,42,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+43,177.95,177.95,strong_monsoon_start,0.4-4,common_same_date,177.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,90,177.95,43,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+44,182.55,182.55,strong_monsoon_start,0.4-4,common_same_date,182.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,92,182.55,44,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+45,190.65,190.65,strong_monsoon_start,0.4-4,common_same_date,190.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,94,190.65,45,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+46,192.75,192.75,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,192.65,0.1,Rousseau et al. 2023 Scientific Reports Table 1,6,96,192.75,46,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+47,198.95,198.95,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,198.85,0.1,Rousseau et al. 2023 Scientific Reports Table 1,6,98,198.95,47,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+48,219.05,219.05,strong_monsoon_start,0.4-4,common_same_date,219.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,101,219.05,48,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+49,225.2,225.2,strong_monsoon_start,0.4-4,common_same_date,225.2,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,103,225.2,49,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+50,230.75,230.75,strong_monsoon_start,0.4-4,common_same_date,230.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,105,230.75,50,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+51,241.65,241.65,strong_monsoon_start,0.4-4,common_same_date,241.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,108,241.65,51,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+52,248.25,248.25,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,248.35,-0.1,Rousseau et al. 2023 Scientific Reports Table 1,7,110,248.25,52,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+53,251.15,251.15,strong_monsoon_start,0.4-4,common_same_date,251.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,112,251.15,53,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+54,258.75,258.75,strong_monsoon_start,0.4-4,common_same_date,258.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,115,258.75,54,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+55,264.0,264.0,strong_monsoon_start,0.4-4,common_same_date,264.0,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,117,264.0,55,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+56,272.85,272.85,strong_monsoon_start,0.4-4,common_same_date,272.85,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,118,272.85,56,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+57,293.9,293.9,strong_monsoon_start,0.4-4,common_same_date,293.9,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,122,293.9,57,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+58,315.45,315.45,strong_monsoon_start,0.4-4,common_same_date,315.45,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,124,315.45,58,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+59,316.35,316.35,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,316.25,0.1,Rousseau et al. 2023 Scientific Reports Table 1,7,125,316.35,59,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+60,332.45,332.45,strong_monsoon_start,0.4-4,common_same_date,332.45,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,128,332.45,60,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+61,334.05,334.05,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,333.85,0.2,Rousseau et al. 2023 Scientific Reports Table 1,7,129,334.05,61,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+62,337.35,337.35,strong_monsoon_start,0.4-4,common_same_date,337.35,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,130,337.35,62,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+63,351.45,351.45,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,351.15,0.3,Rousseau et al. 2023 Scientific Reports Table 1,7,133,351.45,63,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+64,365.65,365.65,strong_monsoon_start,0.4-4,common_same_date,365.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,135,365.65,64,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+65,368.1,368.1,strong_monsoon_start,0.4-4,common_same_date,368.1,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,137,368.1,65,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+66,370.75,370.75,strong_monsoon_start,0.4-4,common_same_date,370.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,140,370.75,66,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+67,375.95,375.95,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,7,143,375.95,67,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+68,377.45,377.45,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,377.25,0.2,Rousseau et al. 2023 Scientific Reports Table 1,7,144,377.45,68,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+69,390.8,390.8,strong_monsoon_start,0.4-4,common_same_date,390.8,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,146,390.8,69,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+70,393.6,393.6,strong_monsoon_start,0.4-4,common_same_date,393.6,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,147,393.6,70,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+71,412.25,412.25,strong_monsoon_start,0.4-4,common_same_date,412.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,149,412.25,71,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+72,426.05,426.05,strong_monsoon_start,0.4-4,common_same_date,426.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,150,426.05,72,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+73,447.4,447.4,strong_monsoon_start,0.4-4,common_same_date,447.4,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,153,447.4,73,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+74,449.45,449.45,strong_monsoon_start,0.4-4,common_same_date,449.45,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,154,449.45,74,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+75,458.9,458.9,strong_monsoon_start,0.4-4,common_same_date,458.9,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,157,458.9,75,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+76,463.15,463.15,strong_monsoon_start,0.4-4,common_same_date,463.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,159,463.15,76,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+77,465.95,465.95,strong_monsoon_start,0.4-4,common_same_date,465.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,160,465.95,77,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+78,472.75,472.75,strong_monsoon_start,0.4-4,common_same_date,472.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,162,472.75,78,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+79,483.65,483.65,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,484.15,-0.5,Rousseau et al. 2023 Scientific Reports Table 1,8,165,483.65,79,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+80,504.15,504.15,strong_monsoon_start,0.4-4,common_same_date,504.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,167,504.15,80,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+81,531.75,531.75,strong_monsoon_start,0.4-4,common_same_date,531.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,171,531.75,81,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+82,548.25,548.25,strong_monsoon_start,0.4-4,common_same_date,548.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,173,548.25,82,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+83,553.55,553.55,strong_monsoon_start,0.4-4,common_same_date,553.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,176,553.55,83,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+84,555.65,555.65,strong_monsoon_start,0.4-4,common_same_date,555.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,178,555.65,84,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+85,559.15,559.15,strong_monsoon_start,0.4-4,common_same_date,559.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,180,559.15,85,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+86,561.25,561.25,strong_monsoon_start,0.4-4,common_same_date,561.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,182,561.25,86,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+87,562.25,562.25,strong_monsoon_start,0.4-4,common_same_date,562.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,183,562.25,87,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+88,580.3,580.3,strong_monsoon_start,0.4-4,common_same_date,580.3,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,185,580.3,88,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+89,582.95,582.95,strong_monsoon_start,0.4-4,common_same_date,582.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,186,582.95,89,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+90,593.9,593.9,strong_monsoon_start,0.4-4,common_same_date,593.9,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,188,593.9,90,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+91,604.0,604.0,strong_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,8,191,604.0,91,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+92,625.65,625.65,strong_monsoon_start,0.4-4,common_same_date,625.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,193,625.65,92,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+93,627.55,627.55,strong_monsoon_start,0.4-4,date_shifted_relative_to_other_window,627.4,0.15,Rousseau et al. 2023 Scientific Reports Table 1,8,194,627.55,93,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+94,630.1,630.1,strong_monsoon_start,0.4-4,common_same_date,630.1,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,196,630.1,94,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+95,633.3,633.3,strong_monsoon_start,0.4-4,common_same_date,633.3,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,198,633.3,95,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+96,638.1,638.1,strong_monsoon_start,0.4-4,common_same_date,638.1,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,201,638.1,96,strong_monsoon_start,Strong monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv
+1,3.5,3.5,weak_monsoon_start,0.4-4,common_same_date,3.5,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,1,3.5,1,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+2,12.779,12.779,weak_monsoon_start,0.4-4,common_same_date,12.779,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,4,12.779,2,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+3,17.835,17.835,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,6,17.835,3,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+4,24.59,24.59,weak_monsoon_start,0.4-4,common_same_date,24.59,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,8,24.59,4,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+5,26.65,26.65,weak_monsoon_start,0.4-4,common_same_date,26.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,9,26.65,5,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+6,27.555,27.555,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,10,27.555,6,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+7,28.715,28.715,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,28.625,0.09,Rousseau et al. 2023 Scientific Reports Table 1,5,12,28.715,7,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+8,30.42,30.42,weak_monsoon_start,0.4-4,common_same_date,30.42,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,14,30.42,8,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+9,31.975,31.975,weak_monsoon_start,0.4-4,common_same_date,31.975,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,15,31.975,9,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+10,33.42,33.42,weak_monsoon_start,0.4-4,common_same_date,33.42,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,17,33.42,10,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+11,34.75,34.75,weak_monsoon_start,0.4-4,common_same_date,34.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,19,34.75,11,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+12,36.75,36.75,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,36.605,0.145,Rousseau et al. 2023 Scientific Reports Table 1,5,21,36.75,12,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+13,39.955,39.955,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,39.99,-0.035,Rousseau et al. 2023 Scientific Reports Table 1,5,23,39.955,13,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+14,42.475,42.475,weak_monsoon_start,0.4-4,common_same_date,42.475,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,25,42.475,14,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+15,44.485,44.485,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,44.44,0.045,Rousseau et al. 2023 Scientific Reports Table 1,5,27,44.485,15,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+16,45.73,45.73,weak_monsoon_start,0.4-4,common_same_date,45.73,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,28,45.73,16,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+17,48.47,48.47,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,48.86,-0.39,Rousseau et al. 2023 Scientific Reports Table 1,5,30,48.47,17,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+18,48.92,48.92,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,31,48.92,18,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+19,55.23,55.23,weak_monsoon_start,0.4-4,common_same_date,55.23,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,35,55.23,19,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+20,56.32,56.32,weak_monsoon_start,0.4-4,common_same_date,56.32,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,37,56.32,20,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+21,68.655,68.655,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,41,68.655,21,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+22,69.575,69.575,weak_monsoon_start,0.4-4,common_same_date,69.575,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,43,69.575,22,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+23,70.155,70.155,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,5,44,70.155,23,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+24,73.4,73.4,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,73.35,0.05,Rousseau et al. 2023 Scientific Reports Table 1,5,46,73.4,24,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+25,77.51,77.51,weak_monsoon_start,0.4-4,common_same_date,77.51,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,49,77.51,25,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+26,88.425,88.425,weak_monsoon_start,0.4-4,common_same_date,88.425,0.0,Rousseau et al. 2023 Scientific Reports Table 1,5,53,88.425,26,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+27,98.65,98.65,weak_monsoon_start,0.4-4,common_same_date,98.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,55,98.65,27,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+28,100.35,100.35,weak_monsoon_start,0.4-4,common_same_date,100.35,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,56,100.35,28,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+29,105.75,105.75,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,58,105.75,29,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+30,106.35,106.35,weak_monsoon_start,0.4-4,common_same_date,106.35,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,59,106.35,30,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+31,117.45,117.45,weak_monsoon_start,0.4-4,common_same_date,117.45,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,61,117.45,31,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+32,120.55,120.55,weak_monsoon_start,0.4-4,common_same_date,120.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,62,120.55,32,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+33,133.25,133.25,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,65,133.25,33,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+34,135.55,135.55,weak_monsoon_start,0.4-4,common_same_date,135.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,66,135.55,34,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+35,139.35,139.35,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,67,139.35,35,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+36,142.55,142.55,weak_monsoon_start,0.4-4,common_same_date,142.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,68,142.55,36,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+37,143.85,143.85,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,143.95,-0.1,Rousseau et al. 2023 Scientific Reports Table 1,6,69,143.85,37,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+38,147.05,147.05,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,70,147.05,38,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+39,151.05,151.05,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,73,151.05,39,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+40,158.95,158.95,weak_monsoon_start,0.4-4,common_same_date,158.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,77,158.95,40,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+41,162.0,162.0,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,162.2,-0.2,Rousseau et al. 2023 Scientific Reports Table 1,6,79,162.0,41,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+42,165.15,165.15,weak_monsoon_start,0.4-4,common_same_date,165.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,81,165.15,42,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+43,166.8,166.8,weak_monsoon_start,0.4-4,common_same_date,166.8,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,82,166.8,43,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+44,170.25,170.25,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,85,170.25,44,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+45,171.05,171.05,weak_monsoon_start,0.4-4,common_same_date,171.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,86,171.05,45,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+46,174.85,174.85,weak_monsoon_start,0.4-4,common_same_date,174.85,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,88,174.85,46,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+47,179.65,179.65,weak_monsoon_start,0.4-4,common_same_date,179.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,91,179.65,47,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+48,187.75,187.75,weak_monsoon_start,0.4-4,common_same_date,187.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,93,187.75,48,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+49,191.75,191.75,weak_monsoon_start,0.4-4,common_same_date,191.75,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,95,191.75,49,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+50,193.25,193.25,weak_monsoon_start,0.4-4,common_same_date,193.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,97,193.25,50,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+51,201.15,201.15,weak_monsoon_start,0.4-4,common_same_date,201.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,99,201.15,51,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+52,209.25,209.25,weak_monsoon_start,0.4-4,common_same_date,209.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,100,209.25,52,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+53,221.05,221.05,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,220.95,0.1,Rousseau et al. 2023 Scientific Reports Table 1,6,102,221.05,53,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+54,228.65,228.65,weak_monsoon_start,0.4-4,common_same_date,228.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,6,104,228.65,54,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+55,232.65,232.65,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,6,106,232.65,55,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+56,234.15,234.15,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,234.0,0.15,Rousseau et al. 2023 Scientific Reports Table 1,6,107,234.15,56,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+57,246.75,246.75,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,246.45,0.3,Rousseau et al. 2023 Scientific Reports Table 1,7,109,246.75,57,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+58,250.05,250.05,weak_monsoon_start,0.4-4,common_same_date,250.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,111,250.05,58,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+59,252.15,252.15,weak_monsoon_start,0.4-4,common_same_date,252.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,113,252.15,59,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+60,256.05,256.05,weak_monsoon_start,0.4-4,common_same_date,256.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,114,256.05,60,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+61,259.65,259.65,weak_monsoon_start,0.4-4,common_same_date,259.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,116,259.65,61,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+62,276.95,276.95,weak_monsoon_start,0.4-4,common_same_date,276.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,119,276.95,62,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+63,281.4,281.4,weak_monsoon_start,0.4-4,common_same_date,281.4,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,120,281.4,63,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+64,284.7,284.7,weak_monsoon_start,0.4-4,common_same_date,284.7,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,121,284.7,64,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+65,307.25,307.25,weak_monsoon_start,0.4-4,common_same_date,307.25,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,123,307.25,65,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+66,318.05,318.05,weak_monsoon_start,0.4-4,common_same_date,318.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,126,318.05,66,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+67,324.15,324.15,weak_monsoon_start,0.4-4,common_same_date,324.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,127,324.15,67,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+68,341.15,341.15,weak_monsoon_start,0.4-4,common_same_date,341.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,131,341.15,68,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+69,349.55,349.55,weak_monsoon_start,0.4-4,common_same_date,349.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,132,349.55,69,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+70,364.35,364.35,weak_monsoon_start,0.4-4,common_same_date,364.35,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,134,364.35,70,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+71,367.35,367.35,weak_monsoon_start,0.4-4,common_same_date,367.35,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,136,367.35,71,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+72,368.65,368.65,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,7,138,368.65,72,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+73,369.55,369.55,weak_monsoon_start,0.4-4,common_same_date,369.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,139,369.55,73,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+74,371.55,371.55,weak_monsoon_start,0.4-4,additional_in_this_window,,,Rousseau et al. 2023 Scientific Reports Table 1,7,141,371.55,74,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+75,371.95,371.95,weak_monsoon_start,0.4-4,common_same_date,371.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,142,371.95,75,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+76,378.65,378.65,weak_monsoon_start,0.4-4,common_same_date,378.65,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,145,378.65,76,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+77,398.85,398.85,weak_monsoon_start,0.4-4,common_same_date,398.85,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,148,398.85,77,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+78,430.15,430.15,weak_monsoon_start,0.4-4,common_same_date,430.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,151,430.15,78,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+79,441.85,441.85,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,442.95,-1.1,Rousseau et al. 2023 Scientific Reports Table 1,7,152,441.85,79,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+80,453.55,453.55,weak_monsoon_start,0.4-4,common_same_date,453.55,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,155,453.55,80,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+81,457.6,457.6,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,457.35,0.25,Rousseau et al. 2023 Scientific Reports Table 1,7,156,457.6,81,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+82,460.15,460.15,weak_monsoon_start,0.4-4,common_same_date,460.15,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,158,460.15,82,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+83,467.35,467.35,weak_monsoon_start,0.4-4,common_same_date,467.35,0.0,Rousseau et al. 2023 Scientific Reports Table 1,7,161,467.35,83,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+84,475.35,475.35,weak_monsoon_start,0.4-4,common_same_date,475.35,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,163,475.35,84,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+85,479.05,479.05,weak_monsoon_start,0.4-4,common_same_date,479.05,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,164,479.05,85,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+86,500.1,500.1,weak_monsoon_start,0.4-4,common_same_date,500.1,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,166,500.1,86,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+87,513.95,513.95,weak_monsoon_start,0.4-4,common_same_date,513.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,168,513.95,87,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+88,521.95,521.95,weak_monsoon_start,0.4-4,common_same_date,521.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,170,521.95,88,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+89,535.0,535.0,weak_monsoon_start,0.4-4,common_same_date,535.0,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,172,535.0,89,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+90,552.7,552.7,weak_monsoon_start,0.4-4,common_same_date,552.7,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,175,552.7,90,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+91,554.2,554.2,weak_monsoon_start,0.4-4,common_same_date,554.2,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,177,554.2,91,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+92,556.95,556.95,weak_monsoon_start,0.4-4,common_same_date,556.95,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,179,556.95,92,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+93,560.45,560.45,weak_monsoon_start,0.4-4,common_same_date,560.45,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,181,560.45,93,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+94,569.5,569.5,weak_monsoon_start,0.4-4,common_same_date,569.5,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,184,569.5,94,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+95,589.8,589.8,weak_monsoon_start,0.4-4,common_same_date,589.8,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,187,589.8,95,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+96,614.9,614.9,weak_monsoon_start,0.4-4,common_same_date,614.9,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,192,614.9,96,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+97,629.0,629.0,weak_monsoon_start,0.4-4,date_shifted_relative_to_other_window,628.85,0.15,Rousseau et al. 2023 Scientific Reports Table 1,8,195,629.0,97,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+98,632.3,632.3,weak_monsoon_start,0.4-4,common_same_date,632.3,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,197,632.3,98,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+99,635.2,635.2,weak_monsoon_start,0.4-4,common_same_date,635.2,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,199,635.2,99,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv
+100,639.2,639.2,weak_monsoon_start,0.4-4,common_same_date,639.2,0.0,Rousseau et al. 2023 Scientific Reports Table 1,8,202,639.2,100,weak_monsoon_start,Weak monsoon starts,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv

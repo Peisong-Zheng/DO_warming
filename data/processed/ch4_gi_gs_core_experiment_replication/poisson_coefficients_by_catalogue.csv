@@ -1,0 +1,97 @@
+catalogue_id,catalogue_label,catalogue_short_label,dataset_id,dataset_label,model_id,term,beta,rate_ratio_per_unit,event_class,event_class_label
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,stationary,intercept,-1.8971199848858813,0.15,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,lr04,intercept,-1.9475328913613672,0.14262551051833405,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,lr04,lr04_scaled,1.3886874770365092,4.009583926816447,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,co2,intercept,-1.9304067176742061,0.14508917614944813,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,co2,co2_scaled,-1.2063556893230063,0.2992859855459003,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,climate_lr04_co2,intercept,-1.94753962385276,0.14262455029654442,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,climate_lr04_co2,lr04_scaled,1.3859174607388718,3.998492682548029,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,climate_lr04_co2,co2_scaled,-0.003779333400578527,0.9962277992914615,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,pre_phase,intercept,-1.9642244358035632,0.1402646286661642,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,pre_phase,pre_phase_sin,0.19694683968119678,1.2176793067651375,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,pre_phase,pre_phase_cos,0.5026236631092725,1.6530526394170746,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,lr04_pre_phase,intercept,-2.0275130805335047,0.13166254848946074,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,lr04_pre_phase,lr04_scaled,1.5970610965915941,4.938497309632107,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,lr04_pre_phase,pre_phase_sin,0.1070441145582211,1.1129833521652446,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,lr04_pre_phase,pre_phase_cos,0.567783386241913,1.7643518272325511,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,co2_pre_phase,intercept,-2.0039288134753916,0.13480461927459098,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,co2_pre_phase,co2_scaled,-1.324326520328072,0.2659820322729173,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,co2_pre_phase,pre_phase_sin,0.1527131670387491,1.164990773261102,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,co2_pre_phase,pre_phase_cos,0.5405320557754727,1.716920116476201,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,intercept,-2.027924845295933,0.13160834565163643,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,lr04_scaled,1.5310903855110325,4.623215161761186,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,co2_scaled,-0.09165441115679669,0.9124204173819872,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,pre_phase_sin,0.10854467483015111,1.1146547044356192,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,strong_monsoon_start,Strong monsoon starts,climate_lr04_co2_pre_phase,pre_phase_cos,0.5681705291136214,1.76503501570289,strong_or_gi_start,Strong/GI start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,stationary,intercept,-1.8562979903656263,0.15625,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,lr04,intercept,-1.9379530816775,0.1439984012817984,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,lr04,lr04_scaled,1.7753497963330254,5.902345394038162,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,co2,intercept,-1.9634077698441517,0.14037922480071735,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,co2,co2_scaled,-2.1993671002446713,0.11087330785060644,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,climate_lr04_co2,intercept,-1.9655093619597217,0.14008451471735037,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,climate_lr04_co2,lr04_scaled,0.4778653340762015,1.6126283026804071,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,climate_lr04_co2,co2_scaled,-1.7810966754389803,0.16845330732764813,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,pre_phase,intercept,-1.9169807563053542,0.14705027317162406,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,pre_phase,pre_phase_sin,-0.35147000950033086,0.7036529525491984,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,pre_phase,pre_phase_cos,-0.3261484589560766,0.7216980369410209,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,lr04_pre_phase,intercept,-2.002015978308625,0.13506272506920294,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,lr04_pre_phase,lr04_scaled,1.8598349165058108,6.4226764060439745,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,lr04_pre_phase,pre_phase_sin,-0.4496494004693833,0.6378517429456562,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,lr04_pre_phase,pre_phase_cos,-0.25465871699600395,0.775181008925332,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,co2_pre_phase,intercept,-2.0241389742916143,0.1321075422220349,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,co2_pre_phase,co2_scaled,-2.223566853181177,0.10822240614546555,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,co2_pre_phase,pre_phase_sin,-0.41323832133996946,0.6615046133747415,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,co2_pre_phase,pre_phase_cos,-0.2758492547773619,0.7589273268075418,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,intercept,-2.024398086952724,0.13207331591964278,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,lr04_scaled,0.5679656437601864,1.7646734229236698,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,co2_scaled,-1.7075554118432286,0.18130847586036916,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,pre_phase_sin,-0.4238912847514647,0.6544950316312875,weak_or_gs_start,Weak/GS start
+cheng_composite_ks_0p4_4kyr,Cheng/Rousseau speleothem starts,Cheng/Rousseau,weak_monsoon_start,Weak monsoon starts,climate_lr04_co2_pre_phase,pre_phase_cos,-0.2630125933081223,0.7687322163685386,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,stationary,intercept,-1.8562979903656263,0.15625,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,lr04,intercept,-1.8584977536716594,0.15590666475002335,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,lr04,lr04_scaled,-0.2857556129105052,0.7514462372674697,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,co2,intercept,-1.8563281216285432,0.15624529206109763,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,co2,co2_scaled,0.03572640039779298,1.0363722566604996,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,climate_lr04_co2,intercept,-1.8625326300436256,0.15527886802500007,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,climate_lr04_co2,lr04_scaled,-0.8766012925010005,0.41619503581309614,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,climate_lr04_co2,co2_scaled,-0.7465205910031051,0.47401297179608903,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,pre_phase,intercept,-1.8759866256900728,0.15320373751057978,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,pre_phase,pre_phase_sin,-0.12272568044104067,0.8845062666527407,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,pre_phase,pre_phase_cos,0.2719644844106989,1.3125403848380583,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,lr04_pre_phase,intercept,-1.8764927029882041,0.15312622419255642,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,lr04_pre_phase,lr04_scaled,-0.13822751467486447,0.8709005265537704,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,lr04_pre_phase,pre_phase_sin,-0.11358926042770302,0.8926245168089717,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,lr04_pre_phase,pre_phase_cos,0.2673248921607653,1.30646483757027,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,co2_pre_phase,intercept,-1.876117955036429,0.1531836186849982,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,co2_pre_phase,co2_scaled,-0.07736662595396186,0.925550460574602,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,co2_pre_phase,pre_phase_sin,-0.1254124708321341,0.8821329734130744,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,co2_pre_phase,pre_phase_cos,0.2738457125282652,1.3150118967253908,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,climate_lr04_co2_pre_phase,intercept,-1.8794539611337704,0.1526734486373844,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,climate_lr04_co2_pre_phase,lr04_scaled,-0.6476561585006955,0.5232708043916074,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,climate_lr04_co2_pre_phase,co2_scaled,-0.6404836953071367,0.5270374368450772,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,climate_lr04_co2_pre_phase,pre_phase_sin,-0.10403406055400727,0.9011946017110487,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gi_start,CH4 GI starts,climate_lr04_co2_pre_phase,pre_phase_cos,0.2645265080527772,1.3028139577956277,strong_or_gi_start,Strong/GI start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,stationary,intercept,-2.1176627545000337,0.1203125,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,lr04,intercept,-2.126037570171755,0.11930911244698543,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,lr04,lr04_scaled,0.5612674410667208,1.7528927812577675,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,co2,intercept,-2.119429701142852,0.12010010193532025,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,co2,co2_scaled,-0.27444547493537386,0.7599934418107498,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,climate_lr04_co2,intercept,-2.1289225381300976,0.1189654055105774,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,climate_lr04_co2,lr04_scaled,1.0413902421601262,2.8331530465100276,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,climate_lr04_co2,co2_scaled,0.6347568404105988,1.8865633497116967,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,pre_phase,intercept,-2.1333476054002274,0.11844013861615972,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,pre_phase,pre_phase_sin,0.24345793154487774,1.2756526519755107,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,pre_phase,pre_phase_cos,-0.05887779532901866,0.942821979367126,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,lr04_pre_phase,intercept,-2.137756838683326,0.11791905804203222,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,lr04_pre_phase,lr04_scaled,0.4221891170561187,1.5252969570789066,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,lr04_pre_phase,pre_phase_sin,0.21652075370273635,1.2417488559730403,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,lr04_pre_phase,pre_phase_cos,-0.04439939124707989,0.956571834751888,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,co2_pre_phase,intercept,-2.133944454644708,0.11836946880062137,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,co2_pre_phase,co2_scaled,-0.16750983577529768,0.8457682984609955,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,co2_pre_phase,pre_phase_sin,0.23691903061151753,1.2673384979976263,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,co2_pre_phase,pre_phase_cos,-0.055104305158975284,0.9463864298181537,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,climate_lr04_co2_pre_phase,intercept,-2.1398108198599846,0.11767710308697028,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,climate_lr04_co2_pre_phase,lr04_scaled,0.8315607058481478,2.296900730723424,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,climate_lr04_co2_pre_phase,co2_scaled,0.5356342946271901,1.7085316110516597,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,climate_lr04_co2_pre_phase,pre_phase_sin,0.2089542934800223,1.2323886690456303,weak_or_gs_start,Weak/GS start
+ch4_aicc2023_ks_calibrated,CH4 AICC2023 KS-derived starts,CH4,ch4_gs_start,CH4 GS starts,climate_lr04_co2_pre_phase,pre_phase_cos,-0.04403314738222509,0.9569222374801668,weak_or_gs_start,Weak/GS start

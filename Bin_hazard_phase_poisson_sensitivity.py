@@ -2,12 +2,11 @@
 Sensitivity experiment for the Rousseau et al. (2023) 0.2 kyr bin Poisson
 hazard models.
 
-The baseline script
-``analyze_rousseau2023_monsoon_bin_hazard_phase_poisson.py`` fits a compact
-hazard GLM:
+The main adjusted predictive-hazard script fits a compact hazard GLM:
 
     Y_i ~ Poisson(lambda_i * dt)
-    log(lambda_i) = beta0 + LR04_i + CO2_i + sin(pre_phase_i) + cos(pre_phase_i)
+    log(lambda_i) = beta0 + history_i + resolution_i
+                    + LR04_i + CO2_i + sin(pre_phase_i) + cos(pre_phase_i)
 
 This script keeps the same binning, likelihood, and precession-phase
 convention, then asks whether additional forcings contribute beyond that
@@ -32,7 +31,8 @@ This script does not introduce a new likelihood. It imports the baseline
 Poisson hazard fitter and changes only the candidate model list. The baseline
 model is treated as the scientific reference model:
 
-    LR04 + CO2 + sin(pre_phase) + cos(pre_phase).
+    same-type history + Cheng composite sampling resolution
+    + LR04 + CO2 + sin(pre_phase) + cos(pre_phase).
 
 The extra predictors are range-scaled in exactly the same way as LR04 and CO2,
 so their coefficients are effects per observed predictor range. The key output
@@ -50,6 +50,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -70,6 +71,7 @@ from Bin_hazard_phase_poisson import (
     load_all_events,
     scale_to_zero_mean_range_one,
 )
+import Predictive_hazard_history_resolution as predictive
 
 
 RUN_NAME = "rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity"
@@ -82,7 +84,7 @@ ECC_TXT = PROJECT_ROOT / "data/raw/ecc_1000_inter100.txt"
 INSOLATION_NC = PROJECT_ROOT / "data/raw/solstice_insolation_NH.nc"
 INSOLATION_LATITUDE_DEG_N = 65.0
 
-BASE_TERMS = ("lr04_scaled", "co2_scaled", "pre_phase_sin", "pre_phase_cos")
+BASE_TERMS = predictive.FULL_TERMS
 EXTRA_TERMS = ("AT_scaled", "obl_scaled", "ecc_scaled", "insol65N_scaled")
 EXTRA_TERM_LABELS = {
     "AT_scaled": "AT",
@@ -93,9 +95,17 @@ EXTRA_TERM_LABELS = {
 
 MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
     ("stationary", (), "Stationary"),
-    ("climate_lr04_co2", ("lr04_scaled", "co2_scaled"), "LR04 + CO2"),
-    ("pre_phase", ("pre_phase_sin", "pre_phase_cos"), "Precession phase"),
-    ("base_climate_phase", BASE_TERMS, "LR04 + CO2 + pre phase"),
+    ("history_resolution_baseline", predictive.BASELINE_TERMS, "History + resolution"),
+    (
+        "adjusted_climate",
+        predictive.BASELINE_TERMS + predictive.CLIMATE_TERMS,
+        "Baseline + LR04 + CO2",
+    ),
+    (
+        "base_adjusted_climate_phase",
+        BASE_TERMS,
+        "Baseline + LR04 + CO2 + pre phase",
+    ),
     ("base_plus_AT", BASE_TERMS + ("AT_scaled",), "Base + AT"),
     ("base_plus_obl", BASE_TERMS + ("obl_scaled",), "Base + obliquity"),
     ("base_plus_ecc", BASE_TERMS + ("ecc_scaled",), "Base + eccentricity"),
@@ -125,9 +135,9 @@ MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
 
 MODEL_COLORS = {
     "stationary": "#777777",
-    "climate_lr04_co2": "#1b9e77",
-    "pre_phase": "#7570b3",
-    "base_climate_phase": "#d95f02",
+    "history_resolution_baseline": "#4d4d4d",
+    "adjusted_climate": "#1865C3",
+    "base_adjusted_climate_phase": "#C51B7D",
     "base_plus_AT": "#8dd3c7",
     "base_plus_obl": "#80b1d3",
     "base_plus_ecc": "#fdb462",
@@ -139,7 +149,44 @@ MODEL_COLORS = {
     "all_without_insol65N": "#bdbdbd",
 }
 
+LR_TEST_ORDER = [
+    "AT_after_base",
+    "obl_after_base",
+    "ecc_after_base",
+    "insol65N_after_base",
+    "all_extras_after_base",
+    "AT_unique_in_full",
+    "obl_unique_in_full",
+    "ecc_unique_in_full",
+    "insol65N_unique_in_full",
+]
+
+LR_TEST_SHORT_LABELS = {
+    "AT_after_base": "Add AT to base",
+    "obl_after_base": "Add obliquity to base",
+    "ecc_after_base": "Add eccentricity to base",
+    "insol65N_after_base": "Add 65N insolation to base",
+    "all_extras_after_base": "Add all extras to base",
+    "AT_unique_in_full": "AT unique in full",
+    "obl_unique_in_full": "Obliquity unique in full",
+    "ecc_unique_in_full": "Eccentricity unique in full",
+    "insol65N_unique_in_full": "65N insolation unique in full",
+}
+
 PREDICTOR_TERMS = BASE_TERMS + EXTRA_TERMS
+FOCUSED_CORRELATION_TERMS = BASE_TERMS
+PREDICTOR_LABELS = {
+    predictive.HISTORY_TERM: "history",
+    predictive.RESOLUTION_TERM: "resolution",
+    "lr04_scaled": "LR04",
+    "co2_scaled": "CO2",
+    "pre_phase_sin": "sin phase",
+    "pre_phase_cos": "cos phase",
+    "AT_scaled": "AT",
+    "obl_scaled": "obliquity",
+    "ecc_scaled": "eccentricity",
+    "insol65N_scaled": "65N insol",
+}
 
 
 plt.rcParams.update(
@@ -297,8 +344,9 @@ def build_sensitivity_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame
     solstice-insolation predictors.
     """
 
-    events = load_all_events()
-    binned_inputs, base_scale_summary, phase_extrema = build_binned_inputs(events)
+    binned_inputs, base_scale_summary, phase_extrema, _ = predictive.build_adjusted_inputs(
+        predictive.MAIN_HISTORY_WINDOW_KA
+    )
     first_dataset = next(iter(DATASET_SETTINGS))
     centers = (
         binned_inputs.loc[binned_inputs["dataset_id"].eq(first_dataset), "bin_center_ka"]
@@ -318,8 +366,9 @@ def fit_sensitivity_models(binned_inputs: pd.DataFrame) -> list:
     table, so it is deliberately a thin wrapper.
     """
 
+    fit_frame = predictive.model_frame(binned_inputs)
     models = []
-    for _, group in binned_inputs.groupby("dataset_id", sort=False):
+    for _, group in fit_frame.groupby("dataset_id", sort=False):
         for model_id, terms, label in MODEL_SPECS:
             models.append(fit_poisson_model(group, model_id, terms, label))
     return models
@@ -329,8 +378,16 @@ def model_lookup(models: list) -> dict[tuple[str, str], object]:
     return {(model.dataset_id, model.model_id): model for model in models}
 
 
-def build_sensitivity_likelihood_tests(models: list) -> pd.DataFrame:
+def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) -> pd.DataFrame:
     """Nested LR tests for extra-forcing contribution.
+
+    In this script "base" means the extended scientific reference model:
+
+        history + resolution + LR04 + CO2 + precession phase.
+
+    It is different from the event-process baseline in
+    ``Predictive_hazard_history_resolution.py``, which contains only history
+    and sampling resolution.
 
     There are three logically different comparison families:
 
@@ -343,7 +400,8 @@ def build_sensitivity_likelihood_tests(models: list) -> pd.DataFrame:
        extra forcing. This estimates the unique contribution of that forcing
        after the other extras are also included.
 
-    In every row, the reported LR p value comes from:
+    In every row, the reported LR p value comes from the same Wilks-style
+    nested-model approximation used in the main script:
 
         LR = 2 * (logL_full - logL_reduced)
         df = number of added coefficients.
@@ -352,44 +410,51 @@ def build_sensitivity_likelihood_tests(models: list) -> pd.DataFrame:
     lookup = model_lookup(models)
     comparisons = [
         (
-            "base_vs_stationary",
+            "base_vs_adjusted_baseline",
             "main_context",
-            "stationary",
-            "base_climate_phase",
-            "LR04+CO2+phase vs stationary",
+            "history_resolution_baseline",
+            "base_adjusted_climate_phase",
+            "LR04+CO2+phase vs history+resolution baseline",
+        ),
+        (
+            "phase_after_adjusted_climate",
+            "main_context",
+            "adjusted_climate",
+            "base_adjusted_climate_phase",
+            "Precession phase after history+resolution+LR04+CO2",
         ),
         (
             "AT_after_base",
             "add_to_base",
-            "base_climate_phase",
+            "base_adjusted_climate_phase",
             "base_plus_AT",
             "Add AT to base",
         ),
         (
             "obl_after_base",
             "add_to_base",
-            "base_climate_phase",
+            "base_adjusted_climate_phase",
             "base_plus_obl",
             "Add obliquity to base",
         ),
         (
             "ecc_after_base",
             "add_to_base",
-            "base_climate_phase",
+            "base_adjusted_climate_phase",
             "base_plus_ecc",
             "Add eccentricity to base",
         ),
         (
             "insol65N_after_base",
             "add_to_base",
-            "base_climate_phase",
+            "base_adjusted_climate_phase",
             "base_plus_insol65N",
             "Add 65N insolation to base",
         ),
         (
             "all_extras_after_base",
             "joint_add_to_base",
-            "base_climate_phase",
+            "base_adjusted_climate_phase",
             "extended_all",
             "Add all extra forcings to base",
         ),
@@ -423,12 +488,22 @@ def build_sensitivity_likelihood_tests(models: list) -> pd.DataFrame:
         ),
     ]
     rows = []
+    support = {
+        dataset_id: {
+            "n_events": int(group["event_count"].sum()),
+            "n_bins": int(len(group)),
+        }
+        for dataset_id, group in fit_frame.groupby("dataset_id", sort=False)
+    }
     for dataset_id in DATASET_SETTINGS:
+        n_events = support[dataset_id]["n_events"]
+        n_bins = support[dataset_id]["n_bins"]
         for comparison_id, family, reduced_id, full_id, label in comparisons:
             reduced = lookup[(dataset_id, reduced_id)]
             full = lookup[(dataset_id, full_id)]
-            # All comparisons are nested by construction, so the added terms in
-            # the full model define the chi-square degrees of freedom.
+            # All comparisons are nested by construction. A positive logL gain
+            # means the full model predicts the binned event counts better; the
+            # chi-square df is the number of added free coefficients.
             lr_stat = 2.0 * (full.log_likelihood - reduced.log_likelihood)
             df = len(full.beta) - len(reduced.beta)
             p_value = float(chi2.sf(max(lr_stat, 0.0), df))
@@ -442,8 +517,17 @@ def build_sensitivity_likelihood_tests(models: list) -> pd.DataFrame:
                     "reduced_model_id": reduced_id,
                     "full_model_id": full_id,
                     "df": int(df),
+                    "n_bins": int(n_bins),
+                    "n_events": int(n_events),
                     "loglik_reduced": reduced.log_likelihood,
                     "loglik_full": full.log_likelihood,
+                    "ll_gain_nats": full.log_likelihood - reduced.log_likelihood,
+                    "info_bits_per_event": (full.log_likelihood - reduced.log_likelihood)
+                    / np.log(2.0)
+                    / max(n_events, 1),
+                    "info_bits_per_bin": (full.log_likelihood - reduced.log_likelihood)
+                    / np.log(2.0)
+                    / max(n_bins, 1),
                     "LR_statistic": lr_stat,
                     "LR_p_value": p_value,
                     "delta_AICc_full_minus_reduced": full.aicc - reduced.aicc,
@@ -470,64 +554,143 @@ def build_predictor_correlation_table(binned_inputs: pd.DataFrame) -> pd.DataFra
     return out
 
 
-def plot_model_delta_aicc(summary: pd.DataFrame, write_pdf: bool) -> None:
+def draw_model_delta_aicc(ax: plt.Axes, summary: pd.DataFrame, dataset_id: str) -> None:
     model_order = [model_id for model_id, _, _ in MODEL_SPECS]
-    fig, axes = plt.subplots(1, 2, figsize=(13.2, 6.4), sharey=True)
-    for ax, dataset_id in zip(axes, DATASET_SETTINGS):
-        sub = summary[summary["dataset_id"].eq(dataset_id)].set_index("model_id").reindex(model_order)
-        colors = [MODEL_COLORS.get(model_id, "#999999") for model_id in sub.index]
-        y = np.arange(len(sub))
-        ax.barh(y, sub["delta_AICc"], color=colors, alpha=0.86)
-        ax.set_yticks(y)
-        ax.set_yticklabels(sub["model_label"])
-        ax.invert_yaxis()
-        ax.set_xlabel("Delta AICc")
+    sub = summary[summary["dataset_id"].eq(dataset_id)].set_index("model_id").reindex(model_order)
+    model_labels = sub["model_label"].replace(
+        {"Baseline + LR04 + CO2 + pre phase": "Baseline + LR04 + CO2 + pre phase (base)"}
+    )
+    colors = [MODEL_COLORS.get(model_id, "#999999") for model_id in sub.index]
+    y = np.arange(len(sub))
+    ax.barh(y, sub["delta_AICc"], color=colors, alpha=0.86)
+    ax.set_yticks(y)
+    ax.set_yticklabels(model_labels)
+    ax.invert_yaxis()
+    ax.set_xlabel("Delta AICc")
+    ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
+    ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
+
+
+def ordered_likelihood_tests(likelihood_tests: pd.DataFrame, dataset_id: str) -> pd.DataFrame:
+    order = {comparison_id: idx for idx, comparison_id in enumerate(LR_TEST_ORDER)}
+    sub = likelihood_tests[
+        likelihood_tests["dataset_id"].eq(dataset_id)
+        & likelihood_tests["comparison_id"].isin(LR_TEST_ORDER)
+    ].copy()
+    sub["sort_key"] = sub["comparison_id"].map(order)
+    sub = sub.sort_values("sort_key").reset_index(drop=True)
+    sub["minus_log10_p"] = -np.log10(np.maximum(sub["LR_p_value"], 1e-300))
+    sub["plot_label"] = sub["comparison_id"].map(LR_TEST_SHORT_LABELS).fillna(
+        sub["comparison_label"]
+    )
+
+    y_positions: list[float] = []
+    y_pos = 0.0
+    for comparison_id in sub["comparison_id"]:
+        y_positions.append(y_pos)
+        y_pos += 1.0
+        if comparison_id in {"insol65N_after_base", "all_extras_after_base"}:
+            y_pos += 0.62
+    sub["y_position"] = y_positions
+    return sub
+
+
+def likelihood_test_axis_limit(likelihood_tests: pd.DataFrame) -> float:
+    sub = likelihood_tests[likelihood_tests["comparison_id"].isin(LR_TEST_ORDER)].copy()
+    if sub.empty:
+        return -np.log10(0.05) + 1.0
+    minus_log10_p = -np.log10(np.maximum(sub["LR_p_value"], 1e-300))
+    return max(float(minus_log10_p.max()), -np.log10(0.05)) + 2.1
+
+
+def draw_likelihood_tests_merged(
+    ax: plt.Axes,
+    likelihood_tests: pd.DataFrame,
+    dataset_id: str,
+    xlim: float,
+    show_title: bool = True,
+) -> None:
+    sub = ordered_likelihood_tests(likelihood_tests, dataset_id)
+    threshold = -np.log10(0.05)
+    colors = ["#3182bd" if p < 0.05 else "#bdbdbd" for p in sub["LR_p_value"]]
+    ax.barh(sub["y_position"], sub["minus_log10_p"], height=0.68, color=colors, alpha=0.86)
+    ax.axvline(threshold, color="#222222", ls="--", lw=0.9)
+    ax.set_yticks(sub["y_position"])
+    ax.set_yticklabels(sub["plot_label"])
+    ax.invert_yaxis()
+    ax.set_xlim(0.0, xlim)
+    ax.set_xlabel("-log10 LR p value")
+    if show_title:
         ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
-        ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
-    fig.suptitle("Sensitivity Poisson hazard models: AICc comparison", y=0.995, fontsize=14)
-    fig.subplots_adjust(top=0.90, wspace=0.22)
+    ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
+
+    for boundary_id in ("insol65N_after_base", "all_extras_after_base"):
+        boundary_indices = np.flatnonzero(sub["comparison_id"].eq(boundary_id).to_numpy())
+        if len(boundary_indices) and boundary_indices[0] + 1 < len(sub):
+            idx = boundary_indices[0]
+            y_sep = 0.5 * (sub.loc[idx, "y_position"] + sub.loc[idx + 1, "y_position"])
+            ax.axhline(y_sep, color="#d9d9d9", lw=0.8, zorder=0)
+
+    for _, test in sub.iterrows():
+        ax.text(
+            test["minus_log10_p"] + 0.05,
+            test["y_position"],
+            f"p={test['LR_p_value']:.3g}, dAICc={test['delta_AICc_full_minus_reduced']:.2f}",
+            va="center",
+            fontsize=7,
+        )
+
+
+def plot_model_delta_aicc(summary: pd.DataFrame, write_pdf: bool) -> None:
+    fig, axes = plt.subplots(1, 2, figsize=(15.2, 6.4))
+    for ax, dataset_id in zip(axes, DATASET_SETTINGS):
+        draw_model_delta_aicc(ax, summary, dataset_id)
+    fig.subplots_adjust(left=0.23, right=0.98, top=0.92, bottom=0.12, wspace=0.58)
     save_figure(fig, "fig01_sensitivity_delta_AICc", write_pdf)
 
 
 def plot_likelihood_tests(likelihood_tests: pd.DataFrame, write_pdf: bool) -> None:
-    families = [
-        ("add_to_base", "Single extra forcing added to base"),
-        ("joint_add_to_base", "All extra forcings added to base"),
-        ("drop_one_from_full", "Unique contribution inside full model"),
-    ]
-    fig, axes = plt.subplots(len(families), 2, figsize=(13.4, 8.2), sharex=True)
-    threshold = -np.log10(0.05)
-    for row_idx, (family, _) in enumerate(families):
-        for col_idx, dataset_id in enumerate(DATASET_SETTINGS):
-            ax = axes[row_idx, col_idx]
-            sub = likelihood_tests[
-                likelihood_tests["dataset_id"].eq(dataset_id)
-                & likelihood_tests["comparison_family"].eq(family)
-            ].copy()
-            sub["minus_log10_p"] = -np.log10(np.maximum(sub["LR_p_value"], 1e-300))
-            y = np.arange(len(sub))
-            colors = ["#3182bd" if p < 0.05 else "#bdbdbd" for p in sub["LR_p_value"]]
-            ax.barh(y, sub["minus_log10_p"], color=colors, alpha=0.86)
-            ax.axvline(threshold, color="#222222", ls="--", lw=0.9)
-            ax.set_yticks(y)
-            ax.set_yticklabels(sub["comparison_label"])
-            ax.invert_yaxis()
-            ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
-            if row_idx == 0:
-                ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
-            if row_idx == len(families) - 1:
-                ax.set_xlabel("-log10 LR p value")
-            for yi, (_, test) in zip(y, sub.iterrows()):
-                ax.text(
-                    test["minus_log10_p"] + 0.04,
-                    yi,
-                    f"p={test['LR_p_value']:.3g}, dAICc={test['delta_AICc_full_minus_reduced']:.2f}",
-                    va="center",
-                    fontsize=7,
-                )
-    fig.suptitle("Nested likelihood-ratio tests for added forcings", y=0.995, fontsize=14)
-    fig.subplots_adjust(left=0.20, top=0.92, hspace=0.34, wspace=0.35)
+    fig, axes = plt.subplots(1, 2, figsize=(15.2, 6.2), sharex=True)
+    xlim = 1.6
+    for ax, dataset_id in zip(axes, DATASET_SETTINGS):
+        draw_likelihood_tests_merged(ax, likelihood_tests, dataset_id, xlim)
+    fig.subplots_adjust(left=0.23, right=0.98, top=0.92, bottom=0.12, wspace=0.58)
     save_figure(fig, "fig02_sensitivity_likelihood_tests", write_pdf)
+
+
+def plot_aicc_and_likelihood_tests_combined(
+    summary: pd.DataFrame, likelihood_tests: pd.DataFrame, write_pdf: bool
+) -> None:
+    fig, axes = plt.subplots(
+        2,
+        2,
+        figsize=(15.2, 9.6),
+        gridspec_kw={"height_ratios": [1.0, 1.05]},
+    )
+    xlim = 1.6
+    for col_idx, dataset_id in enumerate(DATASET_SETTINGS):
+        draw_model_delta_aicc(axes[0, col_idx], summary, dataset_id)
+        draw_likelihood_tests_merged(
+            axes[1, col_idx],
+            likelihood_tests,
+            dataset_id,
+            xlim,
+            show_title=False,
+        )
+    axes[0, 0].text(
+        -0.20, 1.05, "a", transform=axes[0, 0].transAxes, fontweight="bold", fontsize=12
+    )
+    axes[0, 1].text(
+        -0.20, 1.05, "b", transform=axes[0, 1].transAxes, fontweight="bold", fontsize=12
+    )
+    axes[1, 0].text(
+        -0.20, 1.05, "c", transform=axes[1, 0].transAxes, fontweight="bold", fontsize=12
+    )
+    axes[1, 1].text(
+        -0.20, 1.05, "d", transform=axes[1, 1].transAxes, fontweight="bold", fontsize=12
+    )
+    fig.subplots_adjust(left=0.23, right=0.98, top=0.95, bottom=0.08, hspace=0.28, wspace=0.58)
+    save_figure(fig, "fig06_sensitivity_aicc_and_likelihood_tests", write_pdf)
 
 
 def plot_extended_coefficients(coefficients: pd.DataFrame, write_pdf: bool) -> None:
@@ -572,7 +735,7 @@ def plot_base_vs_extended_rates(
     write_pdf: bool,
 ) -> None:
     fig, axes = plt.subplots(2, 1, figsize=(13.2, 5.8), sharex=True)
-    for ax, dataset_id in zip(axes, DATASET_SETTINGS):
+    for ax_idx, (ax, dataset_id) in enumerate(zip(axes, DATASET_SETTINGS)):
         settings = DATASET_SETTINGS[dataset_id]
         data = binned_inputs[binned_inputs["dataset_id"].eq(dataset_id)]
         events = data[data["event_count"] > 0]
@@ -586,7 +749,7 @@ def plot_base_vs_extended_rates(
             label="observed event bins",
         )
         for model_id, color, label in [
-            ("base_climate_phase", "#d95f02", "base: LR04+CO2+phase"),
+            ("base_adjusted_climate_phase", "#C51B7D", "base: adjusted LR04+CO2+phase"),
             ("extended_all", "#202020", "base + AT+obl+ecc+insol65N"),
         ]:
             rates = fitted_rates[
@@ -610,11 +773,48 @@ def plot_base_vs_extended_rates(
         )
         ax.set_ylabel("rate / kyr")
         ax.grid(True, color="#e6e6e6", lw=0.6)
-        ax.legend(frameon=False, loc="upper right", ncol=3)
+        ax.text(
+            -0.045,
+            1.03,
+            chr(ord("a") + ax_idx),
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=12,
+            fontweight="bold",
+            clip_on=False,
+        )
+    legend_handles = [
+        Line2D(
+            [0],
+            [0],
+            color=DATASET_SETTINGS["strong_monsoon_start"]["color"],
+            lw=1.0,
+            alpha=0.45,
+            label="Strong monsoon start bins",
+        ),
+        Line2D(
+            [0],
+            [0],
+            color=DATASET_SETTINGS["weak_monsoon_start"]["color"],
+            lw=1.0,
+            alpha=0.45,
+            label="Weak monsoon start bins",
+        ),
+        Line2D([0], [0], color="#C51B7D", lw=1.8, label="base: adjusted LR04+CO2+phase"),
+        Line2D([0], [0], color="#202020", lw=1.8, label="base + AT+obl+ecc+insol65N"),
+    ]
+    axes[0].legend(
+        handles=legend_handles,
+        frameon=False,
+        loc="lower right",
+        bbox_to_anchor=(1.0, 1.06),
+        ncol=4,
+        borderaxespad=0.0,
+    )
     axes[-1].set_xlim(ANALYSIS_END_KA, ANALYSIS_START_KA)
     axes[-1].set_xlabel("Age (ka BP)")
-    fig.suptitle("Base versus extended fitted hazards", y=0.995, fontsize=14)
-    fig.subplots_adjust(top=0.90, hspace=0.22)
+    fig.subplots_adjust(left=0.08, right=0.98, top=0.89, bottom=0.12, hspace=0.22)
     save_figure(fig, "fig04_base_vs_extended_hazards", write_pdf)
 
 
@@ -623,16 +823,7 @@ def plot_predictor_correlation(correlation_table: pd.DataFrame, write_pdf: bool)
     corr = corr.loc[list(PREDICTOR_TERMS), list(PREDICTOR_TERMS)]
     fig, ax = plt.subplots(figsize=(7.4, 6.2))
     image = ax.imshow(corr.to_numpy(dtype=float), vmin=-1.0, vmax=1.0, cmap="coolwarm")
-    labels = [
-        "LR04",
-        "CO2",
-        "sin phase",
-        "cos phase",
-        "AT",
-        "obl",
-        "ecc",
-        "65N insol",
-    ]
+    labels = [PREDICTOR_LABELS[term] for term in PREDICTOR_TERMS]
     ax.set_xticks(np.arange(len(labels)))
     ax.set_xticklabels(labels, rotation=45, ha="right")
     ax.set_yticks(np.arange(len(labels)))
@@ -646,6 +837,38 @@ def plot_predictor_correlation(correlation_table: pd.DataFrame, write_pdf: bool)
     ax.set_title("Predictor correlation on the 0.2 kyr analysis grid", loc="left")
     fig.subplots_adjust(bottom=0.22, left=0.18)
     save_figure(fig, "fig05_predictor_correlation", write_pdf)
+
+
+def plot_focused_baseline_correlation(correlation_table: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot correlations among the variables in the extended baseline only."""
+
+    corr = correlation_table.pivot(index="term_1", columns="term_2", values="correlation")
+    corr = corr.loc[list(FOCUSED_CORRELATION_TERMS), list(FOCUSED_CORRELATION_TERMS)]
+    # For display only, flip LR04 so that the slow-background pair
+    # (-LR04, CO2) has a positive correlation in the matrix. The fitted models
+    # and saved likelihood tables still use the original LR04 orientation.
+    display_sign = pd.Series(1.0, index=corr.index)
+    display_sign.loc["lr04_scaled"] = -1.0
+    corr = corr.mul(display_sign, axis=0).mul(display_sign, axis=1)
+    fig, ax = plt.subplots(figsize=(5.9, 5.2))
+    image = ax.imshow(corr.to_numpy(dtype=float), vmin=-1.0, vmax=1.0, cmap="coolwarm")
+    labels = [
+        "-LR04" if term == "lr04_scaled" else PREDICTOR_LABELS[term]
+        for term in FOCUSED_CORRELATION_TERMS
+    ]
+    ax.set_xticks(np.arange(len(labels)))
+    ax.set_xticklabels(labels, rotation=35, ha="right")
+    ax.set_yticks(np.arange(len(labels)))
+    ax.set_yticklabels(labels)
+    for i in range(corr.shape[0]):
+        for j in range(corr.shape[1]):
+            value = corr.iloc[i, j]
+            text_color = "white" if abs(value) >= 0.65 else "#202020"
+            ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=8, color=text_color)
+    cbar = fig.colorbar(image, ax=ax, pad=0.015)
+    cbar.set_label("Pearson correlation")
+    fig.subplots_adjust(bottom=0.20, left=0.23, right=0.93, top=0.98)
+    save_figure(fig, "fig07_extended_baseline_predictor_correlation", write_pdf)
 
 
 def write_outputs(
@@ -674,8 +897,9 @@ def write_outputs(
                 "analysis_start_ka": ANALYSIS_START_KA,
                 "analysis_end_ka": ANALYSIS_END_KA,
                 "bin_width_ka": BIN_WIDTH_KA,
+                "history_window_ka": predictive.MAIN_HISTORY_WINDOW_KA,
                 "response": "event_count_per_0p2kyr_bin",
-                "baseline_model": "LR04_scaled + CO2_scaled + sin(pre_phase) + cos(pre_phase)",
+                "baseline_model": "same-type history + Cheng log-resolution + LR04_scaled + CO2_scaled + sin(pre_phase) + cos(pre_phase)",
                 "extra_forcings": "AT_scaled + obl_scaled + ecc_scaled + insol65N_scaled",
                 "main_question": "Do extra forcings improve the baseline binned Poisson hazard model?",
             }
@@ -696,15 +920,16 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
     ensure_dir(OUT_DATA_DIR)
     ensure_dir(OUT_FIG_DIR)
     binned_inputs, scale_summary, phase_extrema = build_sensitivity_inputs()
+    fit_frame = predictive.model_frame(binned_inputs)
     models = fit_sensitivity_models(binned_inputs)
-    summary = build_model_summary(models, binned_inputs)
+    summary = build_model_summary(models, fit_frame)
     coefficients = build_coefficient_table(models)
-    likelihood_tests = build_sensitivity_likelihood_tests(models)
-    fitted_rates = build_fitted_rate_table(models, binned_inputs)
-    predictor_correlation = build_predictor_correlation_table(binned_inputs)
+    likelihood_tests = build_sensitivity_likelihood_tests(models, fit_frame)
+    fitted_rates = build_fitted_rate_table(models, fit_frame)
+    predictor_correlation = build_predictor_correlation_table(fit_frame)
 
     write_outputs(
-        binned_inputs,
+        fit_frame,
         scale_summary,
         phase_extrema,
         summary,
@@ -716,9 +941,11 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     plot_model_delta_aicc(summary, write_pdf)
     plot_likelihood_tests(likelihood_tests, write_pdf)
+    plot_aicc_and_likelihood_tests_combined(summary, likelihood_tests, write_pdf)
     plot_extended_coefficients(coefficients, write_pdf)
-    plot_base_vs_extended_rates(binned_inputs, fitted_rates, likelihood_tests, write_pdf)
+    plot_base_vs_extended_rates(fit_frame, fitted_rates, likelihood_tests, write_pdf)
     plot_predictor_correlation(predictor_correlation, write_pdf)
+    plot_focused_baseline_correlation(predictor_correlation, write_pdf)
     return summary, likelihood_tests
 
 

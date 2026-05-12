@@ -28,8 +28,8 @@ the future of Y after conditioning on the past of Y. Here Y is the binned
 monsoon-start count series, and X is one lagged driver. Because Y is sparse,
 the script estimates this idea with nested Poisson hazard models:
 
-    reduced: log(lambda_i) = beta0 + Y_history_i
-    full:    log(lambda_i) = beta0 + Y_history_i + X_{i, lag}
+    reduced: log(lambda_i) = beta0 + Y_history_i + resolution_i
+    full:    log(lambda_i) = beta0 + Y_history_i + resolution_i + X_{i, lag}
 
 The TE-like information is the gain in fitted log-likelihood:
 
@@ -64,6 +64,7 @@ from Bin_hazard_phase_poisson import (
     build_binned_inputs,
     load_all_events,
 )
+import Predictive_hazard_history_resolution as predictive
 
 
 RUN_NAME = "rousseau2023_monsoon_lagged_te_predictive_info"
@@ -72,10 +73,11 @@ OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
 MAX_LAG_KA = 20.0
 LAG_STEP_KA = 0.2
-Y_HISTORY_WINDOW_KA = 2.0
+Y_HISTORY_WINDOW_KA = predictive.MAIN_HISTORY_WINDOW_KA
 MIN_EVENTS_FOR_MODEL = 5
+PLOT_MAX_LAG_KA = 20.0
 
-HISTORY_TERMS = ("event_history_2ka",)
+HISTORY_TERMS = predictive.BASELINE_TERMS
 
 DRIVER_TERM_SPECS = {
     "lr04": {
@@ -131,38 +133,38 @@ def lag_grid() -> np.ndarray:
 
 
 def add_event_history_feature(binned: pd.DataFrame) -> pd.DataFrame:
-    """Add the Y-history term used in every reduced model.
+    """Add the adjusted conditioning set used in every reduced model.
 
-    For each bin centered at age t, ``event_history_2ka`` counts events in the
-    interval immediately older than t, up to t + 2 kyr. Age increases into the
-    past, so this is the local past of the event process. The common-lag support
-    flag keeps only bins for which all candidate lags up to MAX_LAG_KA can be
-    evaluated, preventing larger lags from being compared on a smaller old-edge
-    sample.
+    The reduced model now matches the adjusted predictive-hazard framework:
+    same-type event history in the older ``(t, t + W]`` interval, with
+    ``W = 5 kyr``, plus local Cheng composite sampling resolution. The common
+    lag-support flag keeps only bins for which all candidate lags up to
+    ``MAX_LAG_KA`` can be evaluated, preventing larger lags from being compared
+    on a smaller old-edge sample.
+
+    In the Poisson models the history and resolution terms are ordinary fitted
+    covariates, not offsets:
+
+        log(lambda_i) = beta0 + beta_h history_i + beta_r resolution_i + ...
+
+    This makes the lag scan ask whether a driver adds information after local
+    event-process memory and uneven speleothem sampling have been conditioned
+    on.
     """
 
+    binned, _, _ = predictive.add_resolution_control(binned)
+    binned = predictive.add_same_type_history(binned, Y_HISTORY_WINDOW_KA)
     frames = []
     for _, group in binned.groupby("dataset_id", sort=False):
         group = group.sort_values("bin_center_ka").copy()
         centers = group["bin_center_ka"].to_numpy(dtype=float)
-        counts = group["event_count"].to_numpy(dtype=float)
-        # Cumulative sums make rolling event counts cheap and exact on the
-        # binned grid.
-        cumulative = np.concatenate([[0.0], np.cumsum(counts)])
-        left_idx = np.searchsorted(centers, centers + 1e-9, side="right")
-        right_idx = np.searchsorted(centers, centers + Y_HISTORY_WINDOW_KA, side="right")
-        history = cumulative[right_idx] - cumulative[left_idx]
-        coverage = np.minimum(centers[-1], centers + Y_HISTORY_WINDOW_KA) - centers
-        group["event_history_2ka"] = history
-        group["event_history_window_ka"] = coverage
-        group["event_history_complete"] = coverage >= (Y_HISTORY_WINDOW_KA - 0.5 * BIN_WIDTH_KA)
         group["common_lag_support"] = (centers + MAX_LAG_KA) <= (centers[-1] + 1e-9)
         frames.append(group)
     return pd.concat(frames, ignore_index=True)
 
 
 def load_binned_inputs_with_history() -> pd.DataFrame:
-    """Load baseline binned covariates and append Y-history features."""
+    """Load binned covariates and append history/resolution controls."""
 
     events = load_all_events()
     binned, _, _ = build_binned_inputs(events)
@@ -212,8 +214,15 @@ def poisson_loglik(beta: np.ndarray, x: np.ndarray, y: np.ndarray, dt: np.ndarra
 
     The log(dt_i) offset makes the model estimate a per-kyr rate while the
     response remains an event count per bin.
+
+    ``beta`` is already the fitted parameter vector from maximum likelihood.
+    This function only evaluates the Poisson log likelihood at that parameter
+    vector; the full and reduced likelihoods are then compared downstream.
     """
 
+    # eta is log(lambda_i), where lambda_i is the per-kyr hazard. Adding
+    # log(dt_i) converts it to the expected count in the 0.2 kyr bin:
+    # log(mu_i) = log(dt_i) + log(lambda_i).
     eta = beta[0] + x @ beta[1:]
     eta = np.clip(eta, -50.0, 20.0)
     log_mu = np.log(dt) + eta
@@ -234,14 +243,26 @@ def fit_poisson(frame: pd.DataFrame, terms: tuple[str, ...]) -> dict:
     """Fit one reduced or full Poisson hazard model on common support.
 
     The input frame may contain lagged columns. Rows are kept only if all model
-    terms are present, the 2 kyr Y-history window is complete, and the bin is in
-    the common support for the full lag scan. This makes log-likelihood gains
-    comparable across all tested lags.
+    terms are present, the 5 kyr same-type history window is complete, and the
+    bin is in the common support for the full lag scan. This makes
+    log-likelihood gains comparable across all tested lags.
+
+    This is an ordinary Poisson regression fit by maximum likelihood. The
+    design matrix ``x`` contains the requested terms, for example
+    same-type history plus sampling resolution in the reduced model and those
+    terms plus ``X_lag`` in the full model. After optimization, the fitted
+    parameters are substituted back into ``poisson_loglik`` to get the model log
+    likelihood used by the predictive-information score.
     """
 
     required = ["event_count", "dt_ka", *terms]
     data = frame.dropna(subset=required).copy()
-    data = data[data["event_history_complete"].astype(bool)].copy()
+    history_complete_col = (
+        "same_type_history_complete"
+        if "same_type_history_complete" in data.columns
+        else "event_history_complete"
+    )
+    data = data[data[history_complete_col].astype(bool)].copy()
     if "common_lag_support" in data.columns:
         data = data[data["common_lag_support"].astype(bool)].copy()
     y = data["event_count"].to_numpy(dtype=float)
@@ -254,6 +275,9 @@ def fit_poisson(frame: pd.DataFrame, terms: tuple[str, ...]) -> dict:
         }
 
     dt = data["dt_ka"].to_numpy(dtype=float)
+    # Each entry in ``terms`` is a fitted predictor column. In the single-driver
+    # scan this means reduced_terms=(same-type history, sampling resolution) and
+    # full_terms=reduced_terms + lagged_driver_terms.
     x = data.loc[:, list(terms)].to_numpy(dtype=float) if terms else np.empty((len(data), 0))
     duration = float(dt.sum())
     beta0 = np.zeros(1 + len(terms), dtype=float)
@@ -265,6 +289,8 @@ def fit_poisson(frame: pd.DataFrame, terms: tuple[str, ...]) -> dict:
         message = "analytic stationary MLE"
     else:
         bounds = [(-20.0, 5.0)] + [(-20.0, 20.0)] * len(terms)
+        # Maximum-likelihood fit: minimize negative log likelihood to obtain
+        # beta_hat for this specific reduced or full model.
         result = minimize(
             negative_loglik,
             beta0,
@@ -277,6 +303,8 @@ def fit_poisson(frame: pd.DataFrame, terms: tuple[str, ...]) -> dict:
         converged = bool(result.success)
         message = str(result.message)
 
+    # Evaluate logL at beta_hat. The nested comparison later subtracts the
+    # reduced-model value from the full-model value.
     log_likelihood = poisson_loglik(beta, x, y, dt)
     n_obs = len(data)
     k = len(beta)
@@ -317,6 +345,11 @@ def compare_nested_models(
 
         ll_gain = logL(full) - logL(reduced).
 
+    Both logL values are evaluated after fitting each model separately by
+    maximum likelihood. Therefore this is a model-based predictive-information
+    score: it measures how much the additional lagged predictor improves the
+    optimized Poisson hazard likelihood beyond the conditioning variables.
+
     The same gain is also used for a likelihood-ratio test:
 
         LR = 2 * ll_gain,
@@ -326,9 +359,21 @@ def compare_nested_models(
 
     required = tuple(dict.fromkeys((*reduced_terms, *full_terms)))
     data = frame.dropna(subset=["event_count", "dt_ka", *required]).copy()
-    data = data[data["event_history_complete"].astype(bool)].copy()
+    history_complete_col = (
+        "same_type_history_complete"
+        if "same_type_history_complete" in data.columns
+        else "event_history_complete"
+    )
+    data = data[data[history_complete_col].astype(bool)].copy()
     if "common_lag_support" in data.columns:
         data = data[data["common_lag_support"].astype(bool)].copy()
+
+    # Fit the two nested Poisson regressions on the exact same rows. For the
+    # single-driver scan this corresponds to:
+    #   reduced: log(lambda_i) = beta0 + beta_h * history_i + beta_r * resolution_i
+    #   full:    reduced + gamma * X_lag_i
+    # For precession phase, X_lag contributes two fitted terms: sin(theta_lag)
+    # and cos(theta_lag).
     reduced = fit_poisson(data, reduced_terms)
     full = fit_poisson(data, full_terms)
     if not reduced.get("ok") or not full.get("ok"):
@@ -341,6 +386,8 @@ def compare_nested_models(
         return comparison, reduced, full
 
     df = len(full["beta"]) - len(reduced["beta"])
+    # TE-like information gain in nats. The same quantity is converted to
+    # bits/bin and bits/event below, and 2*ll_gain gives the LR statistic.
     ll_gain = full["log_likelihood"] - reduced["log_likelihood"]
     lr_stat = 2.0 * ll_gain
     p_value = float(chi2.sf(max(lr_stat, 0.0), df))
@@ -409,15 +456,15 @@ def add_lagged_driver_terms(dataset_frame: pd.DataFrame, driver_id: str, lag_ka:
 
 
 def run_single_driver_scans(binned: pd.DataFrame) -> pd.DataFrame:
-    """Scan each driver/lag against a Y-history-only reduced model.
+    """Scan each driver/lag against the adjusted event-process baseline.
 
     For every event dataset, lag, and driver:
 
-        reduced = event_history_2ka
-        full    = event_history_2ka + lagged_driver
+        reduced = same-type history + sampling resolution
+        full    = reduced + lagged_driver
 
     The output table therefore ranks drivers by the predictive information they
-    add beyond recent event clustering alone.
+    add beyond recent event clustering and local sampling resolution.
     """
 
     rows = []
@@ -617,8 +664,8 @@ def build_best_summary(single: pd.DataFrame, same_lag: pd.DataFrame, best_climat
 
 
 def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, write_pdf: bool) -> None:
-    fig, axes = plt.subplots(2, 1, figsize=(12.8, 7.2), sharex=True)
-    for ax, dataset_id in zip(axes, DATASET_SETTINGS):
+    fig, axes = plt.subplots(2, 1, figsize=(5.4, 8.8), sharex=True)
+    for ax_idx, (ax, dataset_id) in enumerate(zip(axes, DATASET_SETTINGS)):
         sub = single[
             single["dataset_id"].eq(dataset_id)
             & single["ok"].astype(bool)
@@ -637,23 +684,41 @@ def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, 
                 & best_summary["analysis_type"].eq("single_driver_given_y_history")
                 & best_summary["driver_id"].eq(driver_id)
             ].iloc[0]
-            ax.scatter(
-                best["best_lag_ka"],
-                best["best_info_bits_per_event"],
-                color=spec["color"],
-                s=32,
-                edgecolor="white",
-                linewidth=0.6,
-                zorder=3,
-            )
-        ax.axhline(0.0, color="#666666", lw=0.8, ls=":")
+            if best["best_lag_ka"] <= PLOT_MAX_LAG_KA:
+                ax.scatter(
+                    best["best_lag_ka"],
+                    best["best_info_bits_per_event"],
+                    color=spec["color"],
+                    s=72,
+                    edgecolor="white",
+                    linewidth=0.6,
+                    zorder=3,
+                )
+        # ax.axhline(0.0, color="#666666", lw=0.8, ls=":")
         ax.set_ylabel("Information gain\n(bits/event)")
-        ax.set_title(f"{DATASET_SETTINGS[dataset_id]['label']}: single drivers | Y history", loc="left")
-        ax.grid(True, color="#e6e6e6", lw=0.6)
-        ax.legend(frameon=False, loc="upper right", ncol=3)
-    axes[-1].set_xlabel("Driver lag (ka; positive = older driver state)")
-    fig.suptitle("Lagged model-based TE-like predictive information by driver", y=0.995, fontsize=14)
-    fig.subplots_adjust(top=0.90, hspace=0.22)
+        ax.set_title(
+            f"{DATASET_SETTINGS[dataset_id]['label']}: single drivers | baseline",
+            loc="left",
+        )
+        # ax.grid(True, color="#e6e6e6", lw=0.6)
+        ax.set_xlim(-0.3, PLOT_MAX_LAG_KA)
+        ax.text(
+            -0.075,
+            1.02,
+            chr(ord("a") + ax_idx),
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=11,
+            fontweight="bold",
+            clip_on=False,
+        )
+        # ax.legend(frameon=False, loc="lower left", ncol=3)
+        # only show legend for the first subplot to avoid redundancy
+        if ax_idx == 0:
+            ax.legend(frameon=False, loc="lower left", ncol=3)
+    axes[-1].set_xlabel("Driver lag (kyr; positive = older driver state)")
+    fig.subplots_adjust(left=0.12, right=0.98, top=0.96, bottom=0.12, hspace=0.26)
     save_figure(fig, "fig01_single_driver_lagged_information", write_pdf)
 
 
@@ -679,18 +744,23 @@ def plot_single_driver_delta_aicc(single: pd.DataFrame, write_pdf: bool) -> None
         ax.grid(True, color="#e6e6e6", lw=0.6)
         ax.legend(frameon=False, loc="lower right", ncol=3)
     axes[-1].set_xlabel("Driver lag (ka; positive = older driver state)")
-    fig.suptitle("Negative Delta AICc means lagged driver improves the history-only model", y=0.995, fontsize=14)
+    fig.suptitle(
+        "Negative Delta AICc means lagged driver improves the adjusted baseline model",
+        y=0.995,
+        fontsize=14,
+    )
     fig.subplots_adjust(top=0.90, hspace=0.22)
     save_figure(fig, "fig02_single_driver_delta_aicc", write_pdf)
 
 
 def plot_conditional_pre_phase(same_lag: pd.DataFrame, best_climate: pd.DataFrame, write_pdf: bool) -> None:
-    fig, axes = plt.subplots(2, 1, figsize=(12.8, 7.2), sharex=True)
-    for ax, dataset_id in zip(axes, DATASET_SETTINGS):
-        for table, label, style in [
-            (same_lag, "control LR04+CO2 at same lag", "-"),
-            (best_climate, "control LR04+CO2 at best lags", "--"),
-        ]:
+    fig, axes = plt.subplots(2, 1, figsize=(5.4, 8.8), sharex=True)
+    control_styles = [
+        (same_lag, "LR04+CO$_2$ at same lag", "#0072B2"),
+        (best_climate, "LR04+CO$_2$ at best lags", "#D55E00"),
+    ]
+    for ax_idx, (ax, dataset_id) in enumerate(zip(axes, DATASET_SETTINGS)):
+        for table, label, color in control_styles:
             sub = table[
                 table["dataset_id"].eq(dataset_id)
                 & table["ok"].astype(bool)
@@ -698,9 +768,9 @@ def plot_conditional_pre_phase(same_lag: pd.DataFrame, best_climate: pd.DataFram
             ax.plot(
                 sub["lag_ka"],
                 sub["info_bits_per_event"],
-                color=DATASET_SETTINGS[dataset_id]["color"],
+                color=color,
                 lw=1.7,
-                ls=style,
+                ls="-",
                 label=label,
             )
             significant = sub[sub["LR_q_value_BH"] <= 0.05]
@@ -708,19 +778,34 @@ def plot_conditional_pre_phase(same_lag: pd.DataFrame, best_climate: pd.DataFram
                 ax.scatter(
                     significant["lag_ka"],
                     significant["info_bits_per_event"],
-                    color=DATASET_SETTINGS[dataset_id]["color"],
+                    facecolors="white",
+                    edgecolors=color,
+                    linewidths=0.7,
                     s=14,
-                    alpha=0.7,
+                    alpha=0.78,
                     zorder=3,
+                    label="_nolegend_",
                 )
-        ax.axhline(0.0, color="#666666", lw=0.8, ls=":")
-        ax.set_ylabel("Additional pre-phase\ninformation (bits/event)")
-        ax.set_title(f"{DATASET_SETTINGS[dataset_id]['label']}: precession phase after climate controls", loc="left")
-        ax.grid(True, color="#e6e6e6", lw=0.6)
-        ax.legend(frameon=False, loc="upper right")
-    axes[-1].set_xlabel("Precession phase lag (ka; positive = older phase state)")
-    fig.suptitle("Conditional precession-phase information after LR04 and CO2", y=0.995, fontsize=14)
-    fig.subplots_adjust(top=0.90, hspace=0.22)
+        # ax.axhline(0.0, color="#666666", lw=0.8, ls=":")
+        ax.set_ylabel("Additional precession-phase\ninformation (bits/event)")
+        ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
+        # ax.grid(True, color="#e6e6e6", lw=0.6)
+        ax.set_xlim(0.0, PLOT_MAX_LAG_KA)
+        ax.text(
+            -0.075,
+            1.02,
+            chr(ord("a") + ax_idx),
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=11,
+            fontweight="bold",
+            clip_on=False,
+        )
+        if ax_idx == 0:
+            ax.legend(frameon=False, loc="upper right")
+    axes[-1].set_xlabel("Precession phase lag (kyr; positive = older phase state)")
+    fig.subplots_adjust(left=0.12, right=0.98, top=0.96, bottom=0.12, hspace=0.26)
     save_figure(fig, "fig03_conditional_pre_phase_after_climate", write_pdf)
 
 
@@ -774,7 +859,10 @@ def write_outputs(
     best_summary: pd.DataFrame,
 ) -> None:
     ensure_dir(OUT_DATA_DIR)
-    binned.to_csv(OUT_DATA_DIR / "binned_event_inputs_with_y_history_0p2kyr.csv", index=False)
+    binned.to_csv(
+        OUT_DATA_DIR / "binned_event_inputs_with_history_resolution_0p2kyr.csv",
+        index=False,
+    )
     single.to_csv(OUT_DATA_DIR / "single_driver_lagged_predictive_information.csv", index=False)
     same_lag.to_csv(OUT_DATA_DIR / "pre_phase_after_lr04_co2_same_lag.csv", index=False)
     best_climate.to_csv(OUT_DATA_DIR / "pre_phase_after_best_lr04_co2_lags.csv", index=False)
@@ -788,6 +876,8 @@ def write_outputs(
                 "max_lag_ka": MAX_LAG_KA,
                 "lag_step_ka": LAG_STEP_KA,
                 "y_history_window_ka": Y_HISTORY_WINDOW_KA,
+                "resolution_control": "log local Cheng composite age spacing",
+                "reduced_single_driver_model": "same-type event history + Cheng sampling resolution",
                 "common_lag_support": f"only bins with center_age + {MAX_LAG_KA:g} ka <= oldest bin center are used in every lag comparison",
                 "time_direction": "positive lag samples driver at event_age + lag, i.e. older/past climate state",
                 "information_measure": "logL_full_minus_logL_reduced from nested Poisson hazard models",

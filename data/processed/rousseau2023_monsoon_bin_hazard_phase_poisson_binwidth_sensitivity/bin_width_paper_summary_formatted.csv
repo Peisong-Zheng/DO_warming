@@ -1,11 +1,11 @@
-Dataset,Bin width (kyr),Bins,empty bins (%),Multi-event bins,Max events/bin,Best core model,full Delta AICc among core models,LR04 p,CO2 p,pre phase p,phase after climate p,phase-after-climate Delta AICc,preferred phase (deg),phase shift vs 0.2 kyr (deg),phase rate ratio,matches 0.2 kyr
-Strong monsoon starts,0.2,3200,97.0,0,1,climate_lr04_co2_pre_phase,0.0,0.002,0.013,0.001,5.2e-04,-11.09,10.8,0.0,3.18,yes
-Strong monsoon starts,0.4,1600,94.0,0,1,climate_lr04_co2_pre_phase,0.0,0.002,0.014,0.001,5.5e-04,-11.0,10.6,-0.2,3.17,yes
-Strong monsoon starts,0.6,1067,91.0,0,1,climate_lr04_co2_pre_phase,0.0,0.002,0.009,0.001,5.0e-04,-11.15,11.5,0.7,3.19,yes
-Strong monsoon starts,0.8,800,88.1,1,2,climate_lr04_co2_pre_phase,0.0,0.002,0.011,0.001,5.6e-04,-10.94,10.5,-0.3,3.16,yes
-Strong monsoon starts,1.0,640,85.0,0,1,climate_lr04_co2_pre_phase,0.0,0.002,0.012,0.001,6.0e-04,-10.78,11.1,0.3,3.15,yes
-Weak monsoon starts,0.2,3200,97.1,0,1,climate_lr04_co2_pre_phase,0.0,0.001,8.2e-05,0.007,0.005,-6.65,237.5,0.0,2.63,yes
-Weak monsoon starts,0.4,1600,94.1,0,1,climate_lr04_co2_pre_phase,0.0,0.001,1.0e-04,0.007,0.004,-6.93,237.7,0.3,2.67,yes
-Weak monsoon starts,0.6,1067,91.3,1,2,climate_lr04_co2_pre_phase,0.0,0.001,9.3e-05,0.007,0.005,-6.65,236.6,-0.8,2.63,yes
-Weak monsoon starts,0.8,800,88.5,2,2,climate_lr04_co2_pre_phase,0.0,9.9e-04,1.2e-04,0.006,0.004,-7.07,238.4,0.9,2.69,yes
-Weak monsoon starts,1.0,640,85.6,2,2,climate_lr04_co2_pre_phase,0.0,0.001,7.2e-05,0.007,0.004,-6.84,237.8,0.3,2.66,yes
+Dataset,Bin width (kyr),Bins,empty bins (%),Multi-event bins,Max events/bin,Best core model,full Delta AICc among core models,LR04 p,CO2 p,pre phase p,phase after adjusted climate p,phase-after-climate Delta AICc,preferred phase (deg),phase shift vs 0.2 kyr (deg),phase rate ratio,matches 0.2 kyr
+Strong monsoon starts,0.2,3175,97.0,0,1,baseline_climate_lr04_co2_pre_phase,0.0,2.6e-04,7.0e-04,6.8e-04,5.2e-05,-15.73,2.1,0.0,4.02,yes
+Strong monsoon starts,0.4,1587,94.0,0,1,baseline_climate_lr04_co2_pre_phase,0.0,3.5e-04,0.001,9.2e-04,7.7e-05,-14.92,4.0,1.9,3.89,yes
+Strong monsoon starts,0.6,1059,91.0,0,1,baseline_climate_lr04_co2_pre_phase,0.0,3.7e-04,7.5e-04,9.7e-04,8.7e-05,-14.65,3.7,1.6,3.87,yes
+Strong monsoon starts,0.8,794,88.2,1,2,baseline_climate_lr04_co2_pre_phase,0.0,4.7e-04,0.001,0.001,1.4e-04,-13.72,3.9,1.8,3.71,yes
+Strong monsoon starts,1.0,635,85.0,0,1,baseline_climate_lr04_co2_pre_phase,0.0,6.7e-04,0.002,0.002,2.3e-04,-12.64,5.5,3.4,3.55,yes
+Weak monsoon starts,0.2,3175,96.9,0,1,baseline_climate_lr04_co2_pre_phase,0.0,9.5e-05,3.3e-06,0.009,7.0e-04,-10.5,232.8,0.0,3.21,yes
+Weak monsoon starts,0.4,1587,93.8,0,1,baseline_climate_lr04_co2_pre_phase,0.0,1.7e-04,1.0e-05,0.011,0.001,-9.48,233.8,1.0,3.07,yes
+Weak monsoon starts,0.6,1059,90.7,1,2,baseline_climate_lr04_co2_pre_phase,0.0,1.8e-04,1.3e-05,0.009,0.001,-9.74,233.6,0.8,3.08,yes
+Weak monsoon starts,0.8,794,87.9,2,2,baseline_climate_lr04_co2_pre_phase,0.0,2.6e-04,2.9e-05,0.010,0.001,-9.71,234.5,1.7,3.11,yes
+Weak monsoon starts,1.0,635,84.9,2,2,baseline_climate_lr04_co2_pre_phase,0.0,2.4e-04,1.2e-05,0.010,0.001,-9.6,232.8,0.0,3.08,yes

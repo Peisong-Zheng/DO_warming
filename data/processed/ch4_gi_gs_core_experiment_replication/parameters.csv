@@ -1,0 +1,2 @@
+analysis_start_ka,analysis_end_ka,ch4_event_source,cheng_strong_source,cheng_weak_source,event_mapping,bin_width_ka,event_count_window_ka,time_grid_step_ka,n_monte_carlo,pre_phase_convention
+0.0,640.0,data/processed/ch4_gi_gs_rousseau_ks/ch4_gi_gs_detected_transitions.csv,data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv,data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv,CH4 GI start -> strong/interstadial-like; CH4 GS start -> weak/stadial-like,0.2,20.0,0.2,5000,precession-index minima=0 rad; maxima=pi rad

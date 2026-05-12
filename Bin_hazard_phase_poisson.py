@@ -46,6 +46,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
@@ -59,8 +60,8 @@ RUN_NAME = "rousseau2023_monsoon_bin_hazard_phase_poisson"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
-STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_strong_monsoon_start_times.csv"
-WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_weak_monsoon_start_times.csv"
+STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv"
+WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv"
 LR04_XLSX = PROJECT_ROOT / "data/raw/lr04.xlsx"
 CO2_XLSX = PROJECT_ROOT / "data/raw/composite_co2.xlsx"
 PRE_TXT = PROJECT_ROOT / "data/raw/pre_800_inter100.txt"
@@ -84,20 +85,20 @@ DATASET_SETTINGS = {
     "strong_monsoon_start": {
         "label": "Strong monsoon starts",
         "path": STRONG_CSV,
-        "color": "#6a3d9a",
+        "color": "#d95f02",
     },
     "weak_monsoon_start": {
         "label": "Weak monsoon starts",
         "path": WEAK_CSV,
-        "color": "#d95f02",
+        "color": "#6a3d9a",
     },
 }
 
 MODEL_COLORS = {
     "stationary": "#777777",
-    "climate_lr04_co2": "#1b9e77",
-    "pre_phase": "#7570b3",
-    "climate_lr04_co2_pre_phase": "#d95f02",
+    "climate_lr04_co2": "#1865C3",
+    "pre_phase": "#0e470c",
+    "climate_lr04_co2_pre_phase": "#F20D0D",
 }
 
 
@@ -506,9 +507,12 @@ def fit_poisson_model(
     mu = rate * dt
     log_likelihood = poisson_loglik(beta, x, y, dt)
     k = len(beta)
-    # AICc is used for model ranking because there are thousands of bins but
-    # still finite sample size relative to the number of fitted parameters.
+    # AICc is the small-sample corrected Akaike information criterion. Lower
+    # AICc indicates better expected out-of-sample support after penalizing the
+    # number of fitted parameters.
     aic = 2.0 * k - 2.0 * log_likelihood
+    # Small-sample correction follows the usual Hurvich and Tsai (1989) form.
+    # Reference: https://www.rdocumentation.org/packages/sme/versions/1.0.2/topics/AICc
     aicc = aic + (2.0 * k * (k + 1.0)) / max(n_obs - k - 1.0, 1.0)
     bic = np.log(n_obs) * k - 2.0 * log_likelihood
 
@@ -636,11 +640,18 @@ def build_likelihood_tests(models: list[FittedPoissonModel]) -> pd.DataFrame:
         for comparison_id, reduced_id, full_id in comparisons:
             reduced = lookup[(dataset_id, reduced_id)]
             full = lookup[(dataset_id, full_id)]
-            # Wilks-style nested model comparison: 2 * log-likelihood gain is
-            # compared with chi-square(df), where df is the number of added
-            # parameters.
+            # Wilks-style nested model comparison:
+            # LR = -2 log(L_reduced / L_full)
+            #    = 2 * (logL_full - logL_reduced).
+            # Under the null that the added coefficients are unnecessary, this
+            # statistic is asymptotically chi-square distributed. The degrees
+            # of freedom are the number of added free coefficients; for
+            # ``phase_after_climate`` this is 2 because sin(theta) and
+            # cos(theta) are added together.
+            # Reference: https://www.geeksforgeeks.org/r-language/likelihood-ratio-test/
             lr_stat = 2.0 * (full.log_likelihood - reduced.log_likelihood)
             df = len(full.beta) - len(reduced.beta)
+
             p_value = float(chi2.sf(max(lr_stat, 0.0), df))
             rows.append(
                 {
@@ -798,6 +809,123 @@ def plot_inputs_and_rates(
     save_figure(fig, "fig01_binned_inputs_and_fitted_hazards", write_pdf)
 
 
+def format_p_value(p_value: float) -> str:
+    return f"{p_value:.2e}"
+
+
+def plot_fitted_hazards_only(
+    binned_inputs: pd.DataFrame,
+    fitted_rates: pd.DataFrame,
+    likelihood_tests: pd.DataFrame,
+    summary: pd.DataFrame,
+    write_pdf: bool,
+) -> None:
+    fig, axes = plt.subplots(2, 1, figsize=(13, 5.6), sharex=True)
+    dataset_event_counts = {
+        dataset_id: int(
+            binned_inputs.loc[binned_inputs["dataset_id"].eq(dataset_id), "event_count"].sum()
+        )
+        for dataset_id in DATASET_SETTINGS
+    }
+
+    for ax_idx, dataset_id in enumerate(DATASET_SETTINGS):
+        ax = axes[ax_idx]
+        settings = DATASET_SETTINGS[dataset_id]
+        data = binned_inputs[binned_inputs["dataset_id"].eq(dataset_id)]
+        event_bins = data[data["event_count"] > 0]
+        ax.vlines(
+            event_bins["bin_center_ka"],
+            0.0,
+            event_bins["event_count"],
+            color=settings["color"],
+            lw=0.8,
+            alpha=0.55,
+            label="_nolegend_",
+        )
+        for model_id in ("climate_lr04_co2", "climate_lr04_co2_pre_phase"):
+            rates = fitted_rates[
+                fitted_rates["dataset_id"].eq(dataset_id)
+                & fitted_rates["model_id"].eq(model_id)
+            ]
+            ax.plot(
+                rates["bin_center_ka"],
+                rates["lambda_per_kyr"],
+                color=MODEL_COLORS[model_id],
+                lw=1.2,
+                label="_nolegend_",
+            )
+
+        phase_test = likelihood_tests[
+            likelihood_tests["dataset_id"].eq(dataset_id)
+            & likelihood_tests["comparison_id"].eq("phase_after_climate")
+        ].iloc[0]
+        ax.text(
+            0.01,
+            0.94,
+            f"Precession phase after LR04+CO$_2$: LR={phase_test['LR_statistic']:.2f}, "
+            f"p={format_p_value(phase_test['LR_p_value'])}",
+            transform=ax.transAxes,
+            ha="left",
+            va="top",
+            bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#bbbbbb", "alpha": 0.85},
+        )
+        ax.set_ylabel("rate / kyr")
+        ax.grid(True, color="#e6e6e6", lw=0.6)
+        ax.set_xlim(ANALYSIS_START_KA, ANALYSIS_END_KA)
+        ax.text(
+            -0.045,
+            1.02,
+            chr(ord("a") + ax_idx),
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=11,
+            fontweight="bold",
+            clip_on=False,
+        )
+
+    legend_handles = [
+        Line2D(
+            [0],
+            [0],
+            color=DATASET_SETTINGS["strong_monsoon_start"]["color"],
+            lw=1.2,
+            alpha=0.55,
+            label=f"Strong observed event bins (N={dataset_event_counts['strong_monsoon_start']})",
+        ),
+        Line2D(
+            [0],
+            [0],
+            color=DATASET_SETTINGS["weak_monsoon_start"]["color"],
+            lw=1.2,
+            alpha=0.55,
+            label=f"Weak observed event bins (N={dataset_event_counts['weak_monsoon_start']})",
+        ),
+        Line2D([0], [0], color=MODEL_COLORS["climate_lr04_co2"], lw=1.2, label="LR04 + CO$_2$"),
+        Line2D(
+            [0],
+            [0],
+            color=MODEL_COLORS["climate_lr04_co2_pre_phase"],
+            lw=1.2,
+            label="LR04 + CO$_2$ + precession phase",
+        ),
+    ]
+    axes[0].legend(
+        handles=legend_handles,
+        loc="lower right",
+        bbox_to_anchor=(1.0, 1.03),
+        ncol=4,
+        frameon=False,
+        borderaxespad=0.0,
+    )
+    # set y lim to [0, 0.6] 
+    for ax in axes:
+        ax.set_ylim(0, 0.6)
+    axes[-1].set_xlabel("Age (kyr BP)")
+    fig.subplots_adjust(left=0.10, right=0.90, top=0.94, bottom=0.12, hspace=0.35)
+    save_figure(fig, "fig03_fitted_hazards_from_fig01de", write_pdf)
+
+
 def plot_model_comparison(summary: pd.DataFrame, likelihood_tests: pd.DataFrame, write_pdf: bool) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(12.8, 4.8), sharey=True)
     for ax, dataset_id in zip(axes, DATASET_SETTINGS):
@@ -944,6 +1072,7 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
         fitted_rates,
     )
     plot_inputs_and_rates(binned_inputs, fitted_rates, likelihood_tests, write_pdf)
+    plot_fitted_hazards_only(binned_inputs, fitted_rates, likelihood_tests, summary, write_pdf)
     plot_model_comparison(summary, likelihood_tests, write_pdf)
     plot_phase_response(summary, write_pdf)
     plot_event_phase_histograms(binned_inputs, summary, write_pdf)

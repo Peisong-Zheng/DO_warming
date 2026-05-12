@@ -26,7 +26,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
+from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea, HPacker, TextArea, VPacker
+from matplotlib.patches import Patch, Rectangle
 import numpy as np
 import pandas as pd
 
@@ -36,8 +37,8 @@ RUN_NAME = "rousseau2023_monsoon_randomness_lohmann"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
-ROUSSEAU_STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_strong_monsoon_start_times.csv"
-ROUSSEAU_WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_weak_monsoon_start_times.csv"
+ROUSSEAU_STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv"
+ROUSSEAU_WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv"
 ROUSSEAU_MAX_AGE_KA = 640.0
 
 RANDOM_SEED = 20260428
@@ -202,6 +203,20 @@ def simulate_lohmann_one_process(
     )
     # print dataset.analysis_start_ka, dataset.analysis_end_ka, size=ages.size, rate_per_kyr, and duration_ka for debugging
     print(f"{dataset.dataset_id}: start={dataset.analysis_start_ka} ka, end={dataset.analysis_end_ka} ka, n_events={ages.size}, rate={rate_per_kyr:.3f} per kyr, duration={duration_ka:.1f} kyr")
+    # plot the event ages as vertical lines for debugging
+    fig, ax = plt.subplots(figsize=(6.0, 1.0))
+    ax.vlines(ages, 0, 1, color="#202020", linewidth=1.0)
+    ax.set_xlim(dataset.analysis_start_ka - 10, dataset.analysis_end_ka + 10)
+    ax.set_ylim(0, 1)
+    ax.set_xlabel("Age (ka)")
+    ax.set_yticks([])
+    ax.set_title(f"{dataset.label} event ages")
+    # save the figure to OUT_FIG_DIR for debugging
+    ensure_dir(OUT_FIG_DIR)
+    fig.savefig(OUT_FIG_DIR / f"{dataset.dataset_id}_event_ages.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
 
     observed_counts = moving_event_counts(ages, centers, window_ka)
     observed_es = rms_deviation(observed_counts, expected_count)
@@ -392,6 +407,84 @@ def add_inside_legend(
         columnspacing=0.75,
     )
     legend._legend_box.align = "left"
+    return legend
+
+
+def legend_text_area(text: str, color: str = "#202020", fontsize: float = 5.8) -> TextArea:
+    return TextArea(text, textprops={"color": color, "size": fontsize})
+
+
+def legend_patch_area(facecolor: str, edgecolor: str, alpha: float) -> DrawingArea:
+    area = DrawingArea(12, 8, 0, 0)
+    area.add_artist(
+        Rectangle(
+            (0.5, 1.5),
+            11,
+            5,
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            alpha=alpha,
+            linewidth=1.0,
+        )
+    )
+    return area
+
+
+def legend_line_area(color: str, linewidth: float) -> DrawingArea:
+    area = DrawingArea(12, 8, 0, 0)
+    area.add_artist(Line2D([0.5, 11.5], [4, 4], color=color, linewidth=linewidth))
+    return area
+
+
+def legend_row(handle_area: DrawingArea, text_parts: list[TextArea]) -> HPacker:
+    label = HPacker(children=text_parts, align="baseline", pad=0, sep=0)
+    return HPacker(children=[handle_area, label], align="center", pad=0, sep=4)
+
+
+def p_value_text_parts(prefix: str, value: float, threshold: float = 0.05) -> list[TextArea]:
+    value_color = "#d62728" if np.isfinite(value) and value > threshold else "#202020"
+    return [
+        legend_text_area(prefix),
+        legend_text_area(format_p_value(value), color=value_color),
+    ]
+
+
+def add_es_distribution_legend(ax: plt.Axes, result: RandomnessResult) -> None:
+    """Add a manually packed legend so only p-value numbers can be colored."""
+
+    rows = [
+        legend_text_area(
+            f"{short_label(result.dataset.label)}\nN={len(result.dataset.ages_ka)}",
+            fontsize=6.4,
+        ),
+        legend_row(
+            legend_patch_area("#9ecae1", "#4d8fbd", 0.55),
+            p_value_text_parts(r"Poisson null: $p_P$=", result.poisson_es_p_value),
+        ),
+        legend_row(
+            legend_line_area("#222222", 1.7),
+            p_value_text_parts(r"fixed-N null: $p_N$=", result.conditional_es_p_value),
+        ),
+        legend_row(
+            legend_line_area("#d95f02", 1.8),
+            [legend_text_area(rf"observed $E_S$={result.observed_es:.2f}")],
+        ),
+    ]
+    legend_box = VPacker(children=rows, align="left", pad=0, sep=2)
+    anchored = AnchoredOffsetbox(
+        loc="lower center",
+        child=legend_box,
+        bbox_to_anchor=(0.5, 1.03),
+        bbox_transform=ax.transAxes,
+        frameon=True,
+        pad=0.25,
+        borderpad=0.35,
+    )
+    anchored.patch.set_facecolor("white")
+    anchored.patch.set_alpha(0.88)
+    anchored.patch.set_edgecolor("#bbbbbb")
+    anchored.patch.set_boxstyle("square,pad=0.25")
+    ax.add_artist(anchored)
 
 
 def plot_event_count_windows(results: list[RandomnessResult], window_ka: float, write_pdf: bool) -> None:
@@ -478,24 +571,7 @@ def plot_es_distributions(results: list[RandomnessResult], write_pdf: bool) -> N
         ax.axvline(result.observed_es, color="#d95f02", linewidth=1.8)
         ax.set_xlabel(r"$E_S$")
         ax.set_ylabel("Density")
-        handles = [
-            Patch(facecolor="#9ecae1", edgecolor="#4d8fbd", alpha=0.55),
-            Line2D([0], [0], color="#222222", linewidth=1.7),
-            Line2D([0], [0], color="#d95f02", linewidth=1.8),
-        ]
-        labels = [
-            rf"Poisson null: $p_P$={format_p_value(result.poisson_es_p_value)}",
-            rf"fixed-N null: $p_N$={format_p_value(result.conditional_es_p_value)}",
-            rf"observed $E_S$={result.observed_es:.2f}",
-        ]
-        add_inside_legend(
-            ax,
-            handles,
-            labels,
-            title=f"{short_label(result.dataset.label)}\nN={len(result.dataset.ages_ka)}",
-            loc="lower center",
-            bbox_to_anchor=(0.5, 1.03),
-        )
+        add_es_distribution_legend(ax, result)
     for ax in axes[len(results) :]:
         ax.axis("off")
     fig.subplots_adjust(left=0.10, right=0.99, bottom=0.16, top=0.68, hspace=0.60, wspace=0.30)

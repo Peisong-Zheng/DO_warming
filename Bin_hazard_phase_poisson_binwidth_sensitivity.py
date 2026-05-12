@@ -8,18 +8,20 @@ not so short that almost every bin is empty. This script repeats the core GLM
 analysis for a range of bin widths and checks whether the main qualitative
 conclusions remain stable:
 
-1. whether LR04, CO2, and precession phase improve event-hazard models;
-2. whether precession phase still adds information after LR04 + CO2;
+1. whether LR04, CO2, and precession phase improve event-hazard models after
+   controlling same-type event history and Cheng composite sampling resolution;
+2. whether precession phase still adds information after the adjusted
+   LR04 + CO2 model;
 3. whether the preferred precession phase is close to the 0.2 kyr result;
 4. how sparse the event counts are at each bin width.
 
-The likelihood is the same as in
-``analyze_rousseau2023_monsoon_bin_hazard_phase_poisson.py``:
+The likelihood is the same as in the core binned hazard scripts:
 
     Y_i ~ Poisson(lambda_i * dt_i)
     log(lambda_i) = beta0 + beta X_i
 
-Only the bin grid changes. The main paper-ready table is
+Only the bin grid changes; the 5 kyr history window and Cheng sampling-
+resolution control are recomputed on each candidate grid. The main paper-ready table is
 ``bin_width_paper_summary.csv``; detailed model and test tables are also
 written for auditability.
 """
@@ -35,9 +37,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import chi2
 
 import Bin_hazard_phase_poisson as base
+import Predictive_hazard_history_resolution as predictive
 
 
 RUN_NAME = "rousseau2023_monsoon_bin_hazard_phase_poisson_binwidth_sensitivity"
@@ -48,103 +50,14 @@ DEFAULT_BIN_WIDTHS_KA = (0.2, 0.4, 0.6, 0.8, 1.0)
 PHASE_MATCH_TOLERANCE_DEG = 30.0
 CORE_MODEL_IDS = (
     "stationary",
-    "pre_phase",
-    "climate_lr04_co2",
-    "climate_lr04_co2_pre_phase",
+    "history_resolution_baseline",
+    "baseline_pre_phase",
+    "baseline_climate_lr04_co2",
+    "baseline_climate_lr04_co2_pre_phase",
 )
 
-MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
-    ("stationary", (), "Stationary"),
-    ("lr04_only", ("lr04_scaled",), "LR04"),
-    ("co2_only", ("co2_scaled",), "CO2"),
-    ("pre_phase", ("pre_phase_sin", "pre_phase_cos"), "Precession phase"),
-    ("climate_lr04_co2", ("lr04_scaled", "co2_scaled"), "LR04 + CO2"),
-    (
-        "lr04_pre_phase",
-        ("lr04_scaled", "pre_phase_sin", "pre_phase_cos"),
-        "LR04 + precession phase",
-    ),
-    (
-        "co2_pre_phase",
-        ("co2_scaled", "pre_phase_sin", "pre_phase_cos"),
-        "CO2 + precession phase",
-    ),
-    (
-        "climate_lr04_co2_pre_phase",
-        ("lr04_scaled", "co2_scaled", "pre_phase_sin", "pre_phase_cos"),
-        "LR04 + CO2 + precession phase",
-    ),
-]
-
-MODEL_COLORS = {
-    "stationary": "#777777",
-    "lr04_only": "#1b9e77",
-    "co2_only": "#d95f02",
-    "pre_phase": "#7570b3",
-    "climate_lr04_co2": "#66a61e",
-    "lr04_pre_phase": "#a6cee3",
-    "co2_pre_phase": "#fdbf6f",
-    "climate_lr04_co2_pre_phase": "#e7298a",
-}
-
-TEST_SPECS: list[tuple[str, str, str, str, str]] = [
-    (
-        "lr04_vs_stationary",
-        "single_driver",
-        "stationary",
-        "lr04_only",
-        "LR04 vs stationary",
-    ),
-    (
-        "co2_vs_stationary",
-        "single_driver",
-        "stationary",
-        "co2_only",
-        "CO2 vs stationary",
-    ),
-    (
-        "pre_phase_vs_stationary",
-        "single_driver",
-        "stationary",
-        "pre_phase",
-        "Precession phase vs stationary",
-    ),
-    (
-        "climate_vs_stationary",
-        "core_model",
-        "stationary",
-        "climate_lr04_co2",
-        "LR04 + CO2 vs stationary",
-    ),
-    (
-        "phase_after_climate",
-        "core_model",
-        "climate_lr04_co2",
-        "climate_lr04_co2_pre_phase",
-        "Precession phase after LR04 + CO2",
-    ),
-    (
-        "lr04_unique_in_full",
-        "drop_one",
-        "co2_pre_phase",
-        "climate_lr04_co2_pre_phase",
-        "LR04 unique in full",
-    ),
-    (
-        "co2_unique_in_full",
-        "drop_one",
-        "lr04_pre_phase",
-        "climate_lr04_co2_pre_phase",
-        "CO2 unique in full",
-    ),
-    (
-        "full_vs_stationary",
-        "core_model",
-        "stationary",
-        "climate_lr04_co2_pre_phase",
-        "Full model vs stationary",
-    ),
-]
+MODEL_SPECS = predictive.MODEL_SPECS
+MODEL_COLORS = predictive.MODEL_COLORS
 
 
 plt.rcParams.update(
@@ -180,26 +93,37 @@ def circular_signed_difference_deg(angle_deg: pd.Series, reference_deg: pd.Serie
 
 
 def fit_models_for_width(bin_width_ka: float) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Fit all sensitivity models after temporarily changing the baseline bin width."""
+    """Fit all sensitivity models after temporarily changing the bin width.
+
+    The original helper functions read ``base.BIN_WIDTH_KA`` when constructing
+    bin edges. Temporarily replacing that module-level value lets the
+    sensitivity test reuse exactly the same input construction and likelihood
+    code for every grid, then restore the default width before returning.
+    """
 
     original_width = base.BIN_WIDTH_KA
     try:
         base.BIN_WIDTH_KA = float(bin_width_ka)
-        events = base.load_all_events()
-        binned_inputs, _, phase_extrema = base.build_binned_inputs(events)
-        models = []
-        for _, group in binned_inputs.groupby("dataset_id", sort=False):
-            for model_id, terms, label in MODEL_SPECS:
-                models.append(base.fit_poisson_model(group, model_id, terms, label))
-        summary = base.build_model_summary(models, binned_inputs)
-        likelihood_tests = build_likelihood_tests(models, bin_width_ka)
-        occupancy = build_occupancy_summary(binned_inputs, bin_width_ka)
+        binned_inputs, _, phase_extrema, _ = predictive.build_adjusted_inputs(
+            predictive.MAIN_HISTORY_WINDOW_KA
+        )
+        fit_frame = predictive.model_frame(binned_inputs)
+        models = predictive.fit_adjusted_models(binned_inputs)
+        summary = base.build_model_summary(models, fit_frame)
+        likelihood_tests = predictive.build_adjusted_likelihood_tests(
+            models,
+            fit_frame,
+            predictive.MAIN_HISTORY_WINDOW_KA,
+        )
+        likelihood_tests.insert(0, "bin_width_ka", float(bin_width_ka))
+        occupancy = build_occupancy_summary(fit_frame, bin_width_ka)
     finally:
         base.BIN_WIDTH_KA = original_width
 
     binned_inputs = binned_inputs.copy()
     binned_inputs["bin_width_ka"] = float(bin_width_ka)
     summary["bin_width_ka"] = float(bin_width_ka)
+    summary["history_window_ka"] = predictive.MAIN_HISTORY_WINDOW_KA
     phase_extrema = phase_extrema.copy()
     phase_extrema["bin_width_ka"] = float(bin_width_ka)
     return binned_inputs, summary, likelihood_tests, occupancy
@@ -207,39 +131,6 @@ def fit_models_for_width(bin_width_ka: float) -> tuple[pd.DataFrame, pd.DataFram
 
 def model_lookup(models: list[base.FittedPoissonModel]) -> dict[tuple[str, str], base.FittedPoissonModel]:
     return {(model.dataset_id, model.model_id): model for model in models}
-
-
-def build_likelihood_tests(models: list[base.FittedPoissonModel], bin_width_ka: float) -> pd.DataFrame:
-    lookup = model_lookup(models)
-    rows = []
-    for dataset_id in base.DATASET_SETTINGS:
-        for comparison_id, family, reduced_id, full_id, label in TEST_SPECS:
-            reduced = lookup[(dataset_id, reduced_id)]
-            full = lookup[(dataset_id, full_id)]
-            lr_stat = 2.0 * (full.log_likelihood - reduced.log_likelihood)
-            df = len(full.beta) - len(reduced.beta)
-            p_value = float(chi2.sf(max(lr_stat, 0.0), df))
-            rows.append(
-                {
-                    "bin_width_ka": float(bin_width_ka),
-                    "dataset_id": dataset_id,
-                    "dataset_label": full.dataset_label,
-                    "comparison_id": comparison_id,
-                    "comparison_family": family,
-                    "comparison_label": label,
-                    "reduced_model_id": reduced_id,
-                    "full_model_id": full_id,
-                    "df": int(df),
-                    "loglik_reduced": reduced.log_likelihood,
-                    "loglik_full": full.log_likelihood,
-                    "LR_statistic": lr_stat,
-                    "LR_p_value": p_value,
-                    "significant_p05": bool(p_value < 0.05),
-                    "delta_AICc_full_minus_reduced": full.aicc - reduced.aicc,
-                    "AICc_supports_full": bool((full.aicc - reduced.aicc) < 0.0),
-                }
-            )
-    return pd.DataFrame(rows)
 
 
 def build_occupancy_summary(binned_inputs: pd.DataFrame, bin_width_ka: float) -> pd.DataFrame:
@@ -287,7 +178,7 @@ def build_paper_summary(
     core = model_summary[model_summary["model_id"].isin(CORE_MODEL_IDS)].copy()
     core["delta_AICc_core"] = core["AICc"] - core.groupby(["dataset_id", "bin_width_ka"])["AICc"].transform("min")
     core["rank_AICc_core"] = core.groupby(["dataset_id", "bin_width_ka"])["AICc"].rank(method="first")
-    full = core[core["model_id"].eq("climate_lr04_co2_pre_phase")].copy()
+    full = core[core["model_id"].eq("baseline_climate_lr04_co2_pre_phase")].copy()
     full = full[
         [
             "bin_width_ka",
@@ -317,13 +208,13 @@ def build_paper_summary(
     out = out.merge(best, on=["bin_width_ka", "dataset_id"], how="left")
 
     for comparison_id, prefix in [
-        ("lr04_vs_stationary", "lr04_alone"),
-        ("co2_vs_stationary", "co2_alone"),
-        ("pre_phase_vs_stationary", "pre_phase_alone"),
-        ("climate_vs_stationary", "climate"),
-        ("phase_after_climate", "phase_after_climate"),
-        ("lr04_unique_in_full", "lr04_unique"),
-        ("co2_unique_in_full", "co2_unique"),
+        ("lr04_after_baseline", "lr04_after_baseline"),
+        ("co2_after_baseline", "co2_after_baseline"),
+        ("pre_phase_after_baseline", "pre_phase_after_baseline"),
+        ("climate_lr04_co2_after_baseline", "climate_after_baseline"),
+        ("phase_after_adjusted_climate", "phase_after_adjusted_climate"),
+        ("lr04_after_adjusted_co2_phase", "lr04_unique"),
+        ("co2_after_adjusted_lr04_phase", "co2_unique"),
     ]:
         out = out.merge(
             collect_test_value(likelihood_tests, comparison_id, "LR_p_value", f"{prefix}_p"),
@@ -349,9 +240,16 @@ def build_paper_summary(
         out["pre_phase_preferred_deg"],
         out["pre_phase_preferred_deg_0p2_ref"],
     )
-    out["phase_after_climate_robust_p05"] = out["phase_after_climate_p"] < 0.05
+    # Backward-compatible aliases keep the plotting code readable while the
+    # output names make clear that the reduced model includes history,
+    # resolution, LR04, and CO2.
+    out["phase_after_climate_p"] = out["phase_after_adjusted_climate_p"]
+    out["phase_after_climate_delta_AICc_full_minus_reduced"] = out[
+        "phase_after_adjusted_climate_delta_AICc_full_minus_reduced"
+    ]
+    out["phase_after_climate_robust_p05"] = out["phase_after_adjusted_climate_p"] < 0.05
     out["phase_after_climate_AICc_support"] = (
-        out["phase_after_climate_delta_AICc_full_minus_reduced"] < 0.0
+        out["phase_after_adjusted_climate_delta_AICc_full_minus_reduced"] < 0.0
     )
     out["preferred_phase_within_30deg_of_0p2"] = (
         out["preferred_phase_shift_vs_0p2_deg"].abs() <= PHASE_MATCH_TOLERANCE_DEG
@@ -374,9 +272,9 @@ def build_paper_summary(
         "best_core_model_id",
         "full_model_core_rank_AICc",
         "full_model_core_delta_AICc",
-        "lr04_alone_p",
-        "co2_alone_p",
-        "pre_phase_alone_p",
+        "lr04_after_baseline_p",
+        "co2_after_baseline_p",
+        "pre_phase_after_baseline_p",
         "phase_after_climate_p",
         "phase_after_climate_delta_AICc_full_minus_reduced",
         "pre_phase_preferred_deg",
@@ -406,10 +304,10 @@ def build_paper_summary_formatted(paper: pd.DataFrame) -> pd.DataFrame:
     out["phase shift vs 0.2 kyr (deg)"] = out["preferred_phase_shift_vs_0p2_deg"].round(1)
     out["phase rate ratio"] = out["pre_phase_rate_ratio_max_vs_min"].round(2)
     for src, dst in [
-        ("lr04_alone_p", "LR04 p"),
-        ("co2_alone_p", "CO2 p"),
-        ("pre_phase_alone_p", "pre phase p"),
-        ("phase_after_climate_p", "phase after climate p"),
+        ("lr04_after_baseline_p", "LR04 p"),
+        ("co2_after_baseline_p", "CO2 p"),
+        ("pre_phase_after_baseline_p", "pre phase p"),
+        ("phase_after_climate_p", "phase after adjusted climate p"),
     ]:
         out[dst] = out[src].map(format_p_value)
     out["matches 0.2 kyr"] = np.where(out["qualitatively_matches_0p2"], "yes", "no")
@@ -426,7 +324,7 @@ def build_paper_summary_formatted(paper: pd.DataFrame) -> pd.DataFrame:
             "LR04 p",
             "CO2 p",
             "pre phase p",
-            "phase after climate p",
+            "phase after adjusted climate p",
             "phase-after-climate Delta AICc",
             "preferred phase (deg)",
             "phase shift vs 0.2 kyr (deg)",
@@ -465,10 +363,10 @@ def plot_phase_stability(paper: pd.DataFrame, write_pdf: bool) -> None:
     axes[0, 0].axhline(0.05, color="#555555", lw=0.8, ls="--")
     axes[0, 0].set_yscale("log")
     axes[0, 0].set_ylabel("LR p value")
-    axes[0, 0].set_title("Precession phase after LR04 + CO2", loc="left")
+    axes[0, 0].set_title("Precession phase after adjusted LR04 + CO2", loc="left")
 
     axes[0, 1].axhline(0.0, color="#555555", lw=0.8, ls="--")
-    axes[0, 1].set_ylabel("Delta AICc full - climate")
+    axes[0, 1].set_ylabel("Delta AICc full - adjusted climate")
     axes[0, 1].set_title("AICc support for adding phase", loc="left")
 
     axes[1, 0].set_ylim(0, 360)
@@ -489,10 +387,10 @@ def plot_phase_stability(paper: pd.DataFrame, write_pdf: bool) -> None:
 
 def plot_driver_pvalues(likelihood_tests: pd.DataFrame, write_pdf: bool) -> None:
     comparisons = [
-        ("lr04_vs_stationary", "LR04"),
-        ("co2_vs_stationary", "CO2"),
-        ("pre_phase_vs_stationary", "pre phase"),
-        ("phase_after_climate", "pre phase | LR04+CO2"),
+        ("lr04_after_baseline", "LR04 | baseline"),
+        ("co2_after_baseline", "CO2 | baseline"),
+        ("pre_phase_after_baseline", "pre phase | baseline"),
+        ("phase_after_adjusted_climate", "pre phase | adjusted LR04+CO2"),
     ]
     fig, axes = plt.subplots(1, 2, figsize=(12.8, 4.8), sharey=True)
     for ax, dataset_id in zip(axes, base.DATASET_SETTINGS):
@@ -511,7 +409,15 @@ def plot_driver_pvalues(likelihood_tests: pd.DataFrame, write_pdf: bool) -> None
 
 
 def plot_model_delta_aicc(model_summary: pd.DataFrame, write_pdf: bool) -> None:
-    model_ids = ["stationary", "lr04_only", "co2_only", "pre_phase", "climate_lr04_co2", "climate_lr04_co2_pre_phase"]
+    model_ids = [
+        "stationary",
+        "history_resolution_baseline",
+        "baseline_lr04",
+        "baseline_co2",
+        "baseline_pre_phase",
+        "baseline_climate_lr04_co2",
+        "baseline_climate_lr04_co2_pre_phase",
+    ]
     fig, axes = plt.subplots(1, 2, figsize=(12.8, 4.8), sharey=True)
     for ax, dataset_id in zip(axes, base.DATASET_SETTINGS):
         sub = model_summary[model_summary["dataset_id"].eq(dataset_id)]
@@ -558,10 +464,12 @@ def write_outputs(
             {
                 "bin_widths_ka": " ".join(f"{width:g}" for width in bin_widths),
                 "phase_match_tolerance_deg": PHASE_MATCH_TOLERANCE_DEG,
-                "main_model_id": "climate_lr04_co2_pre_phase",
-                "phase_test": "phase_after_climate",
+                "history_window_ka": predictive.MAIN_HISTORY_WINDOW_KA,
+                "baseline_model_id": "history_resolution_baseline",
+                "main_model_id": "baseline_climate_lr04_co2_pre_phase",
+                "phase_test": "phase_after_adjusted_climate",
                 "phase_convention": "precession-index minima=0 rad; maxima=pi rad",
-                "note": "qualitatively_matches_0p2 requires p<0.05, Delta AICc<0, and preferred phase within tolerance of the 0.2 kyr result",
+                "note": "qualitatively_matches_0p2 requires adjusted phase p<0.05, Delta AICc<0, and preferred phase within tolerance of the 0.2 kyr result",
             }
         ]
     ).to_csv(OUT_DATA_DIR / "parameters.csv", index=False)
