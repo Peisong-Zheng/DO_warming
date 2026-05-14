@@ -1,0 +1,16 @@
+{
+  "[latex]": {
+    "editor.fontFamily": "Menlo, 'SF Mono', Monaco, 'PingFang SC', 'Courier New', monospace",
+    "editor.fontSize": 15,
+    "editor.lineHeight": 26,
+    "editor.wordWrap": "on",
+    "editor.wordWrapColumn": 88,
+    "editor.wrappingIndent": "same",
+    "editor.tabSize": 4,
+    "editor.minimap.enabled": false,
+    "editor.renderWhitespace": "boundary",
+    "editor.unicodeHighlight.ambiguousCharacters": false
+  },
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.synctex.afterBuild.enabled": true
+}

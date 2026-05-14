@@ -2,7 +2,7 @@
 Sensitivity experiment for the Rousseau et al. (2023) 0.2 kyr bin Poisson
 hazard models.
 
-The main adjusted predictive-hazard script fits a compact hazard GLM:
+The main predictive-information script fits a compact binned Poisson model:
 
     Y_i ~ Poisson(lambda_i * dt)
     log(lambda_i) = beta0 + history_i + resolution_i
@@ -55,6 +55,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from scipy.stats import chi2
+from paper_figure_export import save_paper_pdf
 
 from Bin_hazard_phase_poisson import (
     ANALYSIS_END_KA,
@@ -87,7 +88,7 @@ INSOLATION_LATITUDE_DEG_N = 65.0
 BASE_TERMS = predictive.FULL_TERMS
 EXTRA_TERMS = ("AT_scaled", "obl_scaled", "ecc_scaled", "insol65N_scaled")
 EXTRA_TERM_LABELS = {
-    "AT_scaled": "AT",
+    "AT_scaled": "Antarctic T",
     "obl_scaled": "obliquity",
     "ecc_scaled": "eccentricity",
     "insol65N_scaled": "65N solstice insolation",
@@ -95,22 +96,30 @@ EXTRA_TERM_LABELS = {
 
 MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
     ("stationary", (), "Stationary"),
-    ("history_resolution_baseline", predictive.BASELINE_TERMS, "History + resolution"),
+    (
+        "history_resolution_baseline",
+        predictive.BASELINE_TERMS,
+        "Event-process baseline",
+    ),
     (
         "adjusted_climate",
         predictive.BASELINE_TERMS + predictive.CLIMATE_TERMS,
-        "Baseline + LR04 + CO2",
+        "Climate-state model",
     ),
     (
         "base_adjusted_climate_phase",
         BASE_TERMS,
-        "Baseline + LR04 + CO2 + pre phase",
+        "Extended baseline\n(full predictive model)",
     ),
-    ("base_plus_AT", BASE_TERMS + ("AT_scaled",), "Base + AT"),
-    ("base_plus_obl", BASE_TERMS + ("obl_scaled",), "Base + obliquity"),
-    ("base_plus_ecc", BASE_TERMS + ("ecc_scaled",), "Base + eccentricity"),
-    ("base_plus_insol65N", BASE_TERMS + ("insol65N_scaled",), "Base + 65N insolation"),
-    ("extended_all", BASE_TERMS + EXTRA_TERMS, "Base + all extra forcings"),
+    ("base_plus_AT", BASE_TERMS + ("AT_scaled",), "Extended baseline + Antarctic T"),
+    ("base_plus_obl", BASE_TERMS + ("obl_scaled",), "Extended baseline + obliquity"),
+    ("base_plus_ecc", BASE_TERMS + ("ecc_scaled",), "Extended baseline + eccentricity"),
+    (
+        "base_plus_insol65N",
+        BASE_TERMS + ("insol65N_scaled",),
+        "Extended baseline + 65N insolation",
+    ),
+    ("extended_all", BASE_TERMS + EXTRA_TERMS, "Extended baseline + all extra forcings"),
     (
         "all_without_AT",
         BASE_TERMS + ("obl_scaled", "ecc_scaled", "insol65N_scaled"),
@@ -162,15 +171,35 @@ LR_TEST_ORDER = [
 ]
 
 LR_TEST_SHORT_LABELS = {
-    "AT_after_base": "Add AT to base",
-    "obl_after_base": "Add obliquity to base",
-    "ecc_after_base": "Add eccentricity to base",
-    "insol65N_after_base": "Add 65N insolation to base",
-    "all_extras_after_base": "Add all extras to base",
-    "AT_unique_in_full": "AT unique in full",
+    "AT_after_base": "Add Antarctic T to extended baseline",
+    "obl_after_base": "Add obliquity to extended baseline",
+    "ecc_after_base": "Add eccentricity to extended baseline",
+    "insol65N_after_base": "Add 65N insolation to extended baseline",
+    "all_extras_after_base": "Add all extras to extended baseline",
+    "AT_unique_in_full": "Antarctic T unique in full",
     "obl_unique_in_full": "Obliquity unique in full",
     "ecc_unique_in_full": "Eccentricity unique in full",
     "insol65N_unique_in_full": "65N insolation unique in full",
+}
+
+MODEL_PLOT_LABELS = {
+    "base_plus_AT": "Extended baseline\n+ Antarctic T",
+    "base_plus_obl": "Extended baseline\n+ obliquity",
+    "base_plus_ecc": "Extended baseline\n+ eccentricity",
+    "base_plus_insol65N": "Extended baseline\n+ 65N insolation",
+    "extended_all": "Extended baseline\n+ all extra forcings",
+}
+
+LR_TEST_PLOT_LABELS = {
+    "AT_after_base": "Add Antarctic T\nto extended baseline",
+    "obl_after_base": "Add obliquity\nto extended baseline",
+    "ecc_after_base": "Add eccentricity\nto extended baseline",
+    "insol65N_after_base": "Add 65N insolation\nto extended baseline",
+    "all_extras_after_base": "Add all extras\nto extended baseline",
+    "AT_unique_in_full": "Antarctic T unique\nin full",
+    "obl_unique_in_full": "Obliquity unique\nin full",
+    "ecc_unique_in_full": "Eccentricity unique\nin full",
+    "insol65N_unique_in_full": "65N insolation unique\nin full",
 }
 
 PREDICTOR_TERMS = BASE_TERMS + EXTRA_TERMS
@@ -214,6 +243,7 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
+        save_paper_pdf(fig, PROJECT_ROOT, stem)
     plt.close(fig)
 
 
@@ -383,7 +413,7 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
 
     In this script "base" means the extended scientific reference model:
 
-        history + resolution + LR04 + CO2 + precession phase.
+        event-process baseline + LR04 + CO2 + precession phase.
 
     It is different from the event-process baseline in
     ``Predictive_hazard_history_resolution.py``, which contains only history
@@ -391,7 +421,7 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
 
     There are three logically different comparison families:
 
-    1. add_to_base: add one extra forcing to the baseline model. This answers
+    1. add_to_base: add one extra forcing to the extended baseline. This answers
        whether that one predictor helps when LR04, CO2, and precession phase
        are already present.
     2. joint_add_to_base: add all extra forcings together. This asks whether
@@ -414,49 +444,49 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
             "main_context",
             "history_resolution_baseline",
             "base_adjusted_climate_phase",
-            "LR04+CO2+phase vs history+resolution baseline",
+            "Full predictive model vs event-process baseline",
         ),
         (
             "phase_after_adjusted_climate",
             "main_context",
             "adjusted_climate",
             "base_adjusted_climate_phase",
-            "Precession phase after history+resolution+LR04+CO2",
+            "Precession phase after climate-state model",
         ),
         (
             "AT_after_base",
             "add_to_base",
             "base_adjusted_climate_phase",
             "base_plus_AT",
-            "Add AT to base",
+            "Add AT to extended baseline",
         ),
         (
             "obl_after_base",
             "add_to_base",
             "base_adjusted_climate_phase",
             "base_plus_obl",
-            "Add obliquity to base",
+            "Add obliquity to extended baseline",
         ),
         (
             "ecc_after_base",
             "add_to_base",
             "base_adjusted_climate_phase",
             "base_plus_ecc",
-            "Add eccentricity to base",
+            "Add eccentricity to extended baseline",
         ),
         (
             "insol65N_after_base",
             "add_to_base",
             "base_adjusted_climate_phase",
             "base_plus_insol65N",
-            "Add 65N insolation to base",
+            "Add 65N insolation to extended baseline",
         ),
         (
             "all_extras_after_base",
             "joint_add_to_base",
             "base_adjusted_climate_phase",
             "extended_all",
-            "Add all extra forcings to base",
+            "Add all extra forcings to extended baseline",
         ),
         (
             "AT_unique_in_full",
@@ -557,22 +587,22 @@ def build_predictor_correlation_table(binned_inputs: pd.DataFrame) -> pd.DataFra
 def draw_model_delta_aicc(ax: plt.Axes, summary: pd.DataFrame, dataset_id: str) -> None:
     model_order = [model_id for model_id, _, _ in MODEL_SPECS]
     sub = summary[summary["dataset_id"].eq(dataset_id)].set_index("model_id").reindex(model_order)
-    model_labels = sub["model_label"].replace(
-        {"Baseline + LR04 + CO2 + pre phase": "Baseline + LR04 + CO2 + pre phase (base)"}
-    )
+    model_labels = [MODEL_PLOT_LABELS.get(model_id, label) for model_id, label in zip(sub.index, sub["model_label"])]
     base_aicc = float(sub.loc["base_adjusted_climate_phase", "AICc"])
     delta_aicc_from_base = sub["AICc"] - base_aicc
     colors = [MODEL_COLORS.get(model_id, "#999999") for model_id in sub.index]
-    y = np.arange(len(sub))
-    ax.barh(y, delta_aicc_from_base, color=colors, alpha=0.86)
+    y = np.arange(len(sub)) * 1.25
+    ax.barh(y, delta_aicc_from_base, height=0.76, color=colors, alpha=0.86)
     ax.axvline(0.0, color="#222222", lw=0.8)
     ax.set_yticks(y)
     ax.set_yticklabels(model_labels)
-    ax.invert_yaxis()
-    ax.set_xlabel("Delta AICc vs base")
-    ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
+    ax.set_ylim(y[-1] + 0.68, -0.68)
+    ax.set_xlabel("Delta AICc vs extended baseline")
+    ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left", fontsize=15.0)
+    ax.tick_params(axis="both", labelsize=12.5)
+    ax.xaxis.label.set_size(13.5)
     ax.set_xlim(min(-2.0, float(delta_aicc_from_base.min()) - 0.8), float(delta_aicc_from_base.max()) + 2.0)
-    ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
+    ax.grid(False)
 
 
 def ordered_likelihood_tests(likelihood_tests: pd.DataFrame, dataset_id: str) -> pd.DataFrame:
@@ -584,7 +614,9 @@ def ordered_likelihood_tests(likelihood_tests: pd.DataFrame, dataset_id: str) ->
     sub["sort_key"] = sub["comparison_id"].map(order)
     sub = sub.sort_values("sort_key").reset_index(drop=True)
     sub["minus_log10_p"] = -np.log10(np.maximum(sub["LR_p_value"], 1e-300))
-    sub["plot_label"] = sub["comparison_id"].map(LR_TEST_SHORT_LABELS).fillna(
+    sub["plot_label"] = sub["comparison_id"].map(LR_TEST_PLOT_LABELS).fillna(
+        sub["comparison_id"].map(LR_TEST_SHORT_LABELS)
+    ).fillna(
         sub["comparison_label"]
     )
 
@@ -592,9 +624,9 @@ def ordered_likelihood_tests(likelihood_tests: pd.DataFrame, dataset_id: str) ->
     y_pos = 0.0
     for comparison_id in sub["comparison_id"]:
         y_positions.append(y_pos)
-        y_pos += 1.0
+        y_pos += 1.25
         if comparison_id in {"insol65N_after_base", "all_extras_after_base"}:
-            y_pos += 0.62
+            y_pos += 0.88
     sub["y_position"] = y_positions
     return sub
 
@@ -613,20 +645,23 @@ def draw_likelihood_tests_merged(
     dataset_id: str,
     xlim: float,
     show_title: bool = True,
+    annotate: bool = True,
 ) -> None:
     sub = ordered_likelihood_tests(likelihood_tests, dataset_id)
     threshold = -np.log10(0.05)
     colors = ["#3182bd" if p < 0.05 else "#bdbdbd" for p in sub["LR_p_value"]]
-    ax.barh(sub["y_position"], sub["minus_log10_p"], height=0.68, color=colors, alpha=0.86)
+    ax.barh(sub["y_position"], sub["minus_log10_p"], height=0.78, color=colors, alpha=0.86)
     ax.axvline(threshold, color="#222222", ls="--", lw=0.9)
     ax.set_yticks(sub["y_position"])
     ax.set_yticklabels(sub["plot_label"])
-    ax.invert_yaxis()
+    ax.set_ylim(float(sub["y_position"].max()) + 0.72, -0.72)
     ax.set_xlim(0.0, xlim)
     ax.set_xlabel("-log10 LR p value")
     if show_title:
-        ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
-    ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
+        ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left", fontsize=15.0)
+    ax.tick_params(axis="both", labelsize=12.0)
+    ax.xaxis.label.set_size(13.5)
+    ax.grid(False)
 
     for boundary_id in ("insol65N_after_base", "all_extras_after_base"):
         boundary_indices = np.flatnonzero(sub["comparison_id"].eq(boundary_id).to_numpy())
@@ -635,14 +670,15 @@ def draw_likelihood_tests_merged(
             y_sep = 0.5 * (sub.loc[idx, "y_position"] + sub.loc[idx + 1, "y_position"])
             ax.axhline(y_sep, color="#d9d9d9", lw=0.8, zorder=0)
 
-    for _, test in sub.iterrows():
-        ax.text(
-            test["minus_log10_p"] + 0.05,
-            test["y_position"],
-            f"p={test['LR_p_value']:.3g}, dAICc={test['delta_AICc_full_minus_reduced']:.2f}",
-            va="center",
-            fontsize=7,
-        )
+    if annotate:
+        for _, test in sub.iterrows():
+            ax.text(
+                test["minus_log10_p"] + 0.05,
+                test["y_position"],
+                f"p={test['LR_p_value']:.3g}, dAICc={test['delta_AICc_full_minus_reduced']:.2f}",
+                va="center",
+                fontsize=10.5,
+            )
 
 
 def plot_model_delta_aicc(summary: pd.DataFrame, write_pdf: bool) -> None:
@@ -668,10 +704,10 @@ def plot_aicc_and_likelihood_tests_combined(
     fig, axes = plt.subplots(
         2,
         2,
-        figsize=(17.2, 9.6),
+        figsize=(13.8, 11.4),
         gridspec_kw={"height_ratios": [1.0, 1.05]},
     )
-    xlim = 1.6
+    xlim = 1.48
     for col_idx, dataset_id in enumerate(DATASET_SETTINGS):
         draw_model_delta_aicc(axes[0, col_idx], summary, dataset_id)
         draw_likelihood_tests_merged(
@@ -680,20 +716,24 @@ def plot_aicc_and_likelihood_tests_combined(
             dataset_id,
             xlim,
             show_title=False,
+            annotate=False,
         )
+    for ax in axes[:, 1]:
+        ax.set_yticklabels([])
+        ax.tick_params(axis="y", length=0)
     axes[0, 0].text(
-        -0.20, 1.05, "a", transform=axes[0, 0].transAxes, fontweight="bold", fontsize=12
+        -0.24, 1.05, "a", transform=axes[0, 0].transAxes, fontweight="bold", fontsize=16
     )
     axes[0, 1].text(
-        -0.20, 1.05, "b", transform=axes[0, 1].transAxes, fontweight="bold", fontsize=12
+        -0.24, 1.05, "b", transform=axes[0, 1].transAxes, fontweight="bold", fontsize=16
     )
     axes[1, 0].text(
-        -0.20, 1.05, "c", transform=axes[1, 0].transAxes, fontweight="bold", fontsize=12
+        -0.24, 1.05, "c", transform=axes[1, 0].transAxes, fontweight="bold", fontsize=16
     )
     axes[1, 1].text(
-        -0.20, 1.05, "d", transform=axes[1, 1].transAxes, fontweight="bold", fontsize=12
+        -0.24, 1.05, "d", transform=axes[1, 1].transAxes, fontweight="bold", fontsize=16
     )
-    fig.subplots_adjust(left=0.22, right=0.98, top=0.95, bottom=0.08, hspace=0.28, wspace=0.82)
+    fig.subplots_adjust(left=0.33, right=0.985, top=0.95, bottom=0.08, hspace=0.44, wspace=0.86)
     save_figure(fig, "fig06_sensitivity_aicc_and_likelihood_tests", write_pdf)
 
 
@@ -755,8 +795,8 @@ def plot_base_vs_extended_rates(
             zorder=1,
         )
         for model_id, color, label in [
-            ("base_adjusted_climate_phase", "#C51B7D", "base: adjusted LR04+CO2+phase"),
-            ("extended_all", "#202020", "base + AT+obl+ecc+insol65N"),
+            ("base_adjusted_climate_phase", "#C51B7D", "extended baseline"),
+            ("extended_all", "#202020", "extended baseline + extras"),
         ]:
             rates = fitted_rates[
                 fitted_rates["dataset_id"].eq(dataset_id)
@@ -778,7 +818,7 @@ def plot_base_vs_extended_rates(
             0.01,
             0.94,
             f"{settings['label']}: N={int(data['event_count'].sum())}, "
-            f"all extras after base p={test['LR_p_value']:.3g}",
+            f"all extras after extended baseline p={test['LR_p_value']:.3g}",
             transform=ax.transAxes,
             ha="left",
             va="top",
@@ -814,8 +854,8 @@ def plot_base_vs_extended_rates(
             alpha=0.45,
             label="Weak monsoon start bins",
         ),
-        Line2D([0], [0], color="#C51B7D", lw=1.8, label="base: adjusted LR04+CO2+phase"),
-        Line2D([0], [0], color="#202020", lw=1.8, label="base + AT+obl+ecc+insol65N"),
+        Line2D([0], [0], color="#C51B7D", lw=1.8, label="extended baseline"),
+        Line2D([0], [0], color="#202020", lw=1.8, label="extended baseline + extras"),
     ]
     axes[0].legend(
         handles=legend_handles,
@@ -915,7 +955,7 @@ def write_outputs(
                 "response": "event_count_per_0p2kyr_bin",
                 "baseline_model": "same-type history + Cheng log-resolution + LR04_scaled + CO2_scaled + sin(pre_phase) + cos(pre_phase)",
                 "extra_forcings": "AT_scaled + obl_scaled + ecc_scaled + insol65N_scaled",
-                "main_question": "Do extra forcings improve the baseline binned Poisson hazard model?",
+                "main_question": "Do extra forcings improve the extended baseline predictive-information model?",
             }
         ]
     )

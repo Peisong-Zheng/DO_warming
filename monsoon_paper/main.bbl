@@ -1,73 +1,174 @@
-\begin{thebibliography}{22}
+\begin{thebibliography}{30}
 \providecommand{\natexlab}[1]{#1}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
-  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
 
-\bibitem[{\textit{Barker et~al.}(2011)\textit{Barker, Knorr, Edwards, Parrenin, Putnam, Skinner, Wolff, and Ziegler}}]{barker2011800}
-Barker, S., G.~Knorr, R.~L. Edwards, F.~Parrenin, A.~E. Putnam, L.~C. Skinner, E.~Wolff, and M.~Ziegler, 800,000 years of abrupt climate variability, \textit{science}, \textit{334}(6054), 347--351, 2011.
+\bibitem[{\textit{Barker et~al.}(2011)\textit{Barker, Knorr, Edwards, Parrenin,
+  Putnam, Skinner, Wolff, and Ziegler}}]{barker2011800}
+Barker, S., G.~Knorr, R.~L. Edwards, F.~Parrenin, A.~E. Putnam, L.~C. Skinner,
+  E.~Wolff, and M.~Ziegler, 800,000 years of abrupt climate variability,
+  \textit{science}, \textit{334}(6054), 347--351, 2011.
 
-\bibitem[{\textit{Bereiter et~al.}(2015)\textit{Bereiter, Eggleston, Schmitt, Nehrbass-Ahles, Stocker, Fischer, Kipfstuhl, and Chappellaz}}]{bereiter2015revision}
-Bereiter, B., S.~Eggleston, J.~Schmitt, C.~Nehrbass-Ahles, T.~F. Stocker, H.~Fischer, S.~Kipfstuhl, and J.~Chappellaz, Revision of the epica dome c co2 record from 800 to 600 kyr before present, \textit{Geophysical Research Letters}, \textit{42}(2), 542--549, 2015.
+\bibitem[{\textit{Bereiter et~al.}(2015)\textit{Bereiter, Eggleston, Schmitt,
+  Nehrbass-Ahles, Stocker, Fischer, Kipfstuhl, and
+  Chappellaz}}]{bereiter2015revision}
+Bereiter, B., S.~Eggleston, J.~Schmitt, C.~Nehrbass-Ahles, T.~F. Stocker,
+  H.~Fischer, S.~Kipfstuhl, and J.~Chappellaz, Revision of the epica dome c co2
+  record from 800 to 600 kyr before present, \textit{Geophysical Research
+  Letters}, \textit{42}(2), 542--549, 2015.
 
 \bibitem[{\textit{Berger}(1978)}]{berger1978long}
-Berger, A., Long-term variations of daily insolation and quaternary climatic changes, \textit{Journal of Atmospheric Sciences}, \textit{35}(12), 2362--2367, 1978.
+Berger, A., Long-term variations of daily insolation and quaternary climatic
+  changes, \textit{Journal of Atmospheric Sciences}, \textit{35}(12),
+  2362--2367, 1978.
 
 \bibitem[{\textit{Berger and Loutre}(1991)}]{berger1991insolation}
-Berger, A., and M.-F. Loutre, Insolation values for the climate of the last 10 million years, \textit{Quaternary science reviews}, \textit{10}(4), 297--317, 1991.
+Berger, A., and M.-F. Loutre, Insolation values for the climate of the last 10
+  million years, \textit{Quaternary science reviews}, \textit{10}(4), 297--317,
+  1991.
 
 \bibitem[{\textit{Cheng et~al.}(2016)}]{cheng2016asian}
-Cheng, H., et~al., The asian monsoon over the past 640,000 years and ice age terminations, \textit{nature}, \textit{534}(7609), 640--646, 2016.
+Cheng, H., et~al., The asian monsoon over the past 640,000 years and ice age
+  terminations, \textit{nature}, \textit{534}(7609), 640--646, 2016.
 
 \bibitem[{\textit{Cheng et~al.}(2021)}]{cheng2021orbital}
-Cheng, H., et~al., Orbital-scale asian summer monsoon variations: Paradox and exploration, \textit{Science China Earth Sciences}, \textit{64}(4), 529--544, 2021.
+Cheng, H., et~al., Orbital-scale asian summer monsoon variations: Paradox and
+  exploration, \textit{Science China Earth Sciences}, \textit{64}(4), 529--544,
+  2021.
 
-\bibitem[{\textit{Corrick et~al.}(2020)\textit{Corrick, Drysdale, Hellstrom, Capron, Rasmussen, Zhang, Fleitmann, Couchoud, and Wolff}}]{corrick2020synchronous}
-Corrick, E.~C., R.~N. Drysdale, J.~C. Hellstrom, E.~Capron, S.~O. Rasmussen, X.~Zhang, D.~Fleitmann, I.~Couchoud, and E.~Wolff, Synchronous timing of abrupt climate changes during the last glacial period, \textit{Science}, \textit{369}(6506), 963--969, 2020.
+\bibitem[{\textit{Corrick et~al.}(2020)\textit{Corrick, Drysdale, Hellstrom,
+  Capron, Rasmussen, Zhang, Fleitmann, Couchoud, and
+  Wolff}}]{corrick2020synchronous}
+Corrick, E.~C., R.~N. Drysdale, J.~C. Hellstrom, E.~Capron, S.~O. Rasmussen,
+  X.~Zhang, D.~Fleitmann, I.~Couchoud, and E.~Wolff, Synchronous timing of
+  abrupt climate changes during the last glacial period, \textit{Science},
+  \textit{369}(6506), 963--969, 2020.
 
 \bibitem[{\textit{Dansgaard et~al.}(1993)}]{dansgaard1993evidence}
-Dansgaard, W., et~al., Evidence for general instability of past climate from a 250-kyr ice-core record, \textit{nature}, \textit{364}(6434), 218--220, 1993.
+Dansgaard, W., et~al., Evidence for general instability of past climate from a
+  250-kyr ice-core record, \textit{nature}, \textit{364}(6434), 218--220, 1993.
+
+\bibitem[{\textit{Ditlevsen et~al.}(2005)\textit{Ditlevsen, Kristensen, and
+  Andersen}}]{ditlevsen2005recurrence}
+Ditlevsen, P.~D., M.~S. Kristensen, and K.~K. Andersen, The recurrence time of
+  dansgaard--oeschger events and limits on the possible periodic component,
+  \textit{Journal of Climate}, \textit{18}(14), 2594--2603, 2005.
+
+\bibitem[{\textit{Ganopolski and Rahmstorf}(2001)}]{ganopolski2001rapid}
+Ganopolski, A., and S.~Rahmstorf, Rapid changes of glacial climate simulated in
+  a coupled climate model, \textit{Nature}, \textit{409}(6817), 153--158,
+  \doi{10.1038/35051500}, 2001.
 
 \bibitem[{\textit{Hodell et~al.}(2023)}]{hodell20231}
-Hodell, D.~A., et~al., A 1.5-million-year record of orbital and millennial climate variability in the north atlantic, \textit{Climate of the Past}, \textit{19}(3), 607--636, 2023.
+Hodell, D.~A., et~al., A 1.5-million-year record of orbital and millennial
+  climate variability in the north atlantic, \textit{Climate of the Past},
+  \textit{19}(3), 607--636, 2023.
+
+\bibitem[{\textit{Jouzel et~al.}(2007)}]{jouzel2007orbital}
+Jouzel, J., et~al., Orbital and millennial antarctic climate variability over
+  the past 800,000 years, \textit{Science}, \textit{317}(5839), 793--796,
+  \doi{10.1126/science.1141038}, 2007.
 
 \bibitem[{\textit{Kawamura et~al.}(2007)}]{kawamura2007northern}
-Kawamura, K., et~al., Northern hemisphere forcing of climatic cycles in antarctica over the past 360,000 years, \textit{Nature}, \textit{448}(7156), 912--916, 2007.
+Kawamura, K., et~al., Northern hemisphere forcing of climatic cycles in
+  antarctica over the past 360,000 years, \textit{Nature}, \textit{448}(7156),
+  912--916, 2007.
 
-\bibitem[{\textit{Laskar et~al.}(2004)\textit{Laskar, Robutel, Joutel, Gastineau, Correia, and Levrard}}]{laskar2004long}
-Laskar, J., P.~Robutel, F.~Joutel, M.~Gastineau, A.~Correia, and B.~Levrard, A long-term numerical solution for the insolation quantities of the earth, \textit{Astronomy \& Astrophysics}, \textit{428}(1), 261--285, 2004.
+\bibitem[{\textit{Kleppin et~al.}(2015)\textit{Kleppin, Jochum, Otto-Bliesner,
+  Shields, and Yeager}}]{kleppin2015stochastic}
+Kleppin, H., M.~Jochum, B.~Otto-Bliesner, C.~A. Shields, and S.~Yeager,
+  Stochastic atmospheric forcing as a cause of greenland climate transitions,
+  \textit{Journal of Climate}, \textit{28}(19), 7741--7763, 2015.
+
+\bibitem[{\textit{Laskar et~al.}(2004)\textit{Laskar, Robutel, Joutel,
+  Gastineau, Correia, and Levrard}}]{laskar2004long}
+Laskar, J., P.~Robutel, F.~Joutel, M.~Gastineau, A.~Correia, and B.~Levrard, A
+  long-term numerical solution for the insolation quantities of the earth,
+  \textit{Astronomy \& Astrophysics}, \textit{428}(1), 261--285, 2004.
 
 \bibitem[{\textit{Lisiecki and Raymo}(2005)}]{lisiecki2005pliocene}
-Lisiecki, L.~E., and M.~E. Raymo, A pliocene-pleistocene stack of 57 globally distributed benthic $\delta$18o records, \textit{Paleoceanography}, \textit{20}(1), 2005.
+Lisiecki, L.~E., and M.~E. Raymo, A pliocene-pleistocene stack of 57 globally
+  distributed benthic $\delta$18o records, \textit{Paleoceanography},
+  \textit{20}(1), 2005.
 
 \bibitem[{\textit{Liu et~al.}(2014)}]{liu2014chinese}
-Liu, Z., et~al., Chinese cave records and the east asia summer monsoon, \textit{Quaternary Science Reviews}, \textit{83}, 115--128, 2014.
+Liu, Z., et~al., Chinese cave records and the east asia summer monsoon,
+  \textit{Quaternary Science Reviews}, \textit{83}, 115--128, 2014.
+
+\bibitem[{\textit{Lohmann and Ditlevsen}(2018)}]{lohmann2018random}
+Lohmann, J., and P.~D. Ditlevsen, Random and externally controlled occurrence
+  of dansgaard-oeschger events, \textit{Climate of the Past}, \textit{14}(5),
+  609--617, \doi{10.5194/cp-14-609-2018}, 2018.
 
 \bibitem[{\textit{Malmierca-Vallet and Sime}(2023)}]{malmierca2023dansgaard}
-Malmierca-Vallet, I., and L.~C. Sime, Dansgaard--oeschger events in climate models: review and baseline marine isotope stage 3 (mis3) protocol, \textit{Climate of the Past}, \textit{19}(5), 915--942, 2023.
+Malmierca-Vallet, I., and L.~C. Sime, Dansgaard--oeschger events in climate
+  models: review and baseline marine isotope stage 3 (mis3) protocol,
+  \textit{Climate of the Past}, \textit{19}(5), 915--942, 2023.
 
 \bibitem[{\textit{Rasmussen et~al.}(2014)}]{rasmussen2014stratigraphic}
-Rasmussen, S.~O., et~al., A stratigraphic framework for abrupt climatic changes during the last glacial period based on three synchronized greenland ice-core records: refining and extending the intimate event stratigraphy, \textit{Quaternary science reviews}, \textit{106}, 14--28, 2014.
+Rasmussen, S.~O., et~al., A stratigraphic framework for abrupt climatic changes
+  during the last glacial period based on three synchronized greenland ice-core
+  records: refining and extending the intimate event stratigraphy,
+  \textit{Quaternary science reviews}, \textit{106}, 14--28, 2014.
 
-\bibitem[{\textit{Rousseau et~al.}(2023)\textit{Rousseau, Bagniewski, and Cheng}}]{rousseau2023reliable}
-Rousseau, D.-D., W.~Bagniewski, and H.~Cheng, A reliable benchmark of the last 640,000 years millennial climate variability, \textit{Scientific Reports}, \textit{13}(1), 22,851, 2023.
+\bibitem[{\textit{Rousseau et~al.}(2023)\textit{Rousseau, Bagniewski, and
+  Cheng}}]{rousseau2023reliable}
+Rousseau, D.-D., W.~Bagniewski, and H.~Cheng, A reliable benchmark of the last
+  640,000 years millennial climate variability, \textit{Scientific Reports},
+  \textit{13}(1), 22,851, 2023.
+
+\bibitem[{\textit{Stommel}(1961)}]{stommel1961thermohaline}
+Stommel, H., Thermohaline convection with two stable regimes of flow,
+  \textit{Tellus}, \textit{13}(2), 224--230, \doi{10.3402/tellusa.v13i2.9491},
+  1961.
 
 \bibitem[{\textit{Sun et~al.}(2021)}]{sun2021persistent}
-Sun, Y., et~al., Persistent orbital influence on millennial climate variability through the pleistocene, \textit{Nature Geoscience}, \textit{14}(11), 812--818, 2021.
+Sun, Y., et~al., Persistent orbital influence on millennial climate variability
+  through the pleistocene, \textit{Nature Geoscience}, \textit{14}(11),
+  812--818, 2021.
 
-\bibitem[{\textit{Vettoretti et~al.}(2022)\textit{Vettoretti, Ditlevsen, Jochum, and Rasmussen}}]{vettoretti2022atmospheric}
-Vettoretti, G., P.~Ditlevsen, M.~Jochum, and S.~O. Rasmussen, Atmospheric co2 control of spontaneous millennial-scale ice age climate oscillations, \textit{Nature geoscience}, \textit{15}(4), 300--306, 2022.
+\bibitem[{\textit{Thirumalai et~al.}(2020)\textit{Thirumalai, Clemens, and
+  Partin}}]{thirumalai2020methane}
+Thirumalai, K., S.~C. Clemens, and J.~W. Partin, Methane, monsoons, and
+  modulation of millennial-scale climate, \textit{Geophysical Research
+  Letters}, \textit{47}(9), e2020GL087,613, 2020.
+
+\bibitem[{\textit{Vettoretti et~al.}(2022)\textit{Vettoretti, Ditlevsen,
+  Jochum, and Rasmussen}}]{vettoretti2022atmospheric}
+Vettoretti, G., P.~Ditlevsen, M.~Jochum, and S.~O. Rasmussen, Atmospheric co2
+  control of spontaneous millennial-scale ice age climate oscillations,
+  \textit{Nature geoscience}, \textit{15}(4), 300--306, 2022.
+
+\bibitem[{\textit{Virtanen et~al.}(2020)}]{virtanen2020scipy}
+Virtanen, P., et~al., Scipy 1.0: fundamental algorithms for scientific
+  computing in python, \textit{Nature Methods}, \textit{17}(3), 261--272,
+  \doi{10.1038/s41592-019-0686-2}, 2020.
 
 \bibitem[{\textit{Xie and Liu}(2023)}]{xie2023contributions}
-Xie, X., and X.~Liu, Contributions of terrestrial and oceanic moisture sources to orbital-scale precipitation variations over the northern east asian monsoon region, \textit{Global and Planetary Change}, \textit{229}, 104,244, 2023.
+Xie, X., and X.~Liu, Contributions of terrestrial and oceanic moisture sources
+  to orbital-scale precipitation variations over the northern east asian
+  monsoon region, \textit{Global and Planetary Change}, \textit{229}, 104,244,
+  2023.
 
-\bibitem[{\textit{Zhang et~al.}(2017)\textit{Zhang, Knorr, Lohmann, and Barker}}]{zhang2017abrupt}
-Zhang, X., G.~Knorr, G.~Lohmann, and S.~Barker, Abrupt north atlantic circulation changes in response to gradual co2 forcing in a glacial climate state, \textit{Nature Geoscience}, \textit{10}(7), 518--523, 2017.
+\bibitem[{\textit{Zhang et~al.}(2017)\textit{Zhang, Knorr, Lohmann, and
+  Barker}}]{zhang2017abrupt}
+Zhang, X., G.~Knorr, G.~Lohmann, and S.~Barker, Abrupt north atlantic
+  circulation changes in response to gradual co2 forcing in a glacial climate
+  state, \textit{Nature Geoscience}, \textit{10}(7), 518--523, 2017.
 
-\bibitem[{\textit{Zhang et~al.}(2021)\textit{Zhang, Barker, Knorr, Lohmann, Drysdale, Sun, Hodell, and Chen}}]{zhang2021direct}
-Zhang, X., S.~Barker, G.~Knorr, G.~Lohmann, R.~Drysdale, Y.~Sun, D.~Hodell, and F.~Chen, Direct astronomical influence on abrupt climate variability, \textit{Nature Geoscience}, \textit{14}(11), 819--826, 2021.
+\bibitem[{\textit{Zhang et~al.}(2021)\textit{Zhang, Barker, Knorr, Lohmann,
+  Drysdale, Sun, Hodell, and Chen}}]{zhang2021direct}
+Zhang, X., S.~Barker, G.~Knorr, G.~Lohmann, R.~Drysdale, Y.~Sun, D.~Hodell, and
+  F.~Chen, Direct astronomical influence on abrupt climate variability,
+  \textit{Nature Geoscience}, \textit{14}(11), 819--826, 2021.
 
-\bibitem[{\textit{Zheng et~al.}(2022)\textit{Zheng, Liu, Yang, Wang, Zhao, Zhang, Huang, and Liu}}]{zheng2022decoupled}
-Zheng, Y., H.~Liu, H.~Yang, H.~Wang, W.~Zhao, Z.~Zhang, M.~Huang, and W.~Liu, Decoupled asian monsoon intensity and precipitation during glacial-interglacial transitions on the chinese loess plateau, \textit{Nature Communications}, \textit{13}(1), 5397, 2022.
+\bibitem[{\textit{Zheng et~al.}(2022)\textit{Zheng, Liu, Yang, Wang, Zhao,
+  Zhang, Huang, and Liu}}]{zheng2022decoupled}
+Zheng, Y., H.~Liu, H.~Yang, H.~Wang, W.~Zhao, Z.~Zhang, M.~Huang, and W.~Liu,
+  Decoupled asian monsoon intensity and precipitation during
+  glacial-interglacial transitions on the chinese loess plateau, \textit{Nature
+  Communications}, \textit{13}(1), 5397, 2022.
 
 \end{thebibliography}

@@ -1,5 +1,5 @@
 """
-History- and resolution-adjusted predictive Poisson hazard models.
+Event-process-baseline predictive Poisson hazard models.
 
 This script is a stricter extension of ``Bin_hazard_phase_poisson.py``. It keeps
 the same 0.2 kyr event-bin likelihood and the same LR04/CO2/precession-phase
@@ -30,14 +30,14 @@ finite bin. The summed log-likelihood is:
 
     logL = sum_i [Y_i log(mu_i) - mu_i - log(Y_i!)].
 
-Here "baseline" means the event-process and detection baseline rather than a
+Here "event-process baseline" means the event-process and detection baseline rather than a
 climate-forcing baseline: same-type event history controls local clustering or
 inhibition in the event sequence, while the Cheng composite age-spacing term
 controls the possibility that better sampled parts of the speleothem stack have
 more detected transitions. The scientific comparison of interest is then:
 
-    reduced = history + resolution + LR04 + CO2
-    full    = reduced + sin(precession phase) + cos(precession phase).
+    climate-state model  = event-process baseline + LR04 + CO2
+    full predictive model = climate-state model + sin(precession phase) + cos(precession phase).
 
 The log-likelihood gain, logL_full - logL_reduced, is reported as nats and as
 bits per bin/event. The likelihood-ratio statistic is 2 times the same gain;
@@ -62,6 +62,7 @@ import pandas as pd
 from scipy.stats import chi2
 
 import Bin_hazard_phase_poisson as base
+from paper_figure_export import save_paper_pdf
 
 
 RUN_NAME = "rousseau2023_monsoon_predictive_hazard_history_resolution"
@@ -85,33 +86,33 @@ FULL_TERMS = BASELINE_TERMS + CLIMATE_TERMS + PHASE_TERMS
 
 MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
     ("stationary", (), "Stationary"),
-    ("history_resolution_baseline", BASELINE_TERMS, "History + resolution"),
-    ("baseline_lr04", BASELINE_TERMS + ("lr04_scaled",), "Baseline + LR04"),
-    ("baseline_co2", BASELINE_TERMS + ("co2_scaled",), "Baseline + CO2"),
+    ("history_resolution_baseline", BASELINE_TERMS, "Event-process baseline"),
+    ("baseline_lr04", BASELINE_TERMS + ("lr04_scaled",), "Event-process baseline + LR04"),
+    ("baseline_co2", BASELINE_TERMS + ("co2_scaled",), "Event-process baseline + CO$_2$"),
     (
         "baseline_climate_lr04_co2",
         BASELINE_TERMS + CLIMATE_TERMS,
-        "Baseline + LR04 + CO2",
+        "Climate-state model",
     ),
     (
         "baseline_pre_phase",
         BASELINE_TERMS + PHASE_TERMS,
-        "Baseline + precession phase",
+        "Event-process baseline + precession phase",
     ),
     (
         "baseline_lr04_pre_phase",
         BASELINE_TERMS + ("lr04_scaled",) + PHASE_TERMS,
-        "Baseline + LR04 + precession phase",
+        "Event-process baseline + LR04 + precession phase",
     ),
     (
         "baseline_co2_pre_phase",
         BASELINE_TERMS + ("co2_scaled",) + PHASE_TERMS,
-        "Baseline + CO2 + precession phase",
+        "Event-process baseline + CO$_2$ + precession phase",
     ),
     (
         "baseline_climate_lr04_co2_pre_phase",
         FULL_TERMS,
-        "Baseline + LR04 + CO2 + precession phase",
+        "Full predictive model",
     ),
 ]
 
@@ -126,49 +127,49 @@ LR_TEST_SPECS: list[tuple[str, str, str, str]] = [
         "lr04_after_baseline",
         "history_resolution_baseline",
         "baseline_lr04",
-        "Does LR04 improve over the history+resolution baseline?",
+        "Does LR04 improve over the event-process baseline?",
     ),
     (
         "co2_after_baseline",
         "history_resolution_baseline",
         "baseline_co2",
-        "Does CO2 improve over the history+resolution baseline?",
+        "Does CO2 improve over the event-process baseline?",
     ),
     (
         "climate_lr04_co2_after_baseline",
         "history_resolution_baseline",
         "baseline_climate_lr04_co2",
-        "Does LR04+CO2 improve over the history+resolution baseline?",
+        "Does LR04+CO2 improve over the event-process baseline?",
     ),
     (
         "pre_phase_after_baseline",
         "history_resolution_baseline",
         "baseline_pre_phase",
-        "Does precession phase improve over the history+resolution baseline?",
+        "Does precession phase improve over the event-process baseline?",
     ),
     (
         "phase_after_adjusted_climate",
         "baseline_climate_lr04_co2",
         "baseline_climate_lr04_co2_pre_phase",
-        "Does precession phase add information after history+resolution+LR04+CO2?",
+        "Does precession phase add information after the climate-state model?",
     ),
     (
         "lr04_after_adjusted_co2_phase",
         "baseline_co2_pre_phase",
         "baseline_climate_lr04_co2_pre_phase",
-        "Does LR04 add information after history+resolution+CO2+precession phase?",
+        "Does LR04 add information within the full predictive model?",
     ),
     (
         "co2_after_adjusted_lr04_phase",
         "baseline_lr04_pre_phase",
         "baseline_climate_lr04_co2_pre_phase",
-        "Does CO2 add information after history+resolution+LR04+precession phase?",
+        "Does CO2 add information within the full predictive model?",
     ),
     (
         "full_vs_baseline",
         "history_resolution_baseline",
         "baseline_climate_lr04_co2_pre_phase",
-        "Does LR04+CO2+precession phase improve over the adjusted baseline?",
+        "Does LR04+CO2+precession phase improve over the event-process baseline?",
     ),
 ]
 
@@ -182,6 +183,36 @@ MODEL_COLORS = {
     "baseline_lr04_pre_phase": "#a6cee3",
     "baseline_co2_pre_phase": "#fdbf6f",
     "baseline_climate_lr04_co2_pre_phase": "#C51B7D",
+}
+
+LR_TEST_SHORT_LABELS = {
+    "baseline_vs_stationary": "Event-process baseline vs stationary",
+    "lr04_after_baseline": "LR04 after event-process baseline",
+    "co2_after_baseline": "CO$_2$ after event-process baseline",
+    "climate_lr04_co2_after_baseline": "Climate-state model vs event-process baseline",
+    "pre_phase_after_baseline": "Precession phase after event-process baseline",
+    "phase_after_adjusted_climate": "Precession phase after climate-state model",
+    "lr04_after_adjusted_co2_phase": "LR04 unique in full predictive model",
+    "co2_after_adjusted_lr04_phase": "CO$_2$ unique in full predictive model",
+    "full_vs_baseline": "Full predictive model vs event-process baseline",
+}
+
+MODEL_PLOT_LABELS = {
+    "baseline_pre_phase": "Event-process baseline\n+ precession phase",
+    "baseline_lr04_pre_phase": "Event-process baseline\n+ LR04 + precession phase",
+    "baseline_co2_pre_phase": "Event-process baseline\n+ CO$_2$ + precession phase",
+}
+
+LR_TEST_PLOT_LABELS = {
+    "baseline_vs_stationary": "Event-process baseline\nvs stationary",
+    "lr04_after_baseline": "LR04 after\nevent-process baseline",
+    "co2_after_baseline": "CO$_2$ after\nevent-process baseline",
+    "climate_lr04_co2_after_baseline": "Climate-state model\nvs event-process baseline",
+    "pre_phase_after_baseline": "Precession phase after\nevent-process baseline",
+    "phase_after_adjusted_climate": "Precession phase after\nclimate-state model",
+    "lr04_after_adjusted_co2_phase": "LR04 unique in\nfull predictive model",
+    "co2_after_adjusted_lr04_phase": "CO$_2$ unique in\nfull predictive model",
+    "full_vs_baseline": "Full predictive model\nvs event-process baseline",
 }
 
 
@@ -210,6 +241,7 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
+        save_paper_pdf(fig, base.PROJECT_ROOT, stem)
     plt.close(fig)
 
 
@@ -559,8 +591,8 @@ def write_outputs(
                 "history_window_grid_ka": ",".join(f"{v:g}" for v in HISTORY_WINDOW_GRID_KA),
                 "history_definition": "same-type event count in older interval (t, t + W]",
                 "resolution_definition": "log local age spacing interpolated from Cheng 2016 composite record",
-                "baseline_model": "history + resolution",
-                "main_model": "history + resolution + LR04 + CO2 + sin(pre_phase) + cos(pre_phase)",
+                "baseline_model": "event-process baseline: same-type history + Cheng log-resolution",
+                "main_model": "full predictive model: event-process baseline + LR04 + CO2 + sin(pre_phase) + cos(pre_phase)",
                 "predictive_information": "logL_full - logL_reduced, reported as bits/event and bits/bin",
                 "pre_phase_convention": "precession-index minima=0 rad; maxima=pi rad",
             }
@@ -613,11 +645,11 @@ def plot_inputs_and_rates(
         lw=0.75,
         alpha=0.32,
     )
-    pre_ax.set_ylabel("pre index", color="#5f5f5f")
+    pre_ax.set_ylabel("precession\nindex", color="#5f5f5f")
     pre_ax.tick_params(axis="y", colors="#5f5f5f", labelsize=8, length=2.5)
 
     axes[0].plot(base_rows["bin_center_ka"], base_rows["pre_phase_deg"], color="#7570b3", lw=0.9)
-    axes[0].set_ylabel("pre phase")
+    axes[0].set_ylabel("precession\nphase")
     axes[0].set_yticks([0, 180, 360])
 
     axes[1].plot(base_rows["bin_center_ka"], base_rows["lr04"], color="#1b9e77", lw=1.0)
@@ -656,16 +688,47 @@ def plot_inputs_and_rates(
             alpha=0.55,
             zorder=1,
         )
-        for model_id in ("baseline_climate_lr04_co2", "baseline_climate_lr04_co2_pre_phase"):
+        rate_style = {
+            "history_resolution_baseline": {
+                "color": "#8c8c8c",
+                "lw": 1.0,
+                "ls": "-",
+                "alpha": 0.72,
+                "zorder": 2,
+            },
+            "baseline_climate_lr04_co2": {
+                "color": MODEL_COLORS["baseline_climate_lr04_co2"],
+                "lw": 1.25,
+                "ls": "-",
+                "alpha": 1.0,
+                "zorder": 3,
+            },
+            "baseline_climate_lr04_co2_pre_phase": {
+                "color": MODEL_COLORS["baseline_climate_lr04_co2_pre_phase"],
+                "lw": 1.25,
+                "ls": "-",
+                "alpha": 1.0,
+                "zorder": 4,
+            },
+        }
+        for model_id in (
+            "history_resolution_baseline",
+            "baseline_climate_lr04_co2",
+            "baseline_climate_lr04_co2_pre_phase",
+        ):
             rates = fitted_rates[
                 fitted_rates["dataset_id"].eq(dataset_id)
                 & fitted_rates["model_id"].eq(model_id)
             ]
+            style = rate_style[model_id]
             ax.plot(
                 rates["bin_center_ka"],
                 rates["lambda_per_kyr"],
-                color=MODEL_COLORS[model_id],
-                lw=1.25,
+                color=style["color"],
+                lw=style["lw"],
+                ls=style["ls"],
+                alpha=style["alpha"],
+                zorder=style["zorder"],
                 label=rates["model_label"].iloc[0],
             )
         phase_test = likelihood_tests[
@@ -673,12 +736,12 @@ def plot_inputs_and_rates(
             & likelihood_tests["comparison_id"].eq("phase_after_adjusted_climate")
         ].iloc[0]
         ax.text(
-            0.01,
+            0.99,
             0.94,
-            "Precession phase after baseline+LR04+CO$_2$: "
+            "Precession phase after climate-state model: "
             f"LR={phase_test['LR_statistic']:.2f}, p={format_p_value(phase_test['LR_p_value'])}",
             transform=ax.transAxes,
-            ha="left",
+            ha="right",
             va="top",
             bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#bbbbbb", "alpha": 0.88},
         )
@@ -708,23 +771,32 @@ def plot_inputs_and_rates(
                 Line2D(
                     [0],
                     [0],
+                    color="#8c8c8c",
+                    lw=1.2,
+                    ls="-",
+                    alpha=0.78,
+                    label="Event-process baseline",
+                ),
+                Line2D(
+                    [0],
+                    [0],
                     color=MODEL_COLORS["baseline_climate_lr04_co2"],
                     lw=1.4,
-                    label="Baseline + LR04 + CO2",
+                    label="Climate-state model",
                 ),
                 Line2D(
                     [0],
                     [0],
                     color=MODEL_COLORS["baseline_climate_lr04_co2_pre_phase"],
                     lw=1.4,
-                    label="Baseline + LR04 + CO2 + precession phase",
+                    label="Full predictive model",
                 ),
             ]
             ax.legend(
                 handles=legend_handles,
                 loc="lower right",
-                bbox_to_anchor=(1.0, 1.03),
-                ncol=4,
+                bbox_to_anchor=(1.0, 1.05),
+                ncol=3,
                 frameon=False,
                 borderaxespad=0.0,
             )
@@ -806,41 +878,89 @@ def plot_inputs_and_rates(
 
 
 def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.DataFrame, write_pdf: bool) -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(13.2, 5.2), sharey=True)
-    for ax_idx, (ax, dataset_id) in enumerate(zip(axes, base.DATASET_SETTINGS)):
+    fig, axes = plt.subplots(
+        2,
+        2,
+        figsize=(13.6, 9.6),
+        gridspec_kw={"height_ratios": [1.0, 1.08]},
+    )
+    for ax_idx, (ax, dataset_id) in enumerate(zip(axes[0], base.DATASET_SETTINGS)):
         sub = model_summary[model_summary["dataset_id"].eq(dataset_id)].sort_values("AICc")
         colors = [MODEL_COLORS.get(mid, "#777777") for mid in sub["model_id"]]
-        ax.barh(sub["model_label"], sub["delta_AICc"], color=colors, alpha=0.85)
-        ax.invert_yaxis()
-        ax.set_xlabel("Delta AICc")
-        ax.set_title(base.DATASET_SETTINGS[dataset_id]["label"], loc="left")
+        y = np.arange(len(sub)) * 1.30
+        labels = [
+            MODEL_PLOT_LABELS.get(model_id, label)
+            for model_id, label in zip(sub["model_id"], sub["model_label"])
+        ]
+        ax.barh(y, sub["delta_AICc"], height=0.76, color=colors, alpha=0.85)
+        ax.set_yticks(y)
+        ax.set_yticklabels(labels)
+        ax.set_ylim(y[-1] + 0.70, -0.70)
+        ax.set_xlabel("Delta AICc from best model")
+        ax.set_title(base.DATASET_SETTINGS[dataset_id]["label"], loc="left", fontsize=15.0)
+        ax.tick_params(axis="both", labelsize=13.0)
+        ax.xaxis.label.set_size(13.5)
         ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
-        phase_test = likelihood_tests[
-            likelihood_tests["dataset_id"].eq(dataset_id)
-            & likelihood_tests["comparison_id"].eq("phase_after_adjusted_climate")
-        ].iloc[0]
         ax.text(
-            0.98,
-            0.05,
-            "Phase after baseline+LR04+CO$_2$\n"
-            f"p={format_p_value(phase_test['LR_p_value'])}",
-            transform=ax.transAxes,
-            ha="right",
-            va="bottom",
-            bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#bbbbbb", "alpha": 0.9},
-        )
-        ax.text(
-            -0.06,
+            -0.08,
             1.04,
             chr(ord("a") + ax_idx),
             transform=ax.transAxes,
             ha="right",
             va="bottom",
-            fontsize=11,
+            fontsize=16,
             fontweight="bold",
             clip_on=False,
         )
-    fig.subplots_adjust(left=0.25, right=0.97, top=0.90, bottom=0.14, wspace=0.28)
+
+    ordered_tests = [comparison_id for comparison_id, _, _, _ in LR_TEST_SPECS]
+    max_x = float(
+        -np.log10(
+            np.maximum(
+                likelihood_tests[likelihood_tests["comparison_id"].isin(ordered_tests)]["LR_p_value"].min(),
+                1e-300,
+            )
+        )
+    )
+    xlim = max(max_x, -np.log10(0.05)) + 0.8
+    threshold = -np.log10(0.05)
+    for ax_idx, (ax, dataset_id) in enumerate(zip(axes[1], base.DATASET_SETTINGS)):
+        sub = (
+            likelihood_tests[
+                likelihood_tests["dataset_id"].eq(dataset_id)
+                & likelihood_tests["comparison_id"].isin(ordered_tests)
+            ]
+            .copy()
+            .set_index("comparison_id")
+            .reindex(ordered_tests)
+            .reset_index()
+        )
+        sub["minus_log10_p"] = -np.log10(np.maximum(sub["LR_p_value"].astype(float), 1e-300))
+        labels = sub["comparison_id"].map(LR_TEST_PLOT_LABELS)
+        y = np.arange(len(sub)) * 1.28
+        colors = ["#3182bd" if p < 0.05 else "#bdbdbd" for p in sub["LR_p_value"]]
+        ax.barh(y, sub["minus_log10_p"], height=0.76, color=colors, alpha=0.86)
+        ax.axvline(threshold, color="#222222", ls="--", lw=0.9)
+        ax.set_yticks(y)
+        ax.set_yticklabels(labels)
+        ax.set_ylim(y[-1] + 0.70, -0.70)
+        ax.set_xlim(0.0, xlim)
+        ax.set_xlabel("-log10 LR p value")
+        ax.tick_params(axis="both", labelsize=13.0)
+        ax.xaxis.label.set_size(13.5)
+        ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
+        ax.text(
+            -0.08,
+            1.04,
+            chr(ord("c") + ax_idx),
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=16,
+            fontweight="bold",
+            clip_on=False,
+        )
+    fig.subplots_adjust(left=0.36, right=0.985, top=0.94, bottom=0.08, hspace=0.34, wspace=1.25)
     save_figure(fig, "fig02_adjusted_model_comparison_delta_aicc", write_pdf)
 
 
@@ -907,7 +1027,7 @@ def plot_history_window_sensitivity(history_sensitivity: pd.DataFrame, write_pdf
         )
     axes[0].axhline(0.05, color="#333333", lw=0.9, ls="--")
     axes[0].set_yscale("log")
-    axes[0].set_ylabel("LR p value\nphase after adjusted climate")
+    axes[0].set_ylabel("LR p value\nphase after climate-state model")
     axes[1].set_ylabel("Information gain\n(bits/event)")
     axes[2].set_ylabel("Preferred phase (deg)")
     axes[2].set_ylim(0, 360)
@@ -1015,7 +1135,7 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFr
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Fit history- and resolution-adjusted predictive Poisson hazard models."
+        description="Fit event-process-baseline predictive Poisson hazard models."
     )
     parser.add_argument("--no-pdf", action="store_true", help="Only write PNG figures.")
     return parser.parse_args()
@@ -1057,7 +1177,7 @@ def main() -> None:
             ]
         ].to_string(index=False)
     )
-    print("\nHistory-window sensitivity: phase after adjusted LR04+CO2")
+    print("\nHistory-window sensitivity: phase after climate-state model")
     print(
         history_sensitivity[
             [

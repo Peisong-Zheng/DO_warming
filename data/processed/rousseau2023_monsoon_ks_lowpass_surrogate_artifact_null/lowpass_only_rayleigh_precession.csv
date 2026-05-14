@@ -1,3 +1,0 @@
-source,driver,driver_label,event_type,event_label,n_events_total,n_phase_events_used,n_extrapolated_phase_events,mean_phase_rad,mean_phase_deg,mean_resultant_length,rayleigh_R,rayleigh_z,rayleigh_p
-lowpass_only,pre,Precession index,strong_monsoon_start,Strong monsoon starts,51,51,0,1.2738699916907095,72.9873741722429,0.6386124967734739,32.56923733544717,20.79912197279776,4.5834988475691807e-10
-lowpass_only,pre,Precession index,weak_monsoon_start,Weak monsoon starts,48,48,0,4.4588131138293186,255.47117306000467,0.640615195458854,30.749529382024996,19.698615775333717,1.1908796694993563e-09

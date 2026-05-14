@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  12 MAY 2026 11:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  14 MAY 2026 09:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -323,52 +323,58 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10.95> on input line 21.
  [1
 
-{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}]
-<../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig01_adjusted_inputs_and_fitted_hazards.pdf, id=15, 852.15778pt x 691.94986pt>
-File: ../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig01_adjusted_inputs_and_fitted_hazards.pdf Graphic file (type pdf)
-<use ../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig01_adjusted_inputs_and_fitted_hazards.pdf>
-Package pdftex.def Info: ../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig01_adjusted_inputs_and_fitted_hazards.pdf  used on input line 42.
-(pdftex.def)             Requested size: 469.75502pt x 381.44994pt.
+{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}]
+<figures/Fig01.pdf, id=13, 868.40372pt x 691.94986pt>
+File: figures/Fig01.pdf Graphic file (type pdf)
+<use figures/Fig01.pdf>
+Package pdftex.def Info: figures/Fig01.pdf  used on input line 41.
+(pdftex.def)             Requested size: 469.75502pt x 374.31253pt.
 
-Overfull \hbox (0.78949pt too wide) in paragraph at lines 57--58
+Overfull \hbox (0.78949pt too wide) in paragraph at lines 56--57
 \T1/lmr/m/n/10.95 We an-a-lyzed the com-plete 0.4--4 kyr KS detection-window weak- and strong-monsoon start chronolo-
  []
 
-[2] [3 <../figures/rousseau2023_monsoon_predictive_hazard_history_resolution/fig01_adjusted_inputs_and_fitted_hazards.pdf>] [4{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
-<../figures/fig02/fig02.pdf, id=54, 512.6914pt x 501.42719pt>
-File: ../figures/fig02/fig02.pdf Graphic file (type pdf)
-<use ../figures/fig02/fig02.pdf>
-Package pdftex.def Info: ../figures/fig02/fig02.pdf  used on input line 136.
-(pdftex.def)             Requested size: 469.75502pt x 459.43643pt.
- [5] [6 <../figures/fig02/fig02.pdf>] [7]
-<../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig01_single_driver_lagged_information.pdf, id=108, 412.26447pt x 593.5828pt>
-File: ../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig01_single_driver_lagged_information.pdf Graphic file (type pdf)
-<use ../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig01_single_driver_lagged_information.pdf>
-Package pdftex.def Info: ../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig01_single_driver_lagged_information.pdf  used on input line 166.
-(pdftex.def)             Requested size: 244.27461pt x 351.71432pt.
- [8 <../figures/rousseau2023_monsoon_lagged_te_predictive_info/fig01_single_driver_lagged_information.pdf>] [9] [10]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 202.
+[2] [3 <./figures/Fig01.pdf>] [4{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
+<figures/Fig02.pdf, id=52, 511.57674pt x 272.31221pt>
+File: figures/Fig02.pdf Graphic file (type pdf)
+<use figures/Fig02.pdf>
+Package pdftex.def Info: figures/Fig02.pdf  used on input line 135.
+(pdftex.def)             Requested size: 469.75502pt x 250.05658pt.
+ [5] [6 <./figures/Fig02.pdf>]
+<figures/Fig03.pdf, id=81, 846.4781pt x 673.24265pt>
+File: figures/Fig03.pdf Graphic file (type pdf)
+<use figures/Fig03.pdf>
+Package pdftex.def Info: figures/Fig03.pdf  used on input line 167.
+(pdftex.def)             Requested size: 469.75502pt x 373.61299pt.
+ [7] [8 <./figures/Fig03.pdf>] [9]
+<figures/Fig04.pdf, id=107, 412.34993pt x 593.5828pt>
+File: figures/Fig04.pdf Graphic file (type pdf)
+<use figures/Fig04.pdf>
+Package pdftex.def Info: figures/Fig04.pdf  used on input line 200.
+(pdftex.def)             Requested size: 244.27461pt x 351.63281pt.
+ [10] [11 <./figures/Fig04.pdf>]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 225.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) (./main.bbl [11] [12]) [13] (./main.aux)
+) (./main.bbl [12] [13]) [14] (./main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 4680 strings out of 467525
- 80174 string characters out of 5418982
- 514297 words of memory out of 5000000
- 33514 multiletter control sequences out of 15000+600000
- 682780 words of font info for 74 fonts, out of 8000000 for 9000
+ 4712 strings out of 467525
+ 79744 string characters out of 5418982
+ 513767 words of memory out of 5000000
+ 33547 multiletter control sequences out of 15000+600000
+ 679785 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 64i,11n,71p,1908b,533s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 64i,11n,71p,1536b,538s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmib10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on main.pdf (13 pages, 681610 bytes).
+Output written on main.pdf (14 pages, 498351 bytes).
 PDF statistics:
- 215 PDF objects out of 1000 (max. 8388607)
- 131 compressed objects within 2 object streams
+ 210 PDF objects out of 1000 (max. 8388607)
+ 128 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

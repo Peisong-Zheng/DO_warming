@@ -1,3 +1,0 @@
-window_label,d_cut,sigma_cut,change_cut_setting,edge_nan_ksstat,match_tolerance_ka,n_detected_total,n_published_total,n_matched_total,n_unmatched_detected_total,n_unmatched_published_total,median_abs_age_error_ka,mean_abs_age_error_ka,precision_total,recall_total,f1_total,unmatched_total
-0.4-4,0.68,2.0,default,False,0.8,189,196,171,18,25,0.02174999999999727,0.08292723468149532,0.9047619047619048,0.8724489795918368,0.8883116883116883,43
-0.6-4,0.75,2.0,default,False,0.8,168,177,151,17,26,0.027500000000010516,0.09678191537237255,0.8988095238095238,0.8531073446327684,0.8753623188405797,43

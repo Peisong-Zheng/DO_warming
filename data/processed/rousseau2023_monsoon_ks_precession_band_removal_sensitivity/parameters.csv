@@ -1,2 +1,0 @@
-run_name,method,analysis_start_ka,analysis_end_ka,filter_resample_step_ka,window_min_ka,window_max_ka,window_spacing,match_tolerance_ka,n_windows,d_cut,n_cut,sigma_cut,change_cut,leakage_control,filter_variants
-rousseau2023_monsoon_ks_precession_band_removal_sensitivity,Rousseau-style two-sample KS with fixed pre-declared thresholds,0.0,640.0,0.1,0.4,4.0,geometric,0.8,15,0.7,3,1.5,,"Published Rousseau event ages are used only for post-hoc reproduction diagnostics, not to choose detector parameters.",raw; no_pre_18_25kyr; no_pre_15_30kyr

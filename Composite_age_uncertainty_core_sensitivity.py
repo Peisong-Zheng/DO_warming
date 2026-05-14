@@ -13,8 +13,8 @@ core experiments:
 
 1. Lohmann-style stationary-random occurrence test.
 2. Rayleigh test for precession-phase clustering.
-3. Likelihood-ratio tests of the history- and resolution-adjusted predictive
-   Poisson hazard model.
+3. Likelihood-ratio tests of the event-process-baseline predictive Poisson
+   model.
 """
 
 from __future__ import annotations
@@ -31,10 +31,11 @@ from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import pandas as pd
 from scipy.stats import chi2, norm, truncnorm
+from paper_figure_export import save_paper_pdf
 
 import Lohmann_style_randomness_test as lohmann
 import Orbital_phase_rayleigh as rayleigh
-import archive_hazard_model.pre_predictive_information_migration_20260511_210551.scripts.Bin_hazard_phase_poisson as hazard
+import Bin_hazard_phase_poisson as hazard
 import Predictive_hazard_history_resolution as predictive
 
 
@@ -83,11 +84,11 @@ EVENT_SETTINGS = {
 }
 
 ADJUSTED_BASELINE_MODEL_ID = "history_resolution_baseline"
-ADJUSTED_BASELINE_MODEL_LABEL = "History + resolution"
+ADJUSTED_BASELINE_MODEL_LABEL = "Event-process baseline"
 ADJUSTED_CLIMATE_MODEL_ID = "baseline_climate_lr04_co2"
-ADJUSTED_CLIMATE_MODEL_LABEL = "Baseline + LR04 + CO2"
+ADJUSTED_CLIMATE_MODEL_LABEL = "Climate-state model"
 FULL_MODEL_ID = "baseline_climate_lr04_co2_pre_phase"
-FULL_MODEL_LABEL = "Baseline + LR04 + CO2 + precession phase"
+FULL_MODEL_LABEL = "Full predictive model"
 FULL_MODEL_TERMS = predictive.FULL_TERMS
 
 
@@ -110,6 +111,7 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
+        save_paper_pdf(fig, PROJECT_ROOT, stem)
     plt.close(fig)
 
 
@@ -484,19 +486,19 @@ def full_hazard_metrics(
     base_binned: pd.DataFrame,
     bin_edges: np.ndarray,
 ) -> dict[str, float | bool]:
-    """Run the adjusted predictive-hazard tests for one randomized catalogue.
+    """Run the predictive-information tests for one randomized catalogue.
 
     The Monte Carlo draw changes the event histogram but not the forcing grid.
     After histogramming the randomized ages, we add same-type history, drop bins
     whose history window is incomplete, and fit the same nested models used in
-    the main adjusted analysis:
+    the main predictive-information analysis:
 
-        baseline         = history + resolution
-        adjusted climate = baseline + LR04 + CO2
-        full             = adjusted climate + sin(pre_phase) + cos(pre_phase).
+        event-process baseline = history + resolution
+        climate-state model    = event-process baseline + LR04 + CO2
+        full predictive model  = climate-state model + sin(pre_phase) + cos(pre_phase).
 
     The reported phase test asks whether precession phase still improves the
-    model after the adjusted climate terms are present. The full-vs-baseline
+    model after the climate-state terms are present. The full-vs-baseline
     test asks whether the whole LR04+CO2+phase block improves beyond event
     history and sampling resolution.
     """
@@ -642,11 +644,9 @@ def run_sensitivity_experiments(
 
 def build_summary(results: pd.DataFrame) -> pd.DataFrame:
     metric_map = {
-        "lohmann_poisson_ES_p_value": "Lohmann Poisson null",
-        "lohmann_fixed_n_ES_p_value": "Lohmann fixed-N null",
         "rayleigh_pre_p_value": "Rayleigh precession phase",
-        "precession_phase_after_adjusted_climate_LR_p_value": "Precession phase after adjusted LR04+CO2",
-        "full_vs_adjusted_baseline_LR_p_value": "Poisson full vs adjusted baseline",
+        "precession_phase_after_adjusted_climate_LR_p_value": "Precession phase after climate-state model",
+        "full_vs_adjusted_baseline_LR_p_value": "Full predictive model vs event-process baseline",
     }
     rows = []
     randomized = results[results["catalogue_kind"].eq("age_randomized")]
@@ -879,9 +879,12 @@ def draw_age_offset_histogram(ax: plt.Axes, samples_long: pd.DataFrame) -> None:
     ax.axvline(0.0, color="#333333", lw=1.0, ls="--")
     ax.set_xlabel("Sampled age minus published start age (kyr)")
     ax.set_ylabel("Density")
+    ax.tick_params(axis="both", labelsize=12.5)
+    ax.xaxis.label.set_size(14.0)
+    ax.yaxis.label.set_size(14.0)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.legend(frameon=False, loc="upper left")
+    ax.legend(frameon=False, loc="upper left", fontsize=12.5)
 
 
 def significance_fraction_pivot(summary: pd.DataFrame) -> pd.DataFrame:
@@ -892,11 +895,9 @@ def significance_fraction_pivot(summary: pd.DataFrame) -> pd.DataFrame:
     )
     pivot = pivot.loc[[EVENT_SETTINGS[event_type]["label"] for event_type in EVENT_SETTINGS]]
     ordered_columns = [
-        "Lohmann Poisson null",
-        "Lohmann fixed-N null",
         "Rayleigh precession phase",
-        "Precession phase after adjusted LR04+CO2",
-        "Poisson full vs adjusted baseline",
+        "Precession phase after climate-state model",
+        "Full predictive model vs event-process baseline",
     ]
     return pivot[ordered_columns]
 
@@ -925,13 +926,19 @@ def draw_significance_fraction_heatmap(
         aspect="auto",
     )
     ax.set_xticks(np.arange(len(pivot.columns)))
-    ax.set_xticklabels(pivot.columns, rotation=18, ha="right")
+    display_labels = {
+        "Rayleigh precession phase": "Rayleigh\nprecession phase",
+        "Precession phase after climate-state model": "Precession phase after\nclimate-state\nmodel",
+        "Full predictive model vs event-process baseline": "Full predictive model\nvs event-process\nbaseline",
+    }
+    ax.set_xticklabels([display_labels.get(col, col) for col in pivot.columns], rotation=0, ha="center")
     ax.set_yticks(np.arange(len(pivot.index)))
     ax.set_yticklabels(pivot.index)
+    ax.tick_params(axis="both", labelsize=12.5)
     for i in range(pivot.shape[0]):
         for j in range(pivot.shape[1]):
             value = float(pivot.iloc[i, j])
-            ax.text(j, i, f"{value:.2f}", ha="center", va="center", color="#1f2933", fontsize=10)
+            ax.text(j, i, f"{value:.2f}", ha="center", va="center", color="#1f2933", fontsize=13.5)
     for spine in ax.spines.values():
         spine.set_visible(False)
     ax.tick_params(length=0)
@@ -940,6 +947,8 @@ def draw_significance_fraction_heatmap(
             fig = ax.figure
         cbar = fig.colorbar(im, ax=ax, cax=cbar_ax, pad=0.02)
         cbar.set_label("Significant fraction")
+        cbar.ax.yaxis.label.set_size(13.0)
+        cbar.ax.tick_params(labelsize=12.0)
 
 
 def plot_age_offset_distribution(samples_long: pd.DataFrame, write_pdf: bool) -> None:
@@ -961,14 +970,14 @@ def plot_combined_age_offsets_and_significance(
     summary: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
-    fig = plt.figure(figsize=(11.6, 7.0))
+    fig = plt.figure(figsize=(9.8, 6.8))
     grid = fig.add_gridspec(
         2,
         2,
-        width_ratios=[1.0, 0.045],
+        width_ratios=[1.0, 0.035],
         height_ratios=[1.15, 1.0],
-        hspace=0.58,
-        wspace=0.10,
+        hspace=0.72,
+        wspace=0.14,
     )
     ax_hist = fig.add_subplot(grid[0, 0])
     ax_blank = fig.add_subplot(grid[0, 1])
@@ -989,7 +998,7 @@ def plot_combined_age_offsets_and_significance(
         1.04,
         "a",
         transform=ax_hist.transAxes,
-        fontsize=14,
+        fontsize=17,
         fontweight="bold",
         va="bottom",
         ha="left",
@@ -999,7 +1008,7 @@ def plot_combined_age_offsets_and_significance(
         1.04,
         "b",
         transform=ax_heat.transAxes,
-        fontsize=14,
+        fontsize=17,
         fontweight="bold",
         va="bottom",
         ha="left",
@@ -1014,6 +1023,7 @@ def plot_combined_age_offsets_and_significance(
         OUT_FIG_DIR / "fig09_age_offsets_and_significance_fraction.pdf",
         bbox_inches="tight",
     )
+    save_paper_pdf(fig, PROJECT_ROOT, "fig09_age_offsets_and_significance_fraction")
     plt.close(fig)
 
 

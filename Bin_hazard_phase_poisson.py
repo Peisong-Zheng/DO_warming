@@ -53,6 +53,7 @@ from scipy.optimize import minimize
 from scipy.signal import find_peaks
 from scipy.special import gammaln
 from scipy.stats import chi2
+from paper_figure_export import save_paper_pdf
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -158,6 +159,7 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
+        save_paper_pdf(fig, PROJECT_ROOT, stem)
     plt.close(fig)
 
 

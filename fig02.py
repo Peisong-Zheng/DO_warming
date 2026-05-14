@@ -12,6 +12,8 @@ from pathlib import Path
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf._page import PageObject
 
+from paper_figure_export import copy_pdf_to_paper
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 TOP_PDF = (
@@ -80,6 +82,7 @@ def build_fig02() -> Path:
     writer.add_page(canvas)
     with OUT_PDF.open("wb") as handle:
         writer.write(handle)
+    copy_pdf_to_paper(PROJECT_ROOT, OUT_PDF, "fig02")
     return OUT_PDF
 
 

@@ -1,5 +1,0 @@
-window_label,event_type,event_label,d_cut,sigma_cut,change_cut_setting,edge_nan_ksstat,effective_change_cut,match_tolerance_ka,n_detected,n_published,n_matched,n_unmatched_detected,n_unmatched_published,precision,recall,f1,median_abs_age_error_ka,mean_abs_age_error_ka
-0.4-4,strong_monsoon_start,Strong monsoon starts,0.7,1.5,default,False,0.5534439014047682,0.8,95,96,84,11,12,0.8842105263157894,0.875,0.8795811518324607,0.020674722115728628,0.09714945306962813
-0.4-4,weak_monsoon_start,Weak monsoon starts,0.7,1.5,default,False,0.5534439014047682,0.8,101,100,88,13,12,0.8712871287128713,0.88,0.8756218905472637,0.03162804848592771,0.08555388460448034
-0.6-4,strong_monsoon_start,Strong monsoon starts,0.7,1.5,default,False,0.5534439014047682,0.8,88,87,77,11,10,0.875,0.8850574712643678,0.8800000000000001,0.020000000000010232,0.09687932839779284
-0.6-4,weak_monsoon_start,Weak monsoon starts,0.7,1.5,default,False,0.5534439014047682,0.8,95,90,80,15,10,0.8421052631578947,0.8888888888888888,0.8648648648648649,0.03700000000003456,0.10573265770295615

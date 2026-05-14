@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
+from paper_figure_export import save_paper_pdf
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -411,6 +412,7 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
+        save_paper_pdf(fig, PROJECT_ROOT, stem)
     plt.close(fig)
 
 
@@ -654,7 +656,7 @@ def plot_polar_rayleigh_single_driver(
     bins = np.linspace(0.0, 2.0 * np.pi, 19)
     width = bins[1] - bins[0]
     theta_grid = np.linspace(0.0, 2.0 * np.pi, 361)
-    panel_label_start = 2 if driver == "pre" else 0
+    panel_label_start = 0
 
     for j, event_type in enumerate(event_types):
         ax = axes[j]

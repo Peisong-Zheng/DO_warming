@@ -1,2 +1,0 @@
-run_name,precession_band_short_period_ka,precession_band_long_period_ka,highfreq_cutoff_period_ka,filter_order,resample_step_ka,detector_n_windows,detector_d_cut,detector_n_cut,detector_sigma_cut,detector_change_cut,information_leakage_control
-rousseau2023_monsoon_ks_precession_highfreq_artifact_null,17.0,25.0,1.0,4,0.1,15,0.7,3,1.5,,No published Rousseau transition ages are used.

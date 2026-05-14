@@ -1,9 +1,0 @@
-component_id,component_label,event_type,event_label,n_detected_events,mean_phase_deg,Rbar,rayleigh_z,rayleigh_p
-observed_raw,Observed raw composite,strong_monsoon_start,Strong monsoon starts,95,29.440663328725066,0.19826060253810932,3.734190319283545,0.023481147660222905
-observed_raw,Observed raw composite,weak_monsoon_start,Weak monsoon starts,101,219.0037944129981,0.2848607767982804,8.195711877970092,0.00024186290694246476
-precession_band,17-25 kyr precession band,strong_monsoon_start,Strong monsoon starts,53,73.65446276305167,0.7874577759877682,32.864756695070916,3.218360280180403e-14
-precession_band,17-25 kyr precession band,weak_monsoon_start,Weak monsoon starts,53,254.35397676285905,0.8411682672925259,37.50089485669525,6.203176411299658e-16
-highfreq_lt1kyr,<1 kyr high-frequency component,strong_monsoon_start,Strong monsoon starts,33,94.75099264479302,0.22821959891678995,1.7187781158814355,0.1799652241282469
-highfreq_lt1kyr,<1 kyr high-frequency component,weak_monsoon_start,Weak monsoon starts,41,166.47335375506617,0.21093964368123344,1.8243168643309948,0.16165435105326909
-precession_plus_highfreq,Precession band + <1 kyr component,strong_monsoon_start,Strong monsoon starts,62,60.94099274591075,0.7448301866676513,34.39586443222483,6.0361964839962546e-15
-precession_plus_highfreq,Precession band + <1 kyr component,weak_monsoon_start,Weak monsoon starts,60,232.57968276422577,0.7308668106358741,32.04997769334328,4.6537815465227815e-14

@@ -54,6 +54,7 @@ import pandas as pd
 from scipy.optimize import minimize
 from scipy.special import gammaln
 from scipy.stats import chi2
+from paper_figure_export import save_paper_pdf
 
 from Bin_hazard_phase_poisson import (
     ANALYSIS_END_KA,
@@ -123,6 +124,7 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
+        save_paper_pdf(fig, PROJECT_ROOT, stem)
     plt.close(fig)
 
 
@@ -133,9 +135,9 @@ def lag_grid() -> np.ndarray:
 
 
 def add_event_history_feature(binned: pd.DataFrame) -> pd.DataFrame:
-    """Add the adjusted conditioning set used in every reduced model.
+    """Add the event-process baseline used in every reduced model.
 
-    The reduced model now matches the adjusted predictive-hazard framework:
+    The reduced model now matches the event-process-baseline predictive framework:
     same-type event history in the older ``(t, t + W]`` interval, with
     ``W = 5 kyr``, plus local Cheng composite sampling resolution. The common
     lag-support flag keeps only bins for which all candidate lags up to
@@ -456,7 +458,7 @@ def add_lagged_driver_terms(dataset_frame: pd.DataFrame, driver_id: str, lag_ka:
 
 
 def run_single_driver_scans(binned: pd.DataFrame) -> pd.DataFrame:
-    """Scan each driver/lag against the adjusted event-process baseline.
+    """Scan each driver/lag against the event-process baseline.
 
     For every event dataset, lag, and driver:
 
@@ -697,7 +699,7 @@ def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, 
         # ax.axhline(0.0, color="#666666", lw=0.8, ls=":")
         ax.set_ylabel("Information gain\n(bits/event)")
         ax.set_title(
-            f"{DATASET_SETTINGS[dataset_id]['label']}: single drivers | baseline",
+            f"{DATASET_SETTINGS[dataset_id]['label']}: single drivers | event-process baseline",
             loc="left",
         )
         # ax.grid(True, color="#e6e6e6", lw=0.6)
@@ -745,7 +747,7 @@ def plot_single_driver_delta_aicc(single: pd.DataFrame, write_pdf: bool) -> None
         ax.legend(frameon=False, loc="lower right", ncol=3)
     axes[-1].set_xlabel("Driver lag (ka; positive = older driver state)")
     fig.suptitle(
-        "Negative Delta AICc means lagged driver improves the adjusted baseline model",
+        "Negative Delta AICc means the lagged driver improves the event-process baseline",
         y=0.995,
         fontsize=14,
     )

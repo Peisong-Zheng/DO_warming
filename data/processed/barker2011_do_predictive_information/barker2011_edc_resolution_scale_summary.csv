@@ -1,0 +1,4 @@
+dataset_id,forcing_id,forcing_label,source,resolution_age_axis,mean,min,max,range
+barker_variable_threshold_edc3_0_640,edc_log_resolution_scaled,log EDC local age spacing,"data/raw/Jouzel-etal-2007-Science-Orbital and Millennial Antarctic Climate Variability over the Past 800,000 Years.txt",edc3,-1.6974941193041257,-4.649643837577244,0.3043914671506304,4.954035304727874
+barker_variable_threshold_edc3_0_800,edc_log_resolution_scaled,log EDC local age spacing,"data/raw/Jouzel-etal-2007-Science-Orbital and Millennial Antarctic Climate Variability over the Past 800,000 Years.txt",edc3,-1.4476067754818651,-4.649643837577244,0.3043914671506304,4.954035304727874
+barker_variable_threshold_speleo_0_400,edc_log_resolution_scaled,log EDC local age spacing,"data/raw/Jouzel-etal-2007-Science-Orbital and Millennial Antarctic Climate Variability over the Past 800,000 Years.txt",speleo_to_edc3,-2.231124395309427,-4.648858610751446,-1.0694235101191103,3.5794351006323355
