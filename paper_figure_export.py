@@ -56,9 +56,9 @@ PAPER_FIGURES: tuple[PaperFigure, ...] = (
         figure_label="fig:predictive_model_comparison",
     ),
     PaperFigure(
-        stem="fig01_single_driver_lagged_information",
+        stem="fig05_core_component_lagged_information_0_10kyr",
         paper_name="Fig04.pdf",
-        source_relpath="figures/rousseau2023_monsoon_lagged_te_predictive_info/fig01_single_driver_lagged_information.pdf",
+        source_relpath="figures/rousseau2023_monsoon_lagged_te_predictive_info/fig05_core_component_lagged_information_0_10kyr.pdf",
         tex_file="main.tex",
         figure_label="fig:lagged-single-driver-info",
     ),

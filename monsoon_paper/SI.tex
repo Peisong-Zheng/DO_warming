@@ -64,9 +64,9 @@ For each randomized catalogue, we repeated the Rayleigh precession test, the tes
 
 \subsection*{Text S4. Lagged predictive-information diagnostics}
 
-The lagged predictive-information scan is a temporal-alignment diagnostic, not a causal-delay estimator. The best single-driver lags are reported in the main text. Their corresponding maximum gains are 0.101, 0.120, and 0.133 bits/event for LR04, \(\ce{CO2}\), and precession phase in the strong-start catalogue, and 0.113, 0.153, and 0.065 bits/event in the weak-start catalogue. The weak-start single-driver precession scan has nominal \(p=0.013\) at its best lag but is not significant after false-discovery-rate correction.
+The lagged predictive-information scan is a temporal-alignment diagnostic, not a causal-delay estimator. The best single-driver lags are reported in the main text. Their corresponding maximum gains are 0.108, 0.124, and 0.127 bits/event for LR04, \(\ce{CO2}\), and precession phase in the strong-start catalogue, and 0.111, 0.158, and 0.068 bits/event in the weak-start catalogue. The weak-start single-driver precession scan has nominal \(p=0.010\) at its best lag but is not significant after false-discovery-rate correction.
 
-Conditional scans give the same near-zero phase result. After LR04 and \(\ce{CO2}\) are fixed at their best single-driver lags, precession phase peaks at 0 kyr for both strong starts (0.148 bits/event, \(p=8.8\times10^{-5}\)) and weak starts (0.110 bits/event, \(p=6.5\times10^{-4}\)); both remain significant after false-discovery-rate correction. When LR04, \(\ce{CO2}\), and precession phase share the same lag, the best precession lag is 0 kyr for strong starts and 0.8 kyr for weak starts. These maxima indicate contemporaneous orbital-phase organization in this binned framework, not a resolved causal response time.
+Conditional scans give the same near-zero phase result. After LR04 and \(\ce{CO2}\) are fixed at their best single-driver lags, precession phase peaks at 0 kyr for both strong starts (0.141 bits/event, \(p=1.16\times10^{-4}\)) and weak starts (0.108 bits/event, \(p=7.12\times10^{-4}\)); both remain significant after false-discovery-rate correction. When LR04, \(\ce{CO2}\), and precession phase share the same lag, the best precession lag is 0 kyr for strong starts and 0.8 kyr for weak starts. These maxima indicate contemporaneous orbital-phase organization in this binned framework, not a resolved causal response time.
 
 \subsection*{Text S5. Sparse-bin and bootstrap likelihood diagnostics}
 
@@ -217,7 +217,9 @@ Weak starts & Full predictive model vs. event-process baseline & $2.62\times10^{
     Additional-forcing sensitivity.
     Sensitivity of predictive-information models to additional forcings.
     (a,b) \(\Delta\)AICc for strong and weak monsoon starts, measured relative to the extended baseline, i.e., the full predictive model before adding extra forcings.
-    (c,d) Nested likelihood-ratio tests for the extra forcings. Bars show \(-\log_{10}(p)\), and the dashed line marks \(p=0.05\); bars to the left of this line are not significant. The three blocks test, from top to bottom, adding individual forcings to the extended baseline, adding all extra forcings jointly, and the unique contribution of each forcing within the full extended model.
+    In (a,b), labels beginning with \(+\) add the listed forcing or forcings to the extended baseline, whereas ``All except \(X\)'' denotes the all-extra model with \(X\) omitted.
+    (c,d) Nested likelihood-ratio tests for the extra forcings. Bars show \(-\log_{10}(p)\), and the dashed line marks \(p=0.05\); bars to the left of this line are not significant.
+    Labels of the form ``\(+X\) vs extended baseline'' compare the extended baseline+\(X\) model with the extended baseline, and labels of the form ``all extras vs \(-X\)'' compare the all-extra model with a reduced model omitting \(X\).
     }
     \label{fig:sensitivity_aicc_lrt}
 \end{figure}
@@ -257,7 +259,7 @@ Weak starts & Full predictive model vs. event-process baseline & $2.62\times10^{
     (d) Nested likelihood-ratio tests shown as \(-\log_{10}(p)\); the dashed line marks \(p=0.05\).
     (e) \(\Delta\)AICc, defined as full minus reduced model for each row; negative values favour the fuller model.
     (f) Predictive-information gain in bits per event for the same full-versus-reduced comparison.
-    For each row, the reduced model is specified by the ``after'' phrase: the EDC event-process baseline for the climate-state model, the Barker climate-state model for precession phase, and the EDC event-process baseline for the full predictive model.
+    Labels are full-model versus reduced-model comparisons; ``Full predictive model vs climate-state'' denotes adding precession phase to the Barker climate-state model.
     }
     \label{fig:barker_predictive_sensitivity}
 \end{figure}

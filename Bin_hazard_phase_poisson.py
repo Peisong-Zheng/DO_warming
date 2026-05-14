@@ -893,7 +893,7 @@ def plot_fitted_hazards_only(
             color=DATASET_SETTINGS["strong_monsoon_start"]["color"],
             lw=1.2,
             alpha=0.55,
-            label=f"Strong observed event bins (N={dataset_event_counts['strong_monsoon_start']})",
+            label="Strong monsoon start",
         ),
         Line2D(
             [0],
@@ -901,7 +901,7 @@ def plot_fitted_hazards_only(
             color=DATASET_SETTINGS["weak_monsoon_start"]["color"],
             lw=1.2,
             alpha=0.55,
-            label=f"Weak observed event bins (N={dataset_event_counts['weak_monsoon_start']})",
+            label="Weak monsoon start",
         ),
         Line2D([0], [0], color=MODEL_COLORS["climate_lr04_co2"], lw=1.2, label="LR04 + CO$_2$"),
         Line2D(
@@ -914,10 +914,11 @@ def plot_fitted_hazards_only(
     ]
     axes[0].legend(
         handles=legend_handles,
-        loc="lower right",
-        bbox_to_anchor=(1.0, 1.03),
-        ncol=4,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 1.03),
+        ncol=2,
         frameon=False,
+        fontsize=10.5,
         borderaxespad=0.0,
     )
     # set y lim to [0, 0.6] 

@@ -581,7 +581,7 @@ def draw_rayleigh_precession_panel(
             rf"$\bar{{R}}_{{0.05}}$={rbar_threshold:.2f}",
             ha="center",
             va="bottom",
-            fontsize=8.8,
+            fontsize=10.2,
             color="#303030",
             bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.78, "pad": 1.0},
             zorder=5,
@@ -597,7 +597,7 @@ def draw_rayleigh_precession_panel(
     ax.set_theta_direction(1)
     ax.set_xticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
     ax.set_xticklabels(["min", "90", "max", "270"])
-    ax.tick_params(axis="x", pad=4, labelsize=9.5)
+    ax.tick_params(axis="x", pad=2, labelsize=9.8)
     ax.set_yticklabels([])
     ax.grid(color="0.82", alpha=0.45, lw=0.6)
     ax.text(
@@ -607,13 +607,14 @@ def draw_rayleigh_precession_panel(
         transform=ax.transAxes,
         ha="left",
         va="bottom",
-        fontsize=12.5,
+        fontsize=14,
         fontweight="bold",
     )
     ax.set_title(
         f"{short_variant_label(settings)}\n"
-        rf"N={n}, $\bar{{R}}$={rbar:.2f}, mean={row['mean_phase_deg']:.1f} deg, p={format_p(row['rayleigh_p'])}",
-        fontsize=9.6,
+        rf"N={n}, $\bar{{R}}$={rbar:.2f}, p={format_p(row['rayleigh_p'])}" "\n"
+        rf"mean={row['mean_phase_deg']:.1f} deg",
+        fontsize=9.8,
         pad=title_pad,
     )
 
@@ -645,9 +646,9 @@ def plot_predictive_summary(
         "full_after_baseline",
     ]
     labels = {
-        "climate_lr04_co2_after_baseline": "Climate-state model\nvs event-process\nbaseline",
-        "phase_after_baseline_climate": "Precession phase\nafter climate-state\nmodel",
-        "full_after_baseline": "Full predictive model\nvs event-process\nbaseline",
+        "climate_lr04_co2_after_baseline": "Climate-state vs EP baseline",
+        "phase_after_baseline_climate": "Full predictive model vs climate-state",
+        "full_after_baseline": "Full predictive model vs EP baseline",
     }
     variants = [settings["dataset_id"] for settings in CATALOGUE_VARIANTS]
     metric_specs = [
@@ -655,7 +656,7 @@ def plot_predictive_summary(
         ("delta_aicc", r"$\Delta$AICc", "e"),
         ("bits_per_event", "bits per event", "f"),
     ]
-    fig = plt.figure(figsize=(13.6, 9.6), constrained_layout=False)
+    fig = plt.figure(figsize=(10.2, 8.9), constrained_layout=False)
     gs = fig.add_gridspec(2, 3, height_ratios=[1.08, 1.0])
     for idx, settings in enumerate(CATALOGUE_VARIANTS):
         ax = fig.add_subplot(gs[0, idx], projection="polar")
@@ -665,11 +666,11 @@ def plot_predictive_summary(
             rayleigh_results,
             settings,
             panel_label=chr(ord("a") + idx),
-            title_pad=28.0,
+            title_pad=20.0,
         )
 
     axes = [fig.add_subplot(gs[1, idx]) for idx in range(3)]
-    height = 0.22
+    height = 0.25
     y = np.arange(len(wanted))
     handles = []
     handle_labels = []
@@ -707,8 +708,8 @@ def plot_predictive_summary(
         ax.set_yticklabels([labels[item] for item in wanted] if ax is axes[0] else [])
         ax.invert_yaxis()
         ax.set_xlabel(ylabel)
-        ax.tick_params(axis="both", labelsize=10.5)
-        ax.xaxis.label.set_size(11.5)
+        ax.tick_params(axis="both", labelsize=12.0)
+        ax.xaxis.label.set_size(13.0)
         ax.grid(False)
         ax.text(
             -0.08,
@@ -717,7 +718,7 @@ def plot_predictive_summary(
             transform=ax.transAxes,
             ha="left",
             va="bottom",
-            fontsize=12.5,
+            fontsize=15,
             fontweight="bold",
         )
     fig.legend(
@@ -727,11 +728,9 @@ def plot_predictive_summary(
         loc="upper center",
         bbox_to_anchor=(0.61, 0.485),
         ncol=3,
-        fontsize=8.8,
-        title="Catalogues; in e,f, values are relative to the row-specific reduced model",
-        title_fontsize=8.8,
+        fontsize=10.6,
     )
-    fig.subplots_adjust(left=0.225, right=0.985, bottom=0.09, top=0.90, hspace=0.66, wspace=0.28)
+    fig.subplots_adjust(left=0.19, right=0.985, bottom=0.09, top=0.86, hspace=0.74, wspace=0.55)
     save_figure(fig, "fig02_barker_predictive_likelihood_tests")
 
 
@@ -744,7 +743,7 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
     rates = fitted[fitted["dataset_id"].eq(dataset_id)].copy()
     x = frame["bin_center_ka"].to_numpy(dtype=float)
 
-    fig = plt.figure(figsize=(10.8, 8.2))
+    fig = plt.figure(figsize=(9.4, 8.2))
     outer = fig.add_gridspec(
         2,
         1,
@@ -773,7 +772,7 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
     pre_ax.set_ylabel("precession\nphase")
     pre_ax.set_yticks([0, 180, 360])
     raw_ax.set_ylabel("precession\nindex", color="#666666")
-    raw_ax.tick_params(axis="y", colors="#666666", labelsize=8)
+    raw_ax.tick_params(axis="y", colors="#666666", labelsize=9.5)
 
     top_axes[1].plot(x, frame["lr04"], color="#3f7f93", lw=1.0)
     top_axes[1].set_ylabel("LR04")
@@ -846,6 +845,7 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
         transform=rate_ax.transAxes,
         ha="right",
         va="top",
+        fontsize=9.6,
         bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#bbbbbb", "alpha": 0.86},
     )
     rate_ax.legend(
@@ -875,8 +875,8 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
         frameon=False,
         loc="lower right",
         bbox_to_anchor=(1.0, 1.04),
-        ncol=3,
-        fontsize=7.5,
+        ncol=2,
+        fontsize=11.0,
         borderaxespad=0.0,
     )
 
@@ -884,7 +884,8 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
         ax.grid(False)
         ax.set_xlim(settings["analysis_start_ka"], settings["analysis_end_ka"])
         ax.tick_params(axis="x", labelbottom=False, length=0)
-        ax.tick_params(axis="y", length=2.5, pad=2)
+        ax.tick_params(axis="y", length=2.5, pad=2, labelsize=9.5)
+        ax.yaxis.label.set_size(10.5)
         for spine in ax.spines.values():
             spine.set_visible(False)
     top_axes[-1].tick_params(
@@ -904,6 +905,9 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
     rate_ax.grid(False)
     rate_ax.set_xlim(settings["analysis_start_ka"], settings["analysis_end_ka"])
     rate_ax.set_xlabel("Age (kyr BP, EDC3)")
+    rate_ax.tick_params(axis="both", labelsize=10.5)
+    rate_ax.xaxis.label.set_size(11.5)
+    rate_ax.yaxis.label.set_size(11.5)
     for label, ax, y_offset in (("a", top_axes[0], 1.08), ("b", rate_ax, 1.02)):
         ax.text(
             -0.045,
@@ -912,7 +916,7 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
             transform=ax.transAxes,
             ha="right",
             va="bottom",
-            fontsize=11,
+            fontsize=13,
             fontweight="bold",
             clip_on=False,
         )

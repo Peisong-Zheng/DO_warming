@@ -186,33 +186,39 @@ MODEL_COLORS = {
 }
 
 LR_TEST_SHORT_LABELS = {
-    "baseline_vs_stationary": "Event-process baseline vs stationary",
-    "lr04_after_baseline": "LR04 after event-process baseline",
-    "co2_after_baseline": "CO$_2$ after event-process baseline",
-    "climate_lr04_co2_after_baseline": "Climate-state model vs event-process baseline",
-    "pre_phase_after_baseline": "Precession phase after event-process baseline",
-    "phase_after_adjusted_climate": "Precession phase after climate-state model",
-    "lr04_after_adjusted_co2_phase": "LR04 unique in full predictive model",
-    "co2_after_adjusted_lr04_phase": "CO$_2$ unique in full predictive model",
-    "full_vs_baseline": "Full predictive model vs event-process baseline",
+    "baseline_vs_stationary": "EP baseline vs stationary",
+    "lr04_after_baseline": "+LR04 vs EP baseline",
+    "co2_after_baseline": "+CO$_2$ vs EP baseline",
+    "climate_lr04_co2_after_baseline": "Climate-state vs EP baseline",
+    "pre_phase_after_baseline": "+phase vs EP baseline",
+    "phase_after_adjusted_climate": "+phase vs climate-state",
+    "lr04_after_adjusted_co2_phase": "Full predictive model vs -LR04",
+    "co2_after_adjusted_lr04_phase": "Full predictive model vs -CO$_2$",
+    "full_vs_baseline": "Full predictive model vs EP baseline",
 }
 
 MODEL_PLOT_LABELS = {
-    "baseline_pre_phase": "Event-process baseline\n+ precession phase",
-    "baseline_lr04_pre_phase": "Event-process baseline\n+ LR04 + precession phase",
-    "baseline_co2_pre_phase": "Event-process baseline\n+ CO$_2$ + precession phase",
+    "stationary": "Stationary",
+    "history_resolution_baseline": "EP baseline",
+    "baseline_lr04": "+ LR04",
+    "baseline_co2": "+ CO$_2$",
+    "baseline_climate_lr04_co2": "Climate-state",
+    "baseline_pre_phase": "+ phase",
+    "baseline_lr04_pre_phase": "+ LR04 + phase",
+    "baseline_co2_pre_phase": "+ CO$_2$ + phase",
+    "baseline_climate_lr04_co2_pre_phase": "Full predictive model",
 }
 
 LR_TEST_PLOT_LABELS = {
-    "baseline_vs_stationary": "Event-process baseline\nvs stationary",
-    "lr04_after_baseline": "LR04 after\nevent-process baseline",
-    "co2_after_baseline": "CO$_2$ after\nevent-process baseline",
-    "climate_lr04_co2_after_baseline": "Climate-state model\nvs event-process baseline",
-    "pre_phase_after_baseline": "Precession phase after\nevent-process baseline",
-    "phase_after_adjusted_climate": "Precession phase after\nclimate-state model",
-    "lr04_after_adjusted_co2_phase": "LR04 unique in\nfull predictive model",
-    "co2_after_adjusted_lr04_phase": "CO$_2$ unique in\nfull predictive model",
-    "full_vs_baseline": "Full predictive model\nvs event-process baseline",
+    "baseline_vs_stationary": "EP baseline vs stationary",
+    "lr04_after_baseline": "+LR04 vs EP baseline",
+    "co2_after_baseline": "+CO$_2$ vs EP baseline",
+    "climate_lr04_co2_after_baseline": "Climate-state vs EP baseline",
+    "pre_phase_after_baseline": "+phase vs EP baseline",
+    "phase_after_adjusted_climate": "+phase vs climate-state",
+    "lr04_after_adjusted_co2_phase": "Full predictive model vs -LR04",
+    "co2_after_adjusted_lr04_phase": "Full predictive model vs -CO$_2$",
+    "full_vs_baseline": "Full predictive model vs EP baseline",
 }
 
 
@@ -894,13 +900,15 @@ def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.Data
         ]
         ax.barh(y, sub["delta_AICc"], height=0.76, color=colors, alpha=0.85)
         ax.set_yticks(y)
-        ax.set_yticklabels(labels)
+        ax.set_yticklabels(labels if ax_idx == 0 else [])
+        if ax_idx == 1:
+            ax.tick_params(axis="y", length=0)
         ax.set_ylim(y[-1] + 0.70, -0.70)
         ax.set_xlabel("Delta AICc from best model")
         ax.set_title(base.DATASET_SETTINGS[dataset_id]["label"], loc="left", fontsize=15.0)
         ax.tick_params(axis="both", labelsize=13.0)
         ax.xaxis.label.set_size(13.5)
-        ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
+        ax.grid(False)
         ax.text(
             -0.08,
             1.04,
@@ -942,13 +950,15 @@ def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.Data
         ax.barh(y, sub["minus_log10_p"], height=0.76, color=colors, alpha=0.86)
         ax.axvline(threshold, color="#222222", ls="--", lw=0.9)
         ax.set_yticks(y)
-        ax.set_yticklabels(labels)
+        ax.set_yticklabels(labels if ax_idx == 0 else [])
+        if ax_idx == 1:
+            ax.tick_params(axis="y", length=0)
         ax.set_ylim(y[-1] + 0.70, -0.70)
         ax.set_xlim(0.0, xlim)
         ax.set_xlabel("-log10 LR p value")
         ax.tick_params(axis="both", labelsize=13.0)
         ax.xaxis.label.set_size(13.5)
-        ax.grid(True, axis="x", color="#e6e6e6", lw=0.6)
+        ax.grid(False)
         ax.text(
             -0.08,
             1.04,
@@ -960,7 +970,7 @@ def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.Data
             fontweight="bold",
             clip_on=False,
         )
-    fig.subplots_adjust(left=0.36, right=0.985, top=0.94, bottom=0.08, hspace=0.34, wspace=1.25)
+    fig.subplots_adjust(left=0.33, right=0.985, top=0.94, bottom=0.08, hspace=0.34, wspace=0.28)
     save_figure(fig, "fig02_adjusted_model_comparison_delta_aicc", write_pdf)
 
 

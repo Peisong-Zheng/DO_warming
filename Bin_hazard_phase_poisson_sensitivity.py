@@ -117,13 +117,13 @@ MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
     (
         "base_plus_insol65N",
         BASE_TERMS + ("insol65N_scaled",),
-        "Extended baseline + 65N insolation",
+        "Extended baseline + 65$^{\\circ}$N insolation",
     ),
     ("extended_all", BASE_TERMS + EXTRA_TERMS, "Extended baseline + all extra forcings"),
     (
         "all_without_AT",
         BASE_TERMS + ("obl_scaled", "ecc_scaled", "insol65N_scaled"),
-        "All extra except AT",
+        "All extra except Antarctic T",
     ),
     (
         "all_without_obl",
@@ -138,7 +138,7 @@ MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
     (
         "all_without_insol65N",
         BASE_TERMS + ("AT_scaled", "obl_scaled", "ecc_scaled"),
-        "All extra except 65N insolation",
+        "All extra except 65$^{\\circ}$N insolation",
     ),
 ]
 
@@ -174,32 +174,40 @@ LR_TEST_SHORT_LABELS = {
     "AT_after_base": "Add Antarctic T to extended baseline",
     "obl_after_base": "Add obliquity to extended baseline",
     "ecc_after_base": "Add eccentricity to extended baseline",
-    "insol65N_after_base": "Add 65N insolation to extended baseline",
+    "insol65N_after_base": "Add 65$^{\\circ}$N insolation to extended baseline",
     "all_extras_after_base": "Add all extras to extended baseline",
     "AT_unique_in_full": "Antarctic T unique in full",
     "obl_unique_in_full": "Obliquity unique in full",
     "ecc_unique_in_full": "Eccentricity unique in full",
-    "insol65N_unique_in_full": "65N insolation unique in full",
+    "insol65N_unique_in_full": "65$^{\\circ}$N insolation unique in full",
 }
 
 MODEL_PLOT_LABELS = {
-    "base_plus_AT": "Extended baseline\n+ Antarctic T",
-    "base_plus_obl": "Extended baseline\n+ obliquity",
-    "base_plus_ecc": "Extended baseline\n+ eccentricity",
-    "base_plus_insol65N": "Extended baseline\n+ 65N insolation",
-    "extended_all": "Extended baseline\n+ all extra forcings",
+    "stationary": "Stationary",
+    "history_resolution_baseline": "EP baseline",
+    "adjusted_climate": "Climate-state",
+    "base_adjusted_climate_phase": "Extended baseline",
+    "base_plus_AT": "+ Antarctic T",
+    "base_plus_obl": "+ obliquity",
+    "base_plus_ecc": "+ eccentricity",
+    "base_plus_insol65N": "+ $65^{\\circ}$N insolation",
+    "extended_all": "+ all extra forcings",
+    "all_without_AT": "All except Antarctic T",
+    "all_without_obl": "All except obliquity",
+    "all_without_ecc": "All except eccentricity",
+    "all_without_insol65N": "All except $65^{\\circ}$N insolation",
 }
 
 LR_TEST_PLOT_LABELS = {
-    "AT_after_base": "Add Antarctic T\nto extended baseline",
-    "obl_after_base": "Add obliquity\nto extended baseline",
-    "ecc_after_base": "Add eccentricity\nto extended baseline",
-    "insol65N_after_base": "Add 65N insolation\nto extended baseline",
-    "all_extras_after_base": "Add all extras\nto extended baseline",
-    "AT_unique_in_full": "Antarctic T unique\nin full",
-    "obl_unique_in_full": "Obliquity unique\nin full",
-    "ecc_unique_in_full": "Eccentricity unique\nin full",
-    "insol65N_unique_in_full": "65N insolation unique\nin full",
+    "AT_after_base": "+Antarctic T vs extended baseline",
+    "obl_after_base": "+obliquity vs extended baseline",
+    "ecc_after_base": "+eccentricity vs extended baseline",
+    "insol65N_after_base": "+$65^{\\circ}$N insolation vs extended baseline",
+    "all_extras_after_base": "+all extras vs extended baseline",
+    "AT_unique_in_full": "all extras vs -Antarctic T",
+    "obl_unique_in_full": "all extras vs -obliquity",
+    "ecc_unique_in_full": "all extras vs -eccentricity",
+    "insol65N_unique_in_full": "all extras vs -$65^{\\circ}$N insolation",
 }
 
 PREDICTOR_TERMS = BASE_TERMS + EXTRA_TERMS
@@ -211,10 +219,10 @@ PREDICTOR_LABELS = {
     "co2_scaled": "CO2",
     "pre_phase_sin": "sin phase",
     "pre_phase_cos": "cos phase",
-    "AT_scaled": "AT",
+    "AT_scaled": "Antarctic T",
     "obl_scaled": "obliquity",
     "ecc_scaled": "eccentricity",
-    "insol65N_scaled": "65N insol",
+    "insol65N_scaled": "65$^{\\circ}$N insol",
 }
 
 
@@ -458,7 +466,7 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
             "add_to_base",
             "base_adjusted_climate_phase",
             "base_plus_AT",
-            "Add AT to extended baseline",
+            "Add Antarctic T to extended baseline",
         ),
         (
             "obl_after_base",
@@ -479,7 +487,7 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
             "add_to_base",
             "base_adjusted_climate_phase",
             "base_plus_insol65N",
-            "Add 65N insolation to extended baseline",
+            "Add 65$^{\\circ}$N insolation to extended baseline",
         ),
         (
             "all_extras_after_base",
@@ -493,7 +501,7 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
             "drop_one_from_full",
             "all_without_AT",
             "extended_all",
-            "AT unique in full",
+            "Antarctic T unique in full",
         ),
         (
             "obl_unique_in_full",
@@ -514,7 +522,7 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
             "drop_one_from_full",
             "all_without_insol65N",
             "extended_all",
-            "65N insolation unique in full",
+            "65$^{\\circ}$N insolation unique in full",
         ),
     ]
     rows = []
@@ -597,7 +605,7 @@ def draw_model_delta_aicc(ax: plt.Axes, summary: pd.DataFrame, dataset_id: str) 
     ax.set_yticks(y)
     ax.set_yticklabels(model_labels)
     ax.set_ylim(y[-1] + 0.68, -0.68)
-    ax.set_xlabel("Delta AICc vs extended baseline")
+    ax.set_xlabel("Delta AICc relative to extended baseline")
     ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left", fontsize=15.0)
     ax.tick_params(axis="both", labelsize=12.5)
     ax.xaxis.label.set_size(13.5)
@@ -663,13 +671,6 @@ def draw_likelihood_tests_merged(
     ax.xaxis.label.set_size(13.5)
     ax.grid(False)
 
-    for boundary_id in ("insol65N_after_base", "all_extras_after_base"):
-        boundary_indices = np.flatnonzero(sub["comparison_id"].eq(boundary_id).to_numpy())
-        if len(boundary_indices) and boundary_indices[0] + 1 < len(sub):
-            idx = boundary_indices[0]
-            y_sep = 0.5 * (sub.loc[idx, "y_position"] + sub.loc[idx + 1, "y_position"])
-            ax.axhline(y_sep, color="#d9d9d9", lw=0.8, zorder=0)
-
     if annotate:
         for _, test in sub.iterrows():
             ax.text(
@@ -733,7 +734,7 @@ def plot_aicc_and_likelihood_tests_combined(
     axes[1, 1].text(
         -0.24, 1.05, "d", transform=axes[1, 1].transAxes, fontweight="bold", fontsize=16
     )
-    fig.subplots_adjust(left=0.33, right=0.985, top=0.95, bottom=0.08, hspace=0.44, wspace=0.86)
+    fig.subplots_adjust(left=0.31, right=0.985, top=0.95, bottom=0.08, hspace=0.32, wspace=0.48)
     save_figure(fig, "fig06_sensitivity_aicc_and_likelihood_tests", write_pdf)
 
 
@@ -778,7 +779,7 @@ def plot_base_vs_extended_rates(
     likelihood_tests: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
-    fig, axes = plt.subplots(2, 1, figsize=(13.2, 5.8), sharex=True)
+    fig, axes = plt.subplots(2, 1, figsize=(9.2, 5.6), sharex=True)
     for ax_idx, (ax, dataset_id) in enumerate(zip(axes, DATASET_SETTINGS)):
         settings = DATASET_SETTINGS[dataset_id]
         data = binned_inputs[binned_inputs["dataset_id"].eq(dataset_id)]
@@ -806,7 +807,7 @@ def plot_base_vs_extended_rates(
                 rates["bin_center_ka"],
                 rates["lambda_per_kyr"],
                 color=color,
-                lw=1.2,
+                lw=1.8,
                 label=label,
                 zorder=3,
             )
@@ -822,9 +823,13 @@ def plot_base_vs_extended_rates(
             transform=ax.transAxes,
             ha="left",
             va="top",
+            fontsize=10.5,
             bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#bbbbbb", "alpha": 0.86},
         )
         ax.set_ylabel("rate / kyr")
+        ax.tick_params(axis="both", labelsize=11.5)
+        ax.xaxis.label.set_size(12.5)
+        ax.yaxis.label.set_size(12.5)
         ax.grid(False)
         ax.text(
             -0.045,
@@ -833,7 +838,7 @@ def plot_base_vs_extended_rates(
             transform=ax.transAxes,
             ha="right",
             va="bottom",
-            fontsize=12,
+            fontsize=14,
             fontweight="bold",
             clip_on=False,
         )
@@ -844,7 +849,7 @@ def plot_base_vs_extended_rates(
             color=DATASET_SETTINGS["strong_monsoon_start"]["color"],
             lw=1.0,
             alpha=0.45,
-            label="Strong monsoon start bins",
+            label="Strong monsoon start",
         ),
         Line2D(
             [0],
@@ -852,7 +857,7 @@ def plot_base_vs_extended_rates(
             color=DATASET_SETTINGS["weak_monsoon_start"]["color"],
             lw=1.0,
             alpha=0.45,
-            label="Weak monsoon start bins",
+            label="Weak monsoon start",
         ),
         Line2D([0], [0], color="#C51B7D", lw=1.8, label="extended baseline"),
         Line2D([0], [0], color="#202020", lw=1.8, label="extended baseline + extras"),
@@ -863,11 +868,12 @@ def plot_base_vs_extended_rates(
         loc="lower right",
         bbox_to_anchor=(1.0, 1.06),
         ncol=4,
+        fontsize=8.5,
         borderaxespad=0.0,
     )
     axes[-1].set_xlim(ANALYSIS_END_KA, ANALYSIS_START_KA)
     axes[-1].set_xlabel("Age (ka BP)")
-    fig.subplots_adjust(left=0.08, right=0.98, top=0.89, bottom=0.12, hspace=0.22)
+    fig.subplots_adjust(left=0.11, right=0.98, top=0.86, bottom=0.12, hspace=0.22)
     save_figure(fig, "fig04_base_vs_extended_hazards", write_pdf)
 
 
@@ -922,6 +928,9 @@ def plot_focused_baseline_correlation(correlation_table: pd.DataFrame, write_pdf
     cbar.set_label("Pearson correlation")
     cbar.ax.tick_params(labelsize=8, length=2.5)
     fig.subplots_adjust(bottom=0.20, left=0.23, right=0.84, top=0.98)
+    fig.canvas.draw()
+    cbar_pos = cbar.ax.get_position()
+    cbar.ax.set_position([cbar_pos.x0, cbar_pos.y0 - 0.025, cbar_pos.width, cbar_pos.height])
     save_figure(fig, "fig07_extended_baseline_predictor_correlation", write_pdf)
 
 

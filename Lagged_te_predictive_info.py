@@ -49,6 +49,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_rgb
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
@@ -72,11 +73,13 @@ RUN_NAME = "rousseau2023_monsoon_lagged_te_predictive_info"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
-MAX_LAG_KA = 20.0
+MAX_LAG_KA = 10.0
 LAG_STEP_KA = 0.2
 Y_HISTORY_WINDOW_KA = predictive.MAIN_HISTORY_WINDOW_KA
 MIN_EVENTS_FOR_MODEL = 5
-PLOT_MAX_LAG_KA = 20.0
+PLOT_MAX_LAG_KA = 10.0
+CORE_COMPONENT_MAX_LAG_KA = 10.0
+FDR_Q_THRESHOLD = 0.05
 
 HISTORY_TERMS = predictive.BASELINE_TERMS
 
@@ -128,20 +131,21 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
     plt.close(fig)
 
 
-def lag_grid() -> np.ndarray:
+def lag_grid(max_lag_ka: float | None = None) -> np.ndarray:
     """All lags scanned by the predictive-information analysis."""
 
-    return np.round(np.arange(0.0, MAX_LAG_KA + LAG_STEP_KA / 2.0, LAG_STEP_KA), 10)
+    upper = MAX_LAG_KA if max_lag_ka is None else float(max_lag_ka)
+    return np.round(np.arange(0.0, upper + LAG_STEP_KA / 2.0, LAG_STEP_KA), 10)
 
 
-def add_event_history_feature(binned: pd.DataFrame) -> pd.DataFrame:
+def add_event_history_feature(binned: pd.DataFrame, max_lag_ka: float = MAX_LAG_KA) -> pd.DataFrame:
     """Add the event-process baseline used in every reduced model.
 
     The reduced model now matches the event-process-baseline predictive framework:
     same-type event history in the older ``(t, t + W]`` interval, with
     ``W = 5 kyr``, plus local Cheng composite sampling resolution. The common
     lag-support flag keeps only bins for which all candidate lags up to
-    ``MAX_LAG_KA`` can be evaluated, preventing larger lags from being compared
+    ``max_lag_ka`` can be evaluated, preventing larger lags from being compared
     on a smaller old-edge sample.
 
     In the Poisson models the history and resolution terms are ordinary fitted
@@ -160,17 +164,17 @@ def add_event_history_feature(binned: pd.DataFrame) -> pd.DataFrame:
     for _, group in binned.groupby("dataset_id", sort=False):
         group = group.sort_values("bin_center_ka").copy()
         centers = group["bin_center_ka"].to_numpy(dtype=float)
-        group["common_lag_support"] = (centers + MAX_LAG_KA) <= (centers[-1] + 1e-9)
+        group["common_lag_support"] = (centers + max_lag_ka) <= (centers[-1] + 1e-9)
         frames.append(group)
     return pd.concat(frames, ignore_index=True)
 
 
-def load_binned_inputs_with_history() -> pd.DataFrame:
+def load_binned_inputs_with_history(max_lag_ka: float = MAX_LAG_KA) -> pd.DataFrame:
     """Load binned covariates and append history/resolution controls."""
 
     events = load_all_events()
     binned, _, _ = build_binned_inputs(events)
-    return add_event_history_feature(binned)
+    return add_event_history_feature(binned, max_lag_ka=max_lag_ka)
 
 
 def add_lagged_columns(
@@ -665,8 +669,94 @@ def build_best_summary(single: pd.DataFrame, same_lag: pd.DataFrame, best_climat
     return out.sort_values(["dataset_id", "analysis_type", "driver_id"]).reset_index(drop=True)
 
 
+def run_core_component_diagnostic_scan(
+    binned: pd.DataFrame,
+    max_lag_ka: float = CORE_COMPONENT_MAX_LAG_KA,
+) -> pd.DataFrame:
+    """Scan the compact three-curve lagged-information diagnostic.
+
+    The first two curves are the single-driver information gains used in
+    Figure 4, restricted to LR04 and CO2:
+
+        EP baseline + LR04_lag  vs  EP baseline
+        EP baseline + CO2_lag   vs  EP baseline
+
+    The third curve asks whether the full predictive model adds precession
+    phase beyond the climate-state model at the same lag:
+
+        EP baseline + LR04_lag + CO2_lag + pre_phase_lag
+        vs
+        EP baseline + LR04_lag + CO2_lag
+
+    Thus the third curve is the conditional precession-phase gain after the
+    climate-state terms have already been included.
+    """
+
+    rows = []
+    for dataset_id, dataset_frame in binned.groupby("dataset_id", sort=False):
+        for lag_ka in lag_grid(max_lag_ka):
+            for curve_id, source_col, label in (
+                ("lr04_after_ep_baseline", "lr04_scaled", "LR04+EP baseline vs EP baseline"),
+                ("co2_after_ep_baseline", "co2_scaled", "CO2+EP baseline vs EP baseline"),
+            ):
+                lagged = add_lagged_columns(dataset_frame, {f"{curve_id}_lag": (source_col, lag_ka)})
+                reduced_terms = HISTORY_TERMS
+                full_terms = (*HISTORY_TERMS, f"{curve_id}_lag")
+                comparison, _, _ = compare_nested_models(lagged, reduced_terms, full_terms)
+                row = {
+                    "analysis_type": "core_component_diagnostic",
+                    "dataset_id": dataset_id,
+                    "dataset_label": dataset_frame["dataset_label"].iloc[0],
+                    "curve_id": curve_id,
+                    "curve_label": label,
+                    "lag_ka": float(lag_ka),
+                    "reduced_terms": "+".join(reduced_terms),
+                    "full_terms": "+".join(full_terms),
+                }
+                row.update(comparison)
+                rows.append(row)
+
+            lagged = add_lagged_columns(
+                dataset_frame,
+                {
+                    "lr04_lag": ("lr04_scaled", lag_ka),
+                    "co2_lag": ("co2_scaled", lag_ka),
+                    "pre_phase_sin_lag": ("pre_phase_sin", lag_ka),
+                    "pre_phase_cos_lag": ("pre_phase_cos", lag_ka),
+                },
+            )
+            reduced_terms = (*HISTORY_TERMS, "lr04_lag", "co2_lag")
+            full_terms = (*reduced_terms, "pre_phase_sin_lag", "pre_phase_cos_lag")
+            comparison, _, _ = compare_nested_models(lagged, reduced_terms, full_terms)
+            row = {
+                "analysis_type": "core_component_diagnostic",
+                "dataset_id": dataset_id,
+                "dataset_label": dataset_frame["dataset_label"].iloc[0],
+                "curve_id": "full_after_climate_state",
+                "curve_label": "Full predictive model vs climate-state model",
+                "lag_ka": float(lag_ka),
+                "reduced_terms": "+".join(reduced_terms),
+                "full_terms": "+".join(full_terms),
+            }
+            row.update(comparison)
+            rows.append(row)
+
+    out = pd.DataFrame(rows)
+    out["LR_q_value_BH"] = np.nan
+    ok = out["ok"].astype(bool)
+    for _, group in out[ok].groupby(["dataset_id", "curve_id"], sort=False):
+        out.loc[group.index, "LR_q_value_BH"] = bh_q_values(group["LR_p_value"].to_numpy(dtype=float))
+    return out
+
+
 def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, write_pdf: bool) -> None:
+    def darken(color: str, factor: float = 0.48) -> tuple[float, float, float]:
+        rgb = np.array(to_rgb(color))
+        return tuple(np.clip(rgb * factor, 0.0, 1.0))
+
     fig, axes = plt.subplots(2, 1, figsize=(5.4, 8.8), sharex=True)
+    legend_handles = None
+    legend_labels = None
     for ax_idx, (ax, dataset_id) in enumerate(zip(axes, DATASET_SETTINGS)):
         sub = single[
             single["dataset_id"].eq(dataset_id)
@@ -681,6 +771,32 @@ def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, 
                 lw=1.7,
                 label=spec["label"],
             )
+            sig = g["LR_q_value_BH"].le(FDR_Q_THRESHOLD).to_numpy(dtype=bool)
+            if sig.any():
+                sig_y = g["info_bits_per_event"].to_numpy(dtype=float).copy()
+                sig_y[~sig] = np.nan
+                sig_color = darken(spec["color"])
+                ax.plot(
+                    g["lag_ka"].to_numpy(dtype=float),
+                    sig_y,
+                    color=sig_color,
+                    lw=4.2,
+                    alpha=0.52,
+                    solid_capstyle="round",
+                    zorder=2.6,
+                    label="_nolegend_",
+                )
+                singletons = sig & ~np.r_[False, sig[:-1]] & ~np.r_[sig[1:], False]
+                if singletons.any():
+                    ax.scatter(
+                        g.loc[singletons, "lag_ka"],
+                        g.loc[singletons, "info_bits_per_event"],
+                        color=sig_color,
+                        alpha=0.52,
+                        s=18,
+                        zorder=2.7,
+                        label="_nolegend_",
+                    )
             best = best_summary[
                 best_summary["dataset_id"].eq(dataset_id)
                 & best_summary["analysis_type"].eq("single_driver_given_y_history")
@@ -696,13 +812,7 @@ def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, 
                     linewidth=0.6,
                     zorder=3,
                 )
-        # ax.axhline(0.0, color="#666666", lw=0.8, ls=":")
-        ax.set_ylabel("Information gain\n(bits/event)")
-        ax.set_title(
-            f"{DATASET_SETTINGS[dataset_id]['label']}: single drivers | event-process baseline",
-            loc="left",
-        )
-        # ax.grid(True, color="#e6e6e6", lw=0.6)
+        ax.set_ylabel(f"{DATASET_SETTINGS[dataset_id]['label']}\nInformation gain\n(bits/event)")
         ax.set_xlim(-0.3, PLOT_MAX_LAG_KA)
         ax.text(
             -0.075,
@@ -715,12 +825,19 @@ def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, 
             fontweight="bold",
             clip_on=False,
         )
-        # ax.legend(frameon=False, loc="lower left", ncol=3)
-        # only show legend for the first subplot to avoid redundancy
         if ax_idx == 0:
-            ax.legend(frameon=False, loc="lower left", ncol=3)
+            legend_handles, legend_labels = ax.get_legend_handles_labels()
+    if legend_handles is not None:
+        fig.legend(
+            legend_handles,
+            legend_labels,
+            frameon=False,
+            loc="upper center",
+            bbox_to_anchor=(0.56, 0.925),
+            ncol=3,
+        )
     axes[-1].set_xlabel("Driver lag (kyr; positive = older driver state)")
-    fig.subplots_adjust(left=0.12, right=0.98, top=0.96, bottom=0.12, hspace=0.26)
+    fig.subplots_adjust(left=0.21, right=0.98, top=0.875, bottom=0.12, hspace=0.23)
     save_figure(fig, "fig01_single_driver_lagged_information", write_pdf)
 
 
@@ -809,6 +926,96 @@ def plot_conditional_pre_phase(same_lag: pd.DataFrame, best_climate: pd.DataFram
     axes[-1].set_xlabel("Precession phase lag (kyr; positive = older phase state)")
     fig.subplots_adjust(left=0.12, right=0.98, top=0.96, bottom=0.12, hspace=0.26)
     save_figure(fig, "fig03_conditional_pre_phase_after_climate", write_pdf)
+
+
+def plot_core_component_diagnostic(scan: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot the compact core-component lagged-information diagnostic."""
+
+    def darken(color: str, factor: float = 0.48) -> tuple[float, float, float]:
+        rgb = np.array(to_rgb(color))
+        return tuple(np.clip(rgb * factor, 0.0, 1.0))
+
+    curve_specs = {
+        "lr04_after_ep_baseline": {
+            "label": "LR04+EP baseline vs EP baseline",
+            "color": DRIVER_TERM_SPECS["lr04"]["color"],
+        },
+        "co2_after_ep_baseline": {
+            "label": "CO$_2$+EP baseline vs EP baseline",
+            "color": DRIVER_TERM_SPECS["co2"]["color"],
+        },
+        "full_after_climate_state": {
+            "label": "Full predictive model vs climate-state model",
+            "color": DRIVER_TERM_SPECS["pre_phase"]["color"],
+        },
+    }
+    fig, axes = plt.subplots(2, 1, figsize=(5.7, 8.8), sharex=True)
+    legend_handles = None
+    legend_labels = None
+    for ax_idx, (ax, dataset_id) in enumerate(zip(axes, DATASET_SETTINGS)):
+        sub = scan[scan["dataset_id"].eq(dataset_id) & scan["ok"].astype(bool)]
+        for curve_id, spec in curve_specs.items():
+            g = sub[sub["curve_id"].eq(curve_id)].sort_values("lag_ka")
+            ax.plot(
+                g["lag_ka"],
+                g["info_bits_per_event"],
+                color=spec["color"],
+                lw=1.7,
+                label=spec["label"],
+            )
+            sig = g["LR_q_value_BH"].le(FDR_Q_THRESHOLD).to_numpy(dtype=bool)
+            if sig.any():
+                sig_y = g["info_bits_per_event"].to_numpy(dtype=float).copy()
+                sig_y[~sig] = np.nan
+                sig_color = darken(spec["color"])
+                ax.plot(
+                    g["lag_ka"].to_numpy(dtype=float),
+                    sig_y,
+                    color=sig_color,
+                    lw=4.2,
+                    alpha=0.52,
+                    solid_capstyle="round",
+                    zorder=2.6,
+                    label="_nolegend_",
+                )
+            best = g.loc[g["info_bits_per_event"].idxmax()]
+            ax.scatter(
+                best["lag_ka"],
+                best["info_bits_per_event"],
+                color=spec["color"],
+                s=72,
+                edgecolor="white",
+                linewidth=0.6,
+                zorder=3,
+                label="_nolegend_",
+            )
+        ax.set_ylabel(f"{DATASET_SETTINGS[dataset_id]['label']}\nInformation gain\n(bits/event)")
+        ax.set_xlim(-0.2, CORE_COMPONENT_MAX_LAG_KA)
+        ax.text(
+            -0.065,
+            1.02,
+            chr(ord("a") + ax_idx),
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=11,
+            fontweight="bold",
+            clip_on=False,
+        )
+        if ax_idx == 0:
+            legend_handles, legend_labels = ax.get_legend_handles_labels()
+    if legend_handles is not None:
+        fig.legend(
+            legend_handles,
+            legend_labels,
+            frameon=False,
+            loc="upper center",
+            bbox_to_anchor=(0.55, 0.94),
+            ncol=1,
+        )
+    axes[-1].set_xlabel("Driver lag (kyr; positive = older driver state)")
+    fig.subplots_adjust(left=0.21, right=0.98, top=0.80, bottom=0.11, hspace=0.23)
+    save_figure(fig, "fig05_core_component_lagged_information_0_10kyr", write_pdf)
 
 
 def plot_best_lag_summary(best_summary: pd.DataFrame, write_pdf: bool) -> None:
@@ -901,10 +1108,20 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFr
     same_lag = run_pre_after_climate_same_lag(binned)
     best_climate = run_pre_after_best_climate_lags(binned, best_lags)
     best_summary = build_best_summary(single, same_lag, best_climate)
+    diagnostic_binned = load_binned_inputs_with_history(max_lag_ka=CORE_COMPONENT_MAX_LAG_KA)
+    core_diagnostic = run_core_component_diagnostic_scan(
+        diagnostic_binned,
+        max_lag_ka=CORE_COMPONENT_MAX_LAG_KA,
+    )
     write_outputs(binned, single, same_lag, best_climate, best_summary)
+    core_diagnostic.to_csv(
+        OUT_DATA_DIR / "core_component_lagged_information_0_10kyr.csv",
+        index=False,
+    )
     plot_single_driver_curves(single, best_summary, write_pdf)
     plot_single_driver_delta_aicc(single, write_pdf)
     plot_conditional_pre_phase(same_lag, best_climate, write_pdf)
+    plot_core_component_diagnostic(core_diagnostic, write_pdf)
     plot_best_lag_summary(best_summary, write_pdf)
     return single, same_lag, best_climate, best_summary
 
