@@ -4,5 +4,6 @@ __pycache__/
 *old*
 *archive*
 .vscode/
+doc/
+run_log/
 run_logs/
-.vscode/
