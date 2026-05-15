@@ -72,10 +72,10 @@ from Bin_hazard_phase_poisson import (
     load_all_events,
     scale_to_zero_mean_range_one,
 )
-import Predictive_hazard_history_resolution as predictive
+import Predictive_information_model as predictive
 
 
-RUN_NAME = "rousseau2023_monsoon_bin_hazard_phase_poisson_sensitivity"
+RUN_NAME = "Bin_hazard_phase_poisson_sensitivity"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
@@ -185,7 +185,7 @@ LR_TEST_SHORT_LABELS = {
 MODEL_PLOT_LABELS = {
     "stationary": "Stationary",
     "history_resolution_baseline": "EP baseline",
-    "adjusted_climate": "Climate-state",
+    "adjusted_climate": "Climate-state model",
     "base_adjusted_climate_phase": "Extended baseline",
     "base_plus_AT": "+ Antarctic T",
     "base_plus_obl": "+ obliquity",
@@ -424,7 +424,7 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
         event-process baseline + LR04 + CO2 + precession phase.
 
     It is different from the event-process baseline in
-    ``Predictive_hazard_history_resolution.py``, which contains only history
+    ``Predictive_information_model.py``, which contains only history
     and sampling resolution.
 
     There are three logically different comparison families:

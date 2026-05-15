@@ -30,7 +30,7 @@ from paper_figure_export import save_paper_pdf
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-RUN_NAME = "rousseau2023_monsoon_orbital_phase_rayleigh"
+RUN_NAME = "Orbital_phase_rayleigh"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 

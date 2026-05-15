@@ -42,10 +42,10 @@ from paper_figure_export import save_paper_pdf
 
 import Bin_hazard_phase_poisson as base
 import Orbital_phase_rayleigh as rayleigh
-import Predictive_hazard_history_resolution as predictive
+import Predictive_information_model as predictive
 
 
-RUN_NAME = "barker2011_do_predictive_information"
+RUN_NAME = "Barker2011_do_predictive_information"
 OUT_DATA_DIR = base.PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = base.PROJECT_ROOT / "figures" / RUN_NAME
 
@@ -263,7 +263,7 @@ def interpolate_with_linear_extrapolation(x_new: np.ndarray, x: np.ndarray, y: n
 def load_jouzel_edc_resolution_source() -> pd.DataFrame:
     """Estimate local EDC3 sample spacing from the Jouzel et al. bag record.
 
-    The definition mirrors ``Predictive_hazard_history_resolution.py``:
+    The definition mirrors ``Predictive_information_model.py``:
     local resolution is the median of the previous and next age gaps at each
     observed point. The model later uses log(local spacing), range-scaled over
     the fitted bins.
@@ -646,9 +646,9 @@ def plot_predictive_summary(
         "full_after_baseline",
     ]
     labels = {
-        "climate_lr04_co2_after_baseline": "Climate-state vs EP baseline",
-        "phase_after_baseline_climate": "Full predictive model vs climate-state",
-        "full_after_baseline": "Full predictive model vs EP baseline",
+        "climate_lr04_co2_after_baseline": "Climate-state model\nvs EP baseline",
+        "phase_after_baseline_climate": "Full predictive model\nvs climate-state model",
+        "full_after_baseline": "Full predictive model\nvs EP baseline",
     }
     variants = [settings["dataset_id"] for settings in CATALOGUE_VARIANTS]
     metric_specs = [
@@ -775,7 +775,7 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
     raw_ax.tick_params(axis="y", colors="#666666", labelsize=9.5)
 
     top_axes[1].plot(x, frame["lr04"], color="#3f7f93", lw=1.0)
-    top_axes[1].set_ylabel("LR04")
+    top_axes[1].set_ylabel(r"LR04 $\delta^{18}$O")
     top_axes[1].invert_yaxis()
 
     top_axes[2].plot(x, frame["co2"], color="#8a5a44", lw=1.0)

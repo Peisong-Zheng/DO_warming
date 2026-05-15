@@ -1,0 +1,15 @@
+experiment,metric_id,event_type,ks_0p4_4kyr_p_value,ks_0p6_4kyr_p_value,ks_0p4_4kyr_significant_at_0p05,ks_0p6_4kyr_significant_at_0p05,consistent_significance_decision,ks_0p4_4kyr_n_events,ks_0p4_4kyr_mean_phase_deg,ks_0p4_4kyr_mean_resultant_length,ks_0p6_4kyr_n_events,ks_0p6_4kyr_mean_phase_deg,ks_0p6_4kyr_mean_resultant_length,ks_0p4_4kyr_LR_statistic,ks_0p6_4kyr_LR_statistic,ks_0p4_4kyr_pre_phase_preferred_deg,ks_0p6_4kyr_pre_phase_preferred_deg,ks_0p4_4kyr_pre_phase_rate_ratio_max_vs_min,ks_0p6_4kyr_pre_phase_rate_ratio_max_vs_min
+rayleigh_phase,precession_phase_uniformity,strong_monsoon_start,0.0019154376890144474,0.0010204299851717573,True,True,True,96.0,21.91629807682798,0.25388593869817744,87.0,21.54697172518903,0.2793680776901269,,,,,,
+poisson_hazard,climate_lr04_co2_after_baseline,strong_monsoon_start,0.001042130695135743,0.0016703022027737381,True,True,True,,,,,,,13.732975832645366,12.789501418359919,,,,
+poisson_hazard,phase_after_adjusted_climate,strong_monsoon_start,5.160527074473777e-05,8.757979789016836e-06,True,True,True,,,,,,,19.743773488954957,23.29109059460893,,,,
+poisson_hazard,lr04_after_adjusted_co2_phase,strong_monsoon_start,0.07160897329955705,0.04655568317133172,False,True,False,,,,,,,3.245748553814451,3.961374174401044,,,,
+poisson_hazard,co2_after_adjusted_lr04_phase,strong_monsoon_start,0.33205752259114457,0.40279035412282094,False,False,True,,,,,,,0.940857070119705,0.699980180031389,,,,
+poisson_hazard,full_vs_baseline,strong_monsoon_start,9.539597967680915e-07,2.785304547755945e-07,True,True,True,,,,,,,33.47674932160032,36.08059201296885,,,,
+poisson_hazard,full_model_preferred_phase_and_rate_ratio,strong_monsoon_start,,,,,,,,,,,,,,2.122698462484428,0.589385947487463,4.024232150882664,4.975250494944912
+rayleigh_phase,precession_phase_uniformity,weak_monsoon_start,0.0027094913683490683,0.0012447884329675127,True,True,True,100.0,225.32661865293403,0.24192682144200942,90.0,226.59153636473528,0.2708225339827694,,,,,,
+poisson_hazard,climate_lr04_co2_after_baseline,weak_monsoon_start,1.947403379070077e-05,0.00040236399799233535,True,True,True,,,,,,,21.69285716047841,15.63630682278233,,,,
+poisson_hazard,phase_after_adjusted_climate,weak_monsoon_start,0.0007032826545401922,0.00031365570906878793,True,True,True,,,,,,,14.519503355828988,16.1344292831011,,,,
+poisson_hazard,lr04_after_adjusted_co2_phase,weak_monsoon_start,0.6646814103600494,0.9037957576664388,False,False,True,,,,,,,0.18788662765757635,0.01460902182816426,,,,
+poisson_hazard,co2_after_adjusted_lr04_phase,weak_monsoon_start,0.011795533494944112,0.021777194949838295,True,True,True,,,,,,,6.34134606431644,5.263498966428756,,,,
+poisson_hazard,full_vs_baseline,weak_monsoon_start,2.616734716892667e-07,2.130997023279835e-06,True,True,True,,,,,,,36.2123605163074,31.77073610588343,,,,
+poisson_hazard,full_model_preferred_phase_and_rate_ratio,weak_monsoon_start,,,,,,,,,,,,,,232.8245910812057,228.2950200953031,3.2105340624826137,3.7390568676525824

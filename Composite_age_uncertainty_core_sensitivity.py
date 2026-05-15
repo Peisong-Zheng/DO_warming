@@ -9,18 +9,16 @@ Rousseau strong/weak start catalogues, and then used to generate randomized
 event catalogues with rank-preserving truncated Gaussian draws.
 
 For each randomized catalogue, the script runs a simplified version of the
-core experiments:
+core event-timing tests:
 
-1. Lohmann-style stationary-random occurrence test.
-2. Rayleigh test for precession-phase clustering.
-3. Likelihood-ratio tests of the event-process-baseline predictive Poisson
+1. Rayleigh test for precession-phase clustering.
+2. Likelihood-ratio tests of the event-process-baseline predictive Poisson
    model.
 """
 
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 from pathlib import Path
 
 import matplotlib
@@ -33,14 +31,13 @@ import pandas as pd
 from scipy.stats import chi2, norm, truncnorm
 from paper_figure_export import save_paper_pdf
 
-import Lohmann_style_randomness_test as lohmann
 import Orbital_phase_rayleigh as rayleigh
 import Bin_hazard_phase_poisson as hazard
-import Predictive_hazard_history_resolution as predictive
+import Predictive_information_model as predictive
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-RUN_NAME = "rousseau2023_composite_age_uncertainty_sensitivity"
+RUN_NAME = "Composite_age_uncertainty_core_sensitivity"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
@@ -53,7 +50,7 @@ BEST_MATCH_UNCERTAINTY_CSV = (
 )
 BEST_MATCH_UNCERTAINTY_FALLBACK_CSV = (
     PROJECT_ROOT
-    / "data/processed/rousseau2023_composite_age_uncertainty_sensitivity"
+    / "data/processed/Composite_age_uncertainty_core_sensitivity"
     / "best_match_age_uncertainty_points_for_fig01.csv"
 )
 STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv"
@@ -65,7 +62,6 @@ ERROR_2SIGMA_START_KA = 1
 ERROR_2SIGMA_END_KA = 7.4  #7.4 #10
 
 DEFAULT_N_REALIZATIONS = 500
-DEFAULT_N_LOHMANN_NULL = 5000
 DEFAULT_RANDOM_SEED = 20260506
 
 EVENT_SETTINGS = {
@@ -90,16 +86,6 @@ ADJUSTED_CLIMATE_MODEL_LABEL = "Climate-state model"
 FULL_MODEL_ID = "baseline_climate_lr04_co2_pre_phase"
 FULL_MODEL_LABEL = "Full predictive model"
 FULL_MODEL_TERMS = predictive.FULL_TERMS
-
-
-@dataclass(frozen=True)
-class LohmannNull:
-    event_type: str
-    n_events: int
-    centers_ka: np.ndarray
-    expected_count: float
-    conditional_es_samples: np.ndarray
-    poisson_es_samples: np.ndarray
 
 
 def ensure_dir(path: Path) -> None:
@@ -359,55 +345,6 @@ def sample_rank_preserving_catalogues(
     return samples_long.sort_values(["realization_id", "event_type", "event_index"]).reset_index(drop=True), diagnostics
 
 
-def precompute_lohmann_nulls(
-    event_uncertainties: pd.DataFrame,
-    *,
-    n_null: int,
-    seed: int,
-    window_ka: float,
-    grid_step_ka: float,
-) -> dict[str, LohmannNull]:
-    duration_ka = ANALYSIS_END_KA - ANALYSIS_START_KA
-    centers = lohmann.centered_time_grid(
-        ANALYSIS_START_KA,
-        ANALYSIS_END_KA,
-        window_ka,
-        grid_step_ka,
-    )
-    out: dict[str, LohmannNull] = {}
-
-    for offset, (event_type, group) in enumerate(event_uncertainties.groupby("event_type", sort=False)):
-        n_events = int(len(group))
-        rate_per_kyr = n_events / duration_ka
-        expected_count = rate_per_kyr * window_ka
-        conditional_es = np.empty(n_null, dtype=float)
-        poisson_es = np.empty(n_null, dtype=float)
-        rng = np.random.default_rng(seed + 10_000 + offset * 101)
-        for i in range(n_null):
-            conditional_events = np.sort(
-                rng.uniform(ANALYSIS_START_KA, ANALYSIS_END_KA, size=n_events)
-            )
-            conditional_counts = lohmann.moving_event_counts(conditional_events, centers, window_ka)
-            conditional_es[i] = lohmann.rms_deviation(conditional_counts, expected_count)
-
-            n_poisson = int(rng.poisson(rate_per_kyr * duration_ka))
-            poisson_events = np.sort(
-                rng.uniform(ANALYSIS_START_KA, ANALYSIS_END_KA, size=n_poisson)
-            )
-            poisson_counts = lohmann.moving_event_counts(poisson_events, centers, window_ka)
-            poisson_es[i] = lohmann.rms_deviation(poisson_counts, expected_count)
-
-        out[event_type] = LohmannNull(
-            event_type=event_type,
-            n_events=n_events,
-            centers_ka=centers,
-            expected_count=expected_count,
-            conditional_es_samples=conditional_es,
-            poisson_es_samples=poisson_es,
-        )
-    return out
-
-
 def build_hazard_base() -> tuple[pd.DataFrame, np.ndarray]:
     """Build the covariate grid shared by all age-randomized catalogues.
 
@@ -438,22 +375,6 @@ def build_hazard_base() -> tuple[pd.DataFrame, np.ndarray]:
     base = pd.concat([base, phase_table.drop(columns=["age_ka"])], axis=1)
     base, _, _ = predictive.add_resolution_control(base)
     return base, edges
-
-
-def lohmann_metrics(ages: np.ndarray, null: LohmannNull, window_ka: float) -> dict[str, float]:
-    observed_counts = lohmann.moving_event_counts(ages, null.centers_ka, window_ka)
-    observed_es = lohmann.rms_deviation(observed_counts, null.expected_count)
-    return {
-        "lohmann_event_count_ES": observed_es,
-        "lohmann_poisson_ES_p_value": lohmann.p_value_greater_or_equal(
-            null.poisson_es_samples,
-            observed_es,
-        ),
-        "lohmann_fixed_n_ES_p_value": lohmann.p_value_greater_or_equal(
-            null.conditional_es_samples,
-            observed_es,
-        ),
-    }
 
 
 def rayleigh_precession_metrics(
@@ -569,19 +490,8 @@ def run_sensitivity_experiments(
     event_uncertainties: pd.DataFrame,
     *,
     n_realizations: int,
-    n_lohmann_null: int,
-    seed: int,
-    window_ka: float,
-    grid_step_ka: float,
     progress_every: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    lohmann_nulls = precompute_lohmann_nulls(
-        event_uncertainties,
-        n_null=n_lohmann_null,
-        seed=seed,
-        window_ka=window_ka,
-        grid_step_ka=grid_step_ka,
-    )
     pre_phase = rayleigh.build_phase_series("pre", rayleigh.DRIVER_SETTINGS["pre"])
     base_binned, bin_edges = build_hazard_base()
 
@@ -596,7 +506,6 @@ def run_sensitivity_experiments(
             "event_label": event_label,
             "n_events": int(len(ages)),
         }
-        row.update(lohmann_metrics(ages, lohmann_nulls[event_type], window_ka))
         row.update(rayleigh_precession_metrics(ages, pre_phase))
         row.update(
             full_hazard_metrics(
@@ -624,7 +533,6 @@ def run_sensitivity_experiments(
                 "event_label": event_label,
                 "n_events": int(len(ages)),
             }
-            row.update(lohmann_metrics(ages, lohmann_nulls[event_type], window_ka))
             row.update(rayleigh_precession_metrics(ages, pre_phase))
             row.update(
                 full_hazard_metrics(
@@ -928,8 +836,8 @@ def draw_significance_fraction_heatmap(
     ax.set_xticks(np.arange(len(pivot.columns)))
     display_labels = {
         "Rayleigh precession phase": "Rayleigh\nprecession phase",
-        "Precession phase after climate-state model": "Precession phase after\nclimate-state\nmodel",
-        "Full predictive model vs event-process baseline": "Full predictive model\nvs event-process\nbaseline",
+        "Precession phase after climate-state model": "Full predictive model\nvs climate-state\nmodel",
+        "Full predictive model vs event-process baseline": "Full predictive model\nvs EP\nbaseline",
     }
     ax.set_xticklabels([display_labels.get(col, col) for col in pivot.columns], rotation=0, ha="center")
     ax.set_yticks(np.arange(len(pivot.index)))
@@ -1051,10 +959,7 @@ def parse_args() -> argparse.Namespace:
         description="Composite age-uncertainty sensitivity for Rousseau 0.4-4 kyr start catalogues."
     )
     parser.add_argument("--n-realizations", type=int, default=DEFAULT_N_REALIZATIONS)
-    parser.add_argument("--n-lohmann-null", type=int, default=DEFAULT_N_LOHMANN_NULL)
     parser.add_argument("--seed", type=int, default=DEFAULT_RANDOM_SEED)
-    parser.add_argument("--window-ka", type=float, default=lohmann.EVENT_COUNT_WINDOW_KA)
-    parser.add_argument("--grid-step-ka", type=float, default=lohmann.TIME_GRID_STEP_KA)
     parser.add_argument("--progress-every", type=int, default=25)
     parser.add_argument("--no-pdf", action="store_true", help="Only write PNG figures.")
     return parser.parse_args()
@@ -1074,10 +979,6 @@ def main() -> None:
         samples_long,
         event_uncertainties,
         n_realizations=args.n_realizations,
-        n_lohmann_null=args.n_lohmann_null,
-        seed=args.seed,
-        window_ka=args.window_ka,
-        grid_step_ka=args.grid_step_ka,
         progress_every=args.progress_every,
     )
     summary = build_summary(results)
@@ -1093,10 +994,7 @@ def main() -> None:
         "error_2sigma_start_kyr": ERROR_2SIGMA_START_KA,
         "error_2sigma_end_kyr": ERROR_2SIGMA_END_KA,
         "n_realizations": int(args.n_realizations),
-        "n_lohmann_null": int(args.n_lohmann_null),
         "seed": int(args.seed),
-        "lohmann_window_ka": float(args.window_ka),
-        "lohmann_grid_step_ka": float(args.grid_step_ka),
         "hazard_history_window_ka": predictive.MAIN_HISTORY_WINDOW_KA,
         "hazard_baseline_model": "same-type history + Cheng log-resolution",
         "hazard_main_model": "same-type history + Cheng log-resolution + LR04 + CO2 + precession phase",

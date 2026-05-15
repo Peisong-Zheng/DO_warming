@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  14 MAY 2026 16:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  15 MAY 2026 11:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -377,13 +377,13 @@ ak- and strong-monsoon start chronolo-
 
 [2] [3 <./figures/Fig01.pdf>] [4{/usr/local/texlive/2026/texmf-dist/fonts/enc/d
 vips/lm/lm-mathsy.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm
--mathex.enc}]
-<figures/Fig02.pdf, id=52, 511.57674pt x 272.31221pt>
+-mathex.enc}] [5]
+<figures/Fig02.pdf, id=55, 511.57674pt x 272.31221pt>
 File: figures/Fig02.pdf Graphic file (type pdf)
 <use figures/Fig02.pdf>
 Package pdftex.def Info: figures/Fig02.pdf  used on input line 135.
 (pdftex.def)             Requested size: 469.75502pt x 250.05658pt.
- [5] [6 <./figures/Fig02.pdf>]
+ [6 <./figures/Fig02.pdf>]
 <figures/Fig03.pdf, id=81, 906.24368pt x 673.24265pt>
 File: figures/Fig03.pdf Graphic file (type pdf)
 <use figures/Fig03.pdf>
@@ -391,32 +391,32 @@ Package pdftex.def Info: figures/Fig03.pdf  used on input line 167.
 (pdftex.def)             Requested size: 469.75502pt x 348.97871pt.
  [7] [8 <./figures/Fig03.pdf>]
 [9]
-<figures/Fig04.pdf, id=107, 384.06085pt x 551.90051pt>
+<figures/Fig04.pdf, id=107, 345.10732pt x 529.64133pt>
 File: figures/Fig04.pdf Graphic file (type pdf)
 <use figures/Fig04.pdf>
 Package pdftex.def Info: figures/Fig04.pdf  used on input line 202.
-(pdftex.def)             Requested size: 244.27461pt x 351.034pt.
+(pdftex.def)             Requested size: 300.64291pt x 461.4146pt.
  [10] [11 <./figures/Fig04.pdf>]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 2
-28.
+31.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) (./main.bbl
-[12] [13]) [14] (./main.aux)
+) [12] (./main.bbl
+[13]) [14] (./main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 4711 strings out of 467525
- 79620 string characters out of 5418982
- 513767 words of memory out of 5000000
- 33547 multiletter control sequences out of 15000+600000
- 679785 words of font info for 73 fonts, out of 8000000 for 9000
+ 4707 strings out of 467525
+ 79582 string characters out of 5418982
+ 515567 words of memory out of 5000000
+ 33545 multiletter control sequences out of 15000+600000
+ 673805 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 64i,11n,71p,1494b,538s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 64i,9n,71p,1736b,538s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/lo
 cal/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texliv
 e/2026/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2026/tex
@@ -430,10 +430,10 @@ texlive/2026/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2026
 t/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/ty
 pe1/public/lm/lmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/
 lm/lmtt10.pfb>
-Output written on main.pdf (14 pages, 495632 bytes).
+Output written on main.pdf (14 pages, 496155 bytes).
 PDF statistics:
- 210 PDF objects out of 1000 (max. 8388607)
- 128 compressed objects within 2 object streams
+ 207 PDF objects out of 1000 (max. 8388607)
+ 126 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

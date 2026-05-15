@@ -148,8 +148,6 @@ INPUT ./figures/Fig04.pdf
 INPUT ./figures/Fig04.pdf
 INPUT ./figures/Fig04.pdf
 INPUT ./figures/Fig04.pdf
-INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/ec-lmr8.tfm
-INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/ec-lmr6.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/lm/t1lmtt.fd
 INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/lm/t1lmtt.fd
 INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/lm/t1lmtt.fd

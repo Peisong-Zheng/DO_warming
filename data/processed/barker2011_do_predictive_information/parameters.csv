@@ -1,2 +1,2 @@
 run_name,source,resolution_source,bin_width_ka,history_window_ka,note
-barker2011_do_predictive_information,data/raw/Barker et al-2011-SOM.xls,"data/raw/Jouzel-etal-2007-Science-Orbital and Millennial Antarctic Climate Variability over the Past 800,000 Years.txt",0.2,5.0,Baseline includes same-type history and EDC local age-spacing resolution.
+Barker2011_do_predictive_information,data/raw/Barker et al-2011-SOM.xls,"data/raw/Jouzel-etal-2007-Science-Orbital and Millennial Antarctic Climate Variability over the Past 800,000 Years.txt",0.2,5.0,Baseline includes same-type history and EDC local age-spacing resolution.

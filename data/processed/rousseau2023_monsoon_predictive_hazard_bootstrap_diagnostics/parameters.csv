@@ -1,2 +1,0 @@
-run_name,n_bootstrap,seed,bootstrap_mode,bootstrap_maxiter,bin_width_ka,history_window_ka,bootstrap_null,dynamic_history,p_value_rule
-rousseau2023_monsoon_predictive_hazard_bootstrap_diagnostics,2000,20260512,dynamic_history,800,0.2,5.0,simulate event counts from fitted reduced model,same-type history is recomputed from simulated event counts,(1 + number of bootstrap LR >= observed LR) / (1 + n_bootstrap)

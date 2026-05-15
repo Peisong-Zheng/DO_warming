@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  14 MAY 2026 16:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.11)  15 MAY 2026 11:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -395,74 +395,75 @@ al/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/202
 onts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/d
 vips/lm/lm-mathsy.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm
 -mathex.enc}]
-[2] [3]
+[2] [3] [4]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 108.
+(Font)              <9> on input line 118.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 108.
+(Font)              <5> on input line 118.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 130.
+(Font)              <10> on input line 140.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 130.
- [4
-
-]
-<figures/FigS01.pdf, id=35, 511.57674pt x 272.31221pt>
-File: figures/FigS01.pdf Graphic file (type pdf)
-<use figures/FigS01.pdf>
-Package pdftex.def Info: figures/FigS01.pdf  used on input line 160.
-(pdftex.def)             Requested size: 469.75502pt x 250.05658pt.
-<figures/FigS02.pdf, id=36, 749.7009pt x 298.69347pt>
-File: figures/FigS02.pdf Graphic file (type pdf)
-<use figures/FigS02.pdf>
-Package pdftex.def Info: figures/FigS02.pdf  used on input line 169.
-(pdftex.def)             Requested size: 469.75502pt x 187.15695pt.
+(Font)              <7> on input line 140.
  [5
 
+]
+<figures/FigS01.pdf, id=38, 511.57674pt x 272.31221pt>
+File: figures/FigS01.pdf Graphic file (type pdf)
+<use figures/FigS01.pdf>
+Package pdftex.def Info: figures/FigS01.pdf  used on input line 170.
+(pdftex.def)             Requested size: 469.75502pt x 250.05658pt.
+<figures/FigS02.pdf, id=39, 749.7009pt x 298.69347pt>
+File: figures/FigS02.pdf Graphic file (type pdf)
+<use figures/FigS02.pdf>
+Package pdftex.def Info: figures/FigS02.pdf  used on input line 179.
+(pdftex.def)             Requested size: 469.75502pt x 187.15695pt.
+ [6
+
  <./figures/FigS01.pdf>]
-<figures/FigS03.pdf, id=62, 807.7889pt x 415.0077pt>
+<figures/FigS03.pdf, id=65, 807.7889pt x 415.0077pt>
 File: figures/FigS03.pdf Graphic file (type pdf)
 <use figures/FigS03.pdf>
-Package pdftex.def Info: figures/FigS03.pdf  used on input line 187.
+Package pdftex.def Info: figures/FigS03.pdf  used on input line 197.
 (pdftex.def)             Requested size: 469.75502pt x 241.33789pt.
- [6 <./figures/FigS02.pdf>]
-<figures/FigS04.pdf, id=81, 370.46701pt x 284.83496pt>
+ [7 <./figures/FigS02.pdf>]
+<figures/FigS04.pdf, id=85, 370.46701pt x 284.83496pt>
 File: figures/FigS04.pdf Graphic file (type pdf)
 <use figures/FigS04.pdf>
-Package pdftex.def Info: figures/FigS04.pdf  used on input line 201.
+Package pdftex.def Info: figures/FigS04.pdf  used on input line 211.
 (pdftex.def)             Requested size: 319.42996pt x 245.60956pt.
- [7 <./figures/FigS03.pdf>]
-<figures/FigS05.pdf, id=101, 929.55281pt x 794.32195pt>
+ [8 <./figures/FigS03.pdf>]
+<figures/FigS05.pdf, id=104, 929.55281pt x 794.32195pt>
 File: figures/FigS05.pdf Graphic file (type pdf)
 <use figures/FigS05.pdf>
-Package pdftex.def Info: figures/FigS05.pdf  used on input line 215.
+Package pdftex.def Info: figures/FigS05.pdf  used on input line 225.
 (pdftex.def)             Requested size: 469.75502pt x 401.41425pt.
- [8 <./figures/FigS04.pdf>]
-<figures/FigS06.pdf, id=117, 645.4431pt x 371.45724pt>
+ [9 <./figures/FigS04.pdf>]
+<figures/FigS06.pdf, id=120, 645.4431pt x 371.45724pt>
 File: figures/FigS06.pdf Graphic file (type pdf)
 <use figures/FigS06.pdf>
-Package pdftex.def Info: figures/FigS06.pdf  used on input line 229.
+Package pdftex.def Info: figures/FigS06.pdf  used on input line 239.
 (pdftex.def)             Requested size: 469.75502pt x 270.34534pt.
- [9 <./figures/FigS05.pdf>]
-<figures/FigS07.pdf, id=136, 752.55151pt x 459.07227pt>
+ [10 <./figures/FigS05.pdf>]
+<figures/FigS07.pdf, id=139, 752.55151pt x 459.07227pt>
 File: figures/FigS07.pdf Graphic file (type pdf)
 <use figures/FigS07.pdf>
-Package pdftex.def Info: figures/FigS07.pdf  used on input line 245.
+Package pdftex.def Info: figures/FigS07.pdf  used on input line 255.
 (pdftex.def)             Requested size: 399.29463pt x 243.58032pt.
- [10 <./figures/FigS06.pdf>]
-<figures/FigS08.pdf, id=155, 855.61644pt x 576.68776pt>
+
+[11 <./figures/FigS06.pdf>]
+<figures/FigS08.pdf, id=158, 767.33348pt x 576.68776pt>
 File: figures/FigS08.pdf Graphic file (type pdf)
 <use figures/FigS08.pdf>
-Package pdftex.def Info: figures/FigS08.pdf  used on input line 255.
-(pdftex.def)             Requested size: 469.75502pt x 316.61607pt.
- [11 <./figures/FigS07.pdf>]
-<figures/FigS09.pdf, id=178, 661.11066pt x 602.0227pt>
+Package pdftex.def Info: figures/FigS08.pdf  used on input line 265.
+(pdftex.def)             Requested size: 469.75502pt x 353.04614pt.
+ [12 <./figures/FigS07.pdf>]
+<figures/FigS09.pdf, id=181, 661.11066pt x 602.0227pt>
 File: figures/FigS09.pdf Graphic file (type pdf)
 <use figures/FigS09.pdf>
-Package pdftex.def Info: figures/FigS09.pdf  used on input line 269.
+Package pdftex.def Info: figures/FigS09.pdf  used on input line 279.
 (pdftex.def)             Requested size: 469.75502pt x 427.77899pt.
- [12 <./figures/FigS08.pdf>]
-(./SI.bbl [13 <./figures/FigS09.pdf>]) [14] (./SI.aux)
+ [13 <./figures/FigS08.pdf>] (./SI.bbl [14 <./figures/FigS09.pdf>]) [15] (./SI.
+aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -471,7 +472,7 @@ L3 programming layer <2026-01-19>
 Here is how much of TeX's memory you used:
  4745 strings out of 467525
  80273 string characters out of 5418982
- 522907 words of memory out of 5000000
+ 522908 words of memory out of 5000000
  33573 multiletter control sequences out of 15000+600000
  706654 words of font info for 83 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -492,10 +493,10 @@ y10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy6.pfb></u
 sr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/local/te
 xlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/texlive/2026/
 texmf-dist/fonts/type1/public/lm/lmsy9.pfb>
-Output written on SI.pdf (14 pages, 749412 bytes).
+Output written on SI.pdf (15 pages, 750608 bytes).
 PDF statistics:
- 318 PDF objects out of 1000 (max. 8388607)
- 189 compressed objects within 2 object streams
+ 321 PDF objects out of 1000 (max. 8388607)
+ 191 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  46 words of extra memory for PDF output out of 10000 (max. 10000000)
 

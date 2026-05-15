@@ -1,16 +1,15 @@
 """
-Sensitivity of the three core Rousseau et al. (2023) experiments to KS window.
+Sensitivity of Rousseau et al. (2023) event-timing tests to KS window.
 
 This script compares the complete 0.4-4 kyr KS transition catalogue against
 the 0.6-4 kyr catalogue for:
 
-1. Lohmann-style stationary-random occurrence tests.
-2. Rayleigh tests for orbital phase preference.
-3. History- and resolution-adjusted predictive Poisson hazard models with
+1. Rayleigh tests for orbital phase preference.
+2. History- and resolution-adjusted predictive Poisson hazard models with
    LR04, CO2, and precession phase controls.
 
-The implementation reuses the core definitions from the three main analysis
-scripts while avoiding their figure-writing wrappers.
+The implementation reuses the core definitions from the main analysis scripts
+while avoiding their figure-writing wrappers.
 """
 
 from __future__ import annotations
@@ -21,21 +20,19 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import chi2
 
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-import Lohmann_style_randomness_test as lohmann
 import Orbital_phase_rayleigh as rayleigh
-import archive_hazard_model.pre_predictive_information_migration_20260511_210551.scripts.Bin_hazard_phase_poisson as hazard
-import Predictive_hazard_history_resolution as predictive
+import Bin_hazard_phase_poisson as hazard
+import Predictive_information_model as predictive
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-RUN_NAME = "rousseau2023_ks_window_core_experiment_sensitivity"
+RUN_NAME = "KS_window_core_experiment_sensitivity"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
@@ -65,12 +62,10 @@ EVENT_SETTINGS = {
     "strong_monsoon_start": {
         "label": "Strong monsoon starts",
         "color": "#d95f02",
-        "seed_offset": 101,
     },
     "weak_monsoon_start": {
         "label": "Weak monsoon starts",
         "color": "#6a3d9a",
-        "seed_offset": 211,
     },
 }
 
@@ -97,6 +92,13 @@ def relative_path(path: Path) -> str:
     return str(path.relative_to(PROJECT_ROOT))
 
 
+def unique_sorted(values: np.ndarray, decimals: int = 6) -> np.ndarray:
+    values = np.asarray(values, dtype=float)
+    values = values[np.isfinite(values)]
+    values = np.round(values, decimals=decimals)
+    return np.unique(np.sort(values))
+
+
 def load_event_catalogue(ks_window_id: str, event_type: str) -> EventCatalogue:
     window = KS_WINDOW_CATALOGUES[ks_window_id]
     settings = EVENT_SETTINGS[event_type]
@@ -121,7 +123,7 @@ def load_event_catalogue(ks_window_id: str, event_type: str) -> EventCatalogue:
     events["ks_window_kyr"] = window["ks_window_kyr"]
     events["source"] = relative_path(path)
 
-    ages = lohmann.unique_sorted(events["event_age_ka"].to_numpy(dtype=float))
+    ages = unique_sorted(events["event_age_ka"].to_numpy(dtype=float))
     return EventCatalogue(
         ks_window_id=ks_window_id,
         ks_window_label=window["label"],
@@ -146,99 +148,6 @@ def build_events_used_table(catalogues: list[EventCatalogue]) -> pd.DataFrame:
     for catalogue in catalogues:
         rows.append(catalogue.events)
     return pd.concat(rows, ignore_index=True)
-
-
-def stable_seed(base_seed: int, ks_window_id: str, event_type: str) -> int:
-    window_offset = 0 if ks_window_id == "ks_0p4_4kyr" else 10_000
-    return int(base_seed + window_offset + EVENT_SETTINGS[event_type]["seed_offset"])
-
-
-def run_lohmann_randomness(
-    catalogue: EventCatalogue,
-    *,
-    n_monte_carlo: int,
-    base_seed: int,
-    window_ka: float,
-    grid_step_ka: float,
-) -> dict[str, float | int | str]:
-    ages = catalogue.ages_ka[
-        (catalogue.ages_ka >= ANALYSIS_START_KA) & (catalogue.ages_ka <= ANALYSIS_END_KA)
-    ]
-    if ages.size < 3:
-        raise ValueError(f"{catalogue.ks_window_id}/{catalogue.event_type} has too few events.")
-
-    duration_ka = ANALYSIS_END_KA - ANALYSIS_START_KA
-    rate_per_kyr = ages.size / duration_ka
-    expected_count = rate_per_kyr * window_ka
-    centers = lohmann.centered_time_grid(
-        ANALYSIS_START_KA,
-        ANALYSIS_END_KA,
-        window_ka,
-        grid_step_ka,
-    )
-    observed_counts = lohmann.moving_event_counts(ages, centers, window_ka)
-    observed_es = lohmann.rms_deviation(observed_counts, expected_count)
-
-    rng = np.random.default_rng(stable_seed(base_seed, catalogue.ks_window_id, catalogue.event_type))
-    conditional_es = np.empty(n_monte_carlo, dtype=float)
-    poisson_es = np.empty(n_monte_carlo, dtype=float)
-    for i in range(n_monte_carlo):
-        conditional_events = np.sort(rng.uniform(ANALYSIS_START_KA, ANALYSIS_END_KA, size=ages.size))
-        conditional_counts = lohmann.moving_event_counts(conditional_events, centers, window_ka)
-        conditional_es[i] = lohmann.rms_deviation(conditional_counts, expected_count)
-
-        n_events = int(rng.poisson(rate_per_kyr * duration_ka))
-        poisson_events = np.sort(rng.uniform(ANALYSIS_START_KA, ANALYSIS_END_KA, size=n_events))
-        poisson_counts = lohmann.moving_event_counts(poisson_events, centers, window_ka)
-        poisson_es[i] = lohmann.rms_deviation(poisson_counts, expected_count)
-
-    poisson_p = lohmann.p_value_greater_or_equal(poisson_es, observed_es)
-    conditional_p = lohmann.p_value_greater_or_equal(conditional_es, observed_es)
-
-    return {
-        "ks_window_id": catalogue.ks_window_id,
-        "ks_window_label": catalogue.ks_window_label,
-        "ks_window_kyr": catalogue.ks_window_kyr,
-        "event_type": catalogue.event_type,
-        "event_label": catalogue.event_label,
-        "source": relative_path(catalogue.source_path),
-        "analysis_start_ka": ANALYSIS_START_KA,
-        "analysis_end_ka": ANALYSIS_END_KA,
-        "duration_ka": duration_ka,
-        "n_events": int(ages.size),
-        "rate_per_kyr_from_event_count": rate_per_kyr,
-        f"expected_events_per_{window_ka:g}kyr": expected_count,
-        "lohmann_event_count_ES": observed_es,
-        "lohmann_poisson_ES_p_value": poisson_p,
-        "conditional_fixed_n_ES_p_value": conditional_p,
-        "reject_poisson_ES_at_0p05": poisson_p < 0.05,
-        "reject_fixed_n_ES_at_0p05": conditional_p < 0.05,
-        "n_monte_carlo": int(n_monte_carlo),
-        "event_count_window_ka": window_ka,
-        "time_grid_step_ka": grid_step_ka,
-        "random_seed": stable_seed(base_seed, catalogue.ks_window_id, catalogue.event_type),
-    }
-
-
-def run_randomness_for_all(
-    catalogues: list[EventCatalogue],
-    *,
-    n_monte_carlo: int,
-    seed: int,
-    window_ka: float,
-    grid_step_ka: float,
-) -> pd.DataFrame:
-    rows = [
-        run_lohmann_randomness(
-            catalogue,
-            n_monte_carlo=n_monte_carlo,
-            base_seed=seed,
-            window_ka=window_ka,
-            grid_step_ka=grid_step_ka,
-        )
-        for catalogue in catalogues
-    ]
-    return pd.DataFrame(rows)
 
 
 def rayleigh_events_frame(catalogues: list[EventCatalogue]) -> pd.DataFrame:
@@ -395,44 +304,12 @@ def consistency_row(
 
 
 def build_consistency_summary(
-    randomness: pd.DataFrame,
     rayleigh_results: pd.DataFrame,
     poisson_lrt: pd.DataFrame,
     poisson_summary: pd.DataFrame,
 ) -> pd.DataFrame:
     rows = []
     for event_type in EVENT_SETTINGS:
-        r04 = randomness[
-            randomness["ks_window_id"].eq("ks_0p4_4kyr")
-            & randomness["event_type"].eq(event_type)
-        ].iloc[0]
-        r06 = randomness[
-            randomness["ks_window_id"].eq("ks_0p6_4kyr")
-            & randomness["event_type"].eq(event_type)
-        ].iloc[0]
-        rows.append(
-            consistency_row(
-                experiment="lohmann_randomness",
-                metric_id="poisson_ES_null",
-                event_type=event_type,
-                p_04=float(r04["lohmann_poisson_ES_p_value"]),
-                p_06=float(r06["lohmann_poisson_ES_p_value"]),
-                extra_04={"n_events": int(r04["n_events"])},
-                extra_06={"n_events": int(r06["n_events"])},
-            )
-        )
-        rows.append(
-            consistency_row(
-                experiment="lohmann_randomness",
-                metric_id="fixed_n_ES_null",
-                event_type=event_type,
-                p_04=float(r04["conditional_fixed_n_ES_p_value"]),
-                p_06=float(r06["conditional_fixed_n_ES_p_value"]),
-                extra_04={"n_events": int(r04["n_events"])},
-                extra_06={"n_events": int(r06["n_events"])},
-            )
-        )
-
         pre04 = rayleigh_results[
             rayleigh_results["ks_window_id"].eq("ks_0p4_4kyr")
             & rayleigh_results["event_type"].eq(event_type)
@@ -533,7 +410,6 @@ def build_consistency_summary(
 def write_outputs(
     *,
     events_used: pd.DataFrame,
-    randomness: pd.DataFrame,
     rayleigh_results: pd.DataFrame,
     binned_inputs: pd.DataFrame,
     poisson_summary: pd.DataFrame,
@@ -543,7 +419,6 @@ def write_outputs(
 ) -> None:
     ensure_dir(OUT_DATA_DIR)
     events_used.to_csv(OUT_DATA_DIR / "events_used_by_ks_window.csv", index=False)
-    randomness.to_csv(OUT_DATA_DIR / "lohmann_randomness_by_ks_window.csv", index=False)
     rayleigh_results.to_csv(OUT_DATA_DIR / "rayleigh_phase_results_by_ks_window.csv", index=False)
     binned_inputs.to_csv(OUT_DATA_DIR / "poisson_binned_inputs_by_ks_window.csv", index=False)
     poisson_summary.to_csv(OUT_DATA_DIR / "poisson_model_summary_by_ks_window.csv", index=False)
@@ -576,8 +451,6 @@ def significance_label(value: float) -> str:
 
 def metric_display_name(metric_id: str) -> str:
     labels = {
-        "poisson_ES_null": "Randomness: Poisson null",
-        "fixed_n_ES_null": "Randomness: fixed-N null",
         "precession_phase_uniformity": "Rayleigh: precession phase",
         "climate_lr04_co2_after_baseline": "Poisson: LR04+CO2 after adjusted baseline",
         "phase_after_adjusted_climate": "Poisson: phase after adjusted LR04+CO2",
@@ -601,8 +474,6 @@ def plot_consistency_table(consistency: pd.DataFrame) -> None:
     plot_rows = consistency[
         consistency["metric_id"].isin(
             [
-                "poisson_ES_null",
-                "fixed_n_ES_null",
                 "precession_phase_uniformity",
                 "climate_lr04_co2_after_baseline",
                 "phase_after_adjusted_climate",
@@ -616,14 +487,12 @@ def plot_consistency_table(consistency: pd.DataFrame) -> None:
         {"strong_monsoon_start": 0, "weak_monsoon_start": 1}
     )
     metric_order = {
-        "poisson_ES_null": 0,
-        "fixed_n_ES_null": 1,
-        "precession_phase_uniformity": 2,
-        "climate_lr04_co2_after_baseline": 3,
-        "phase_after_adjusted_climate": 4,
-        "lr04_after_adjusted_co2_phase": 5,
-        "co2_after_adjusted_lr04_phase": 6,
-        "full_vs_baseline": 7,
+        "precession_phase_uniformity": 0,
+        "climate_lr04_co2_after_baseline": 1,
+        "phase_after_adjusted_climate": 2,
+        "lr04_after_adjusted_co2_phase": 3,
+        "co2_after_adjusted_lr04_phase": 4,
+        "full_vs_baseline": 5,
     }
     plot_rows["metric_order"] = plot_rows["metric_id"].map(metric_order)
     plot_rows = plot_rows.sort_values(["event_order", "metric_order"]).reset_index(drop=True)
@@ -697,13 +566,7 @@ def plot_consistency_table(consistency: pd.DataFrame) -> None:
     plt.close(fig)
 
 
-def run_analysis(
-    *,
-    n_monte_carlo: int,
-    seed: int,
-    window_ka: float,
-    grid_step_ka: float,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def run_analysis() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     catalogues_by_window = {
         ks_window_id: load_catalogues_for_window(ks_window_id)
         for ks_window_id in KS_WINDOW_CATALOGUES
@@ -715,13 +578,6 @@ def run_analysis(
     ]
 
     events_used = build_events_used_table(all_catalogues)
-    randomness = run_randomness_for_all(
-        all_catalogues,
-        n_monte_carlo=n_monte_carlo,
-        seed=seed,
-        window_ka=window_ka,
-        grid_step_ka=grid_step_ka,
-    )
     rayleigh_results = run_rayleigh_for_all(catalogues_by_window)
     (
         binned_inputs,
@@ -730,14 +586,12 @@ def run_analysis(
         poisson_likelihood_tests,
     ) = run_poisson_for_all(catalogues_by_window)
     consistency = build_consistency_summary(
-        randomness,
         rayleigh_results,
         poisson_likelihood_tests,
         poisson_summary,
     )
     write_outputs(
         events_used=events_used,
-        randomness=randomness,
         rayleigh_results=rayleigh_results,
         binned_inputs=binned_inputs,
         poisson_summary=poisson_summary,
@@ -746,41 +600,19 @@ def run_analysis(
         consistency=consistency,
     )
     plot_consistency_table(consistency)
-    return randomness, rayleigh_results, poisson_likelihood_tests, consistency
+    return rayleigh_results, poisson_likelihood_tests, consistency
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Compare Rousseau 2023 core experiments across KS window catalogues."
     )
-    parser.add_argument("--n-monte-carlo", type=int, default=lohmann.N_MONTE_CARLO)
-    parser.add_argument("--seed", type=int, default=lohmann.RANDOM_SEED)
-    parser.add_argument("--window-ka", type=float, default=lohmann.EVENT_COUNT_WINDOW_KA)
-    parser.add_argument("--grid-step-ka", type=float, default=lohmann.TIME_GRID_STEP_KA)
     return parser.parse_args()
 
 
 def main() -> None:
-    args = parse_args()
-    randomness, rayleigh_results, poisson_lrt, consistency = run_analysis(
-        n_monte_carlo=args.n_monte_carlo,
-        seed=args.seed,
-        window_ka=args.window_ka,
-        grid_step_ka=args.grid_step_ka,
-    )
-
-    print("\nLohmann randomness p values:")
-    print(
-        randomness[
-            [
-                "ks_window_id",
-                "event_type",
-                "n_events",
-                "lohmann_poisson_ES_p_value",
-                "conditional_fixed_n_ES_p_value",
-            ]
-        ].to_string(index=False)
-    )
+    parse_args()
+    rayleigh_results, poisson_lrt, consistency = run_analysis()
 
     print("\nPrecession Rayleigh p values:")
     print(

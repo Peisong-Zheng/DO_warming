@@ -14,7 +14,7 @@ and the main model is:
                     + beta3 sin(pre_phase_i) + beta4 cos(pre_phase_i)
 
 The precession phase convention is the same as in
-``analyze_rousseau2023_monsoon_orbital_phase_rayleigh.py``:
+``Orbital_phase_rayleigh.py``:
 local minima of the precession index are phase 0 and local maxima are phase pi.
 
 Method sketch
@@ -57,7 +57,7 @@ from paper_figure_export import save_paper_pdf
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-RUN_NAME = "rousseau2023_monsoon_bin_hazard_phase_poisson"
+RUN_NAME = "Bin_hazard_phase_poisson"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 

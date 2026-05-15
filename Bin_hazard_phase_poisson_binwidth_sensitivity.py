@@ -39,10 +39,10 @@ import numpy as np
 import pandas as pd
 
 import Bin_hazard_phase_poisson as base
-import Predictive_hazard_history_resolution as predictive
+import Predictive_information_model as predictive
 
 
-RUN_NAME = "rousseau2023_monsoon_bin_hazard_phase_poisson_binwidth_sensitivity"
+RUN_NAME = "Bin_hazard_phase_poisson_binwidth_sensitivity"
 OUT_DATA_DIR = base.PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = base.PROJECT_ROOT / "figures" / RUN_NAME
 

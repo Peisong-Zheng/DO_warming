@@ -64,9 +64,19 @@ For each randomized catalogue, we repeated the Rayleigh precession test, the tes
 
 \subsection*{Text S4. Lagged predictive-information diagnostics}
 
-The lagged predictive-information scan is a temporal-alignment diagnostic, not a causal-delay estimator. The best single-driver lags are reported in the main text. Their corresponding maximum gains are 0.108, 0.124, and 0.127 bits/event for LR04, \(\ce{CO2}\), and precession phase in the strong-start catalogue, and 0.111, 0.158, and 0.068 bits/event in the weak-start catalogue. The weak-start single-driver precession scan has nominal \(p=0.010\) at its best lag but is not significant after false-discovery-rate correction.
+The lagged predictive-information scan is a temporal-alignment diagnostic, not a causal-delay estimator. In the main-text Figure 4 scan, LR04 and \(\ce{CO2}\) are each tested against the event-process baseline as
+\[
+\mathrm{EP}+X(t+\tau)\quad \mathrm{vs.}\quad \mathrm{EP},
+\]
+whereas precession phase is tested after the contemporaneous climate-state model as
+\[
+\mathrm{EP}+\mathrm{LR04}(t)+\ce{CO2}(t)+\mathrm{pre}(t+\tau)
+\quad \mathrm{vs.}\quad
+\mathrm{EP}+\mathrm{LR04}(t)+\ce{CO2}(t).
+\]
+Here \(\mathrm{pre}(t+\tau)\) denotes the lagged sine and cosine terms of precession phase. This construction isolates the precession-phase lag while holding LR04 and \(\ce{CO2}\) fixed at the event-bin age. The maximum gains for strong starts are 0.108 bits/event for LR04 at 2.4 kyr, 0.124 bits/event for \(\ce{CO2}\) at 1.8 kyr, and 0.165 bits/event for precession phase after the climate-state model at 0 kyr. For weak starts, the corresponding maxima are 0.111 bits/event for LR04 at 0 kyr, 0.158 bits/event for \(\ce{CO2}\) at 0 kyr, and 0.108 bits/event for precession phase after the climate-state model at 0 kyr. All six maxima remain significant after false-discovery-rate correction.
 
-Conditional scans give the same near-zero phase result. After LR04 and \(\ce{CO2}\) are fixed at their best single-driver lags, precession phase peaks at 0 kyr for both strong starts (0.141 bits/event, \(p=1.16\times10^{-4}\)) and weak starts (0.108 bits/event, \(p=7.12\times10^{-4}\)); both remain significant after false-discovery-rate correction. When LR04, \(\ce{CO2}\), and precession phase share the same lag, the best precession lag is 0 kyr for strong starts and 0.8 kyr for weak starts. These maxima indicate contemporaneous orbital-phase organization in this binned framework, not a resolved causal response time.
+An alternative conditional scan fixed LR04 and \(\ce{CO2}\) at their best single-driver lags before scanning precession phase. This gave the same near-zero phase result: precession phase peaked at 0 kyr for both strong starts (0.141 bits/event, \(p=1.16\times10^{-4}\)) and weak starts (0.108 bits/event, \(p=7.12\times10^{-4}\)), and both remained significant after false-discovery-rate correction. These maxima indicate contemporaneous orbital-phase organization in this binned framework, not a resolved causal response time.
 
 \subsection*{Text S5. Sparse-bin and bootstrap likelihood diagnostics}
 
@@ -259,7 +269,7 @@ Weak starts & Full predictive model vs. event-process baseline & $2.62\times10^{
     (d) Nested likelihood-ratio tests shown as \(-\log_{10}(p)\); the dashed line marks \(p=0.05\).
     (e) \(\Delta\)AICc, defined as full minus reduced model for each row; negative values favour the fuller model.
     (f) Predictive-information gain in bits per event for the same full-versus-reduced comparison.
-    Labels are full-model versus reduced-model comparisons; ``Full predictive model vs climate-state'' denotes adding precession phase to the Barker climate-state model.
+    Labels are full-model versus reduced-model comparisons; ``Full predictive model vs climate-state model'' denotes adding precession phase to the Barker climate-state model.
     }
     \label{fig:barker_predictive_sensitivity}
 \end{figure}
