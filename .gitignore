@@ -7,3 +7,4 @@ __pycache__/
 doc/
 run_log/
 run_logs/
+.gitignore
