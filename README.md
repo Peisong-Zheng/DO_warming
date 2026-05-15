@@ -158,35 +158,43 @@ orientation.
 - Barker, S., Knorr, G., Edwards, R. L., Parrenin, F., Putnam, A. E.,
   Skinner, L. C., Wolff, E., & Ziegler, M. (2011).
   800,000 years of abrupt climate variability. *Science*, 334(6054), 347--351.
+  https://doi.org/10.1126/science.1203580
 
 - Bereiter, B., Eggleston, S., Schmitt, J., Nehrbass-Ahles, C., Stocker, T. F.,
   Fischer, H., Kipfstuhl, S., & Chappellaz, J. (2015).
   Revision of the EPICA Dome C CO2 record from 800 to 600 kyr before present.
   *Geophysical Research Letters*, 42(2), 542--549.
+  https://doi.org/10.1002/2014gl061957
 
 - Cheng, H., Edwards, R. L., Sinha, A., Spötl, C., Yi, L., Chen, S.,
   Kelly, M., Kathayat, G., Wang, X., Li, X., et al. (2016).
   The Asian monsoon over the past 640,000 years and ice age terminations.
   *Nature*, 534(7609), 640--646.
+  https://doi.org/10.1038/nature18591
 
 - Corrick, E. C., Drysdale, R. N., Hellstrom, J. C., Capron, E.,
   Rasmussen, S. O., Zhang, X., Fleitmann, D., Couchoud, I., & Wolff, E. (2020).
   Synchronous timing of abrupt climate changes during the last glacial period.
   *Science*, 369(6506), 963--969.
+  https://doi.org/10.1126/science.aay5538
 
 - Laskar, J., Robutel, P., Joutel, F., Gastineau, M., Correia, A. C. M.,
   & Levrard, B. (2004).
   A long-term numerical solution for the insolation quantities of the Earth.
   *Astronomy & Astrophysics*, 428(1), 261--285.
+  https://doi.org/10.1051/0004-6361:20041335
 
 - Lisiecki, L. E., & Raymo, M. E. (2005).
   A Pliocene-Pleistocene stack of 57 globally distributed benthic δ18O records.
   *Paleoceanography*, 20(1).
+  https://doi.org/10.1029/2004pa001071
 
 - Lohmann, J., & Ditlevsen, P. D. (2018).
   Random and externally controlled occurrence of Dansgaard-Oeschger events.
-  *Climate of the Past*, 14(5), 609--617. https://doi.org/10.5194/cp-14-609-2018
+  *Climate of the Past*, 14(5), 609--617.
+  https://doi.org/10.5194/cp-14-609-2018
 
 - Rousseau, D.-D., Bagniewski, W., & Cheng, H. (2023).
   A reliable benchmark of the last 640,000 years millennial climate variability.
   *Scientific Reports*, 13(1), 22851.
+  https://doi.org/10.1038/s41598-023-49115-z
