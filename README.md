@@ -28,10 +28,8 @@ data/
 figures/        Script-generated figures, grouped by script name.
 
 monsoon_paper/
-  main.tex      Main manuscript.
-  SI.tex        Supporting Information.
-  reference.bib Reference library.
-  figures/      Flat Overleaf-ready figure directory: Fig01.pdf, FigS01.pdf, ...
+  Local manuscript draft, Supporting Information, bibliography, and
+  Overleaf-ready figures. This directory is ignored by git.
 
 toolbox/        Shared statistical and likelihood utilities.
 
@@ -41,6 +39,10 @@ run_logs/       Timestamped logs from workflow and validation runs.
 The intended convention is that `data/raw/` is input-only. Generated tables and
 figures are written under `data/processed/<script_name>/` and
 `figures/<script_name>/`.
+
+The manuscript draft lives in `monsoon_paper/`, but that directory is not
+tracked. The scripts may still write paper-ready PDFs there for local editing
+or Overleaf upload.
 
 ## Main Workflow
 
@@ -58,8 +60,9 @@ This runs:
 4. `paper_figure_export.py`
 
 The first three scripts regenerate the main scientific results. The final
-script copies only manuscript-referenced PDF figures into
-`monsoon_paper/figures/`, using names such as `Fig01.pdf` and `FigS01.pdf`.
+script copies only manuscript-referenced PDF figures into the local
+`monsoon_paper/figures/` directory, using names such as `Fig01.pdf` and
+`FigS01.pdf`. That manuscript directory is ignored by git.
 
 To inspect the commands without running them:
 
@@ -101,7 +104,7 @@ insolation.
 | `Orbital_phase_rayleigh.py` | Converts precession and obliquity to phase variables and tests event-phase clustering with Rayleigh tests. | `data/processed/Orbital_phase_rayleigh/`; `figures/Orbital_phase_rayleigh/`; manuscript Fig02, FigS01, and FigS02 |
 | `Lagged_predictive_information.py` | Scans lagged predictive-information gains. LR04 and CO2 are added separately to the event-process baseline; lagged precession phase is added to the climate-state model. | `data/processed/Lagged_predictive_information/`; `figures/Lagged_predictive_information/`; manuscript Fig04 |
 | `Bin_hazard_phase_poisson.py` | Earlier binned Poisson hazard model without event-process controls. It is retained for one SI comparison figure showing LR04+CO2 and LR04+CO2+precession fitted rates without the noisier event-process baseline. | `data/processed/Bin_hazard_phase_poisson/`; `figures/Bin_hazard_phase_poisson/`; manuscript FigS03 |
-| `paper_figure_export.py` | Copies only paper-referenced PDF figures from `figures/` to `monsoon_paper/figures/`. Plotting scripts also call its helper functions when saving manuscript figures. | `monsoon_paper/figures/Fig*.pdf` |
+| `paper_figure_export.py` | Copies only paper-referenced PDF figures from `figures/` to the local, git-ignored `monsoon_paper/figures/` directory. Plotting scripts also call its helper functions when saving manuscript figures. | `monsoon_paper/figures/Fig*.pdf` |
 
 ## Sensitivity and Diagnostic Scripts
 
@@ -149,7 +152,7 @@ outputs.
 
 ## Main Data Sources
 
-The entries below are copied from `monsoon_paper/reference.bib` for quick
+The entries below are copied from the manuscript bibliography for quick
 orientation.
 
 - Barker, S., Knorr, G., Edwards, R. L., Parrenin, F., Putnam, A. E.,
