@@ -1,9 +1,0 @@
-forcing_id,forcing_label,source,mean,min,max,range
-lr04,LR04 benthic d18O,data/raw/lr04.xlsx,4.153046875,3.1079999999999997,5.08,1.9720000000000004
-co2,CO2,data/raw/composite_co2.xlsx,227.8403503473071,180.57941971761974,298.5578972816154,117.97847756399565
-pre_phase_sin,sin(precession phase),data/raw/pre_800_inter100.txt,-0.0017051421036675851,-1.0,1.0,2.0
-pre_phase_cos,cos(precession phase),data/raw/pre_800_inter100.txt,-0.00946755266533579,-1.0,1.0,2.0
-AT,Antarctic temperature,data/raw/AT.csv,-4.591444858460338,-8.833346231604038,4.510077911283683,13.34342414288772
-obl,obliquity,data/raw/obl_800_inter100.txt,0.4073578165625,0.385303,0.426836,0.04153299999999999
-ecc,eccentricity,data/raw/ecc_1000_inter100.txt,0.027977376874999998,0.00415,0.049952,0.045802
-insol65N,65N summer solstice insolation,data/raw/solstice_insolation_NH.nc,494.57404174804685,431.9285614013672,553.423681640625,121.4951202392578

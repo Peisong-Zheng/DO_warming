@@ -1,2 +1,0 @@
-analysis_start_ka,analysis_end_ka,bin_width_ka,max_lag_ka,lag_step_ka,y_history_window_ka,common_lag_support,time_direction,information_measure,multiple_testing
-0.0,640.0,0.2,20.0,0.2,2.0,only bins with center_age + 20 ka <= oldest bin center are used in every lag comparison,"positive lag samples driver at event_age + lag, i.e. older/past climate state",logL_full_minus_logL_reduced from nested Poisson hazard models,Benjamini-Hochberg q values across scanned lags within each dataset/analysis/driver family
