@@ -2,7 +2,7 @@
 Sensitivity of Rousseau et al. (2023) core event-timing tests to a rough
 Cheng et al. (2016) composite age-uncertainty envelope.
 
-The age-uncertainty model is intentionally simple: the 2-sigma age range grows
+The age-uncertainty model uses a simple envelope: the 2-sigma age range grows
 exponentially from 1 kyr at 0 ka BP to 7.4 kyr at 640 ka BP. The envelope is
 evaluated on the Cheng composite age grid, interpolated to the 0.4-4 kyr
 Rousseau strong/weak start catalogues, and then used to generate randomized
@@ -28,8 +28,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import pandas as pd
-from scipy.stats import chi2, norm, truncnorm
+from scipy.stats import norm, truncnorm
 from paper_figure_export import save_paper_pdf
+from toolbox.model_stats import bits_from_loglik_gain, likelihood_gain, likelihood_ratio_p_value
 
 import Orbital_phase_rayleigh as rayleigh
 import Bin_hazard_phase_poisson as hazard
@@ -447,13 +448,15 @@ def full_hazard_metrics(
         ADJUSTED_CLIMATE_MODEL_LABEL,
     )
     full = hazard.fit_poisson_model(fit_frame, FULL_MODEL_ID, FULL_MODEL_TERMS, FULL_MODEL_LABEL)
-    full_lr_stat = 2.0 * (full.log_likelihood - adjusted_baseline.log_likelihood)
-    full_p_value = float(
-        chi2.sf(max(full_lr_stat, 0.0), len(full.beta) - len(adjusted_baseline.beta))
+    full_ll_gain = likelihood_gain(full.log_likelihood, adjusted_baseline.log_likelihood)
+    full_lr_stat, full_p_value = likelihood_ratio_p_value(
+        full_ll_gain,
+        len(full.beta) - len(adjusted_baseline.beta),
     )
-    phase_lr_stat = 2.0 * (full.log_likelihood - adjusted_climate.log_likelihood)
-    phase_p_value = float(
-        chi2.sf(max(phase_lr_stat, 0.0), len(full.beta) - len(adjusted_climate.beta))
+    phase_ll_gain = likelihood_gain(full.log_likelihood, adjusted_climate.log_likelihood)
+    phase_lr_stat, phase_p_value = likelihood_ratio_p_value(
+        phase_ll_gain,
+        len(full.beta) - len(adjusted_climate.beta),
     )
     beta_map = dict(zip(full.terms, full.beta[1:]))
     b_sin = float(beta_map["pre_phase_sin"])
@@ -467,10 +470,9 @@ def full_hazard_metrics(
         "precession_phase_after_adjusted_climate_LR_statistic": phase_lr_stat,
         "precession_phase_after_adjusted_climate_LR_p_value": phase_p_value,
         "precession_phase_after_adjusted_climate_delta_AICc": full.aicc - adjusted_climate.aicc,
-        "precession_phase_after_adjusted_climate_bits_per_event": (
-            (full.log_likelihood - adjusted_climate.log_likelihood)
-            / np.log(2.0)
-            / max(n_hazard_events, 1)
+        "precession_phase_after_adjusted_climate_bits_per_event": bits_from_loglik_gain(
+            phase_ll_gain,
+            n_hazard_events,
         ),
         "full_vs_adjusted_baseline_LR_statistic": full_lr_stat,
         "full_vs_adjusted_baseline_LR_p_value": full_p_value,
@@ -995,9 +997,9 @@ def main() -> None:
         "error_2sigma_end_kyr": ERROR_2SIGMA_END_KA,
         "n_realizations": int(args.n_realizations),
         "seed": int(args.seed),
-        "hazard_history_window_ka": predictive.MAIN_HISTORY_WINDOW_KA,
-        "hazard_baseline_model": "same-type history + Cheng log-resolution",
-        "hazard_main_model": "same-type history + Cheng log-resolution + LR04 + CO2 + precession phase",
+        "predictive_history_window_ka": predictive.MAIN_HISTORY_WINDOW_KA,
+        "event_process_baseline_model": "same-type history + Cheng log-resolution",
+        "full_predictive_model": "same-type history + Cheng log-resolution + LR04 + CO2 + precession phase",
         "sampling_distribution": "truncated Gaussian with sigma = 2sigma_range / 2",
         "order_constraint": "event-specific bounds include adjacent-age midpoints",
     }

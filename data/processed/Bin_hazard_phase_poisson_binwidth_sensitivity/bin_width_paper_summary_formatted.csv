@@ -1,4 +1,4 @@
-Dataset,Bin width (kyr),Bins,empty bins (%),Multi-event bins,Max events/bin,Best core model,full Delta AICc among core models,LR04 p,CO2 p,pre phase p,phase after adjusted climate p,phase-after-climate Delta AICc,preferred phase (deg),phase shift vs 0.2 kyr (deg),phase rate ratio,matches 0.2 kyr
+Dataset,Bin width (kyr),Bins,empty bins (%),Multi-event bins,Max events/bin,Best core model,full Delta AICc among core models,LR04 p,CO2 p,pre phase p,phase after climate-state model p,phase-after-climate Delta AICc,preferred phase (deg),phase shift vs 0.2 kyr (deg),phase rate ratio,matches 0.2 kyr
 Strong monsoon starts,0.2,3175,97.0,0,1,baseline_climate_lr04_co2_pre_phase,0.0,2.6e-04,7.0e-04,6.8e-04,5.2e-05,-15.73,2.1,0.0,4.02,yes
 Strong monsoon starts,0.4,1587,94.0,0,1,baseline_climate_lr04_co2_pre_phase,0.0,3.5e-04,0.001,9.2e-04,7.7e-05,-14.92,4.0,1.9,3.89,yes
 Strong monsoon starts,0.6,1059,91.0,0,1,baseline_climate_lr04_co2_pre_phase,0.0,3.7e-04,7.5e-04,9.7e-04,8.7e-05,-14.65,3.7,1.6,3.87,yes

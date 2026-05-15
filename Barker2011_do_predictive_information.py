@@ -37,8 +37,8 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
-from scipy.stats import chi2
 from paper_figure_export import save_paper_pdf
+from toolbox.model_stats import nested_likelihood_metrics
 
 import Bin_hazard_phase_poisson as base
 import Orbital_phase_rayleigh as rayleigh
@@ -460,10 +460,16 @@ def build_likelihood_tests(
         for comparison_id, reduced_id, full_id, question in LR_TEST_SPECS:
             reduced = lookup[(dataset_id, reduced_id)]
             full = lookup[(dataset_id, full_id)]
-            ll_gain = full.log_likelihood - reduced.log_likelihood
-            lr_stat = 2.0 * ll_gain
             df = len(full.beta) - len(reduced.beta)
-            p_value = float(chi2.sf(max(lr_stat, 0.0), df))
+            metrics = nested_likelihood_metrics(
+                loglik_full=full.log_likelihood,
+                loglik_reduced=reduced.log_likelihood,
+                df=df,
+                n_bins=n_bins,
+                n_events=n_events,
+                aicc_full=full.aicc,
+                aicc_reduced=reduced.aicc,
+            )
             rows.append(
                 {
                     "dataset_id": dataset_id,
@@ -473,18 +479,8 @@ def build_likelihood_tests(
                     "question": question,
                     "reduced_model_id": reduced_id,
                     "full_model_id": full_id,
-                    "df": int(df),
-                    "n_bins": n_bins,
-                    "n_events": n_events,
-                    "loglik_reduced": reduced.log_likelihood,
-                    "loglik_full": full.log_likelihood,
-                    "ll_gain_nats": ll_gain,
-                    "info_bits_per_event": ll_gain / np.log(2.0) / max(n_events, 1),
-                    "info_bits_per_bin": ll_gain / np.log(2.0) / max(n_bins, 1),
-                    "LR_statistic": lr_stat,
-                    "LR_p_value": p_value,
-                    "reject_LR_at_0p05": p_value < 0.05,
-                    "delta_AICc_full_minus_reduced": full.aicc - reduced.aicc,
+                    **metrics,
+                    "reject_LR_at_0p05": metrics["LR_p_value"] < 0.05,
                 }
             )
     return pd.DataFrame(rows)

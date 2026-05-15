@@ -2,7 +2,6 @@
 Sparse-bin diagnostics and parametric-bootstrap LR tests for the adjusted
 predictive Poisson hazard models.
 
-This script is deliberately separate from ``Predictive_information_model.py``.
 The main script fits the models used in the paper. This diagnostic script asks
 whether the two main likelihood-ratio tests still look significant when the
 reference distribution is generated directly from the fitted reduced model
@@ -15,7 +14,7 @@ The two bootstrap tests are:
        reduced = same-type history + Cheng sampling resolution
        full    = reduced + LR04 + CO2
 
-2. Precession phase after adjusted climate:
+2. Precession phase after the climate-state model:
 
        reduced = same-type history + Cheng sampling resolution + LR04 + CO2
        full    = reduced + sin(precession phase) + cos(precession phase)
@@ -46,6 +45,7 @@ from scipy.stats import chi2
 
 import Bin_hazard_phase_poisson as base
 import Predictive_information_model as predictive
+from toolbox.model_stats import information_criteria
 
 
 RUN_NAME = "Predictive_information_bootstrap_diagnostics"
@@ -156,9 +156,7 @@ def fit_poisson_model_fast(
     mu = rate * dt
     log_likelihood = base.poisson_loglik(beta, x, y, dt)
     k = len(beta)
-    aic = 2.0 * k - 2.0 * log_likelihood
-    aicc = aic + (2.0 * k * (k + 1.0)) / max(n_obs - k - 1.0, 1.0)
-    bic = np.log(n_obs) * k - 2.0 * log_likelihood
+    criteria = information_criteria(log_likelihood, k, n_obs)
 
     return base.FittedPoissonModel(
         dataset_id=str(dataset_frame["dataset_id"].iloc[0]),
@@ -170,9 +168,9 @@ def fit_poisson_model_fast(
         converged=converged,
         optimizer_message=message,
         log_likelihood=log_likelihood,
-        aic=aic,
-        aicc=aicc,
-        bic=bic,
+        aic=criteria["AIC"],
+        aicc=criteria["AICc"],
+        bic=criteria["BIC"],
         fitted_rate_per_kyr=rate,
         fitted_mu_per_bin=mu,
     )

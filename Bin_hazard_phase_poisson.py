@@ -51,9 +51,14 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 from scipy.signal import find_peaks
-from scipy.special import gammaln
-from scipy.stats import chi2
 from paper_figure_export import save_paper_pdf
+from toolbox.model_stats import information_criteria, likelihood_gain, likelihood_ratio_p_value
+from toolbox.poisson import (
+    binned_poisson_loglik,
+    design_matrix as make_design_matrix,
+    fitted_rate_and_mu,
+    negative_binned_poisson_loglik,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -424,42 +429,19 @@ def build_binned_inputs(events: list[EventDataset]) -> tuple[pd.DataFrame, pd.Da
 
 
 def design_matrix(frame: pd.DataFrame, terms: tuple[str, ...]) -> np.ndarray:
-    if not terms:
-        return np.empty((len(frame), 0), dtype=float)
-    return frame.loc[:, list(terms)].to_numpy(dtype=float)
+    return make_design_matrix(frame, terms)
 
 
 def poisson_loglik(beta: np.ndarray, x: np.ndarray, y: np.ndarray, dt: np.ndarray) -> float:
-    """Poisson log-likelihood for binned event counts.
+    """Poisson log-likelihood for binned event counts."""
 
-    Model:
-        y_i ~ Poisson(mu_i)
-        mu_i = dt_i * lambda_i
-        log(lambda_i) = beta0 + x_i beta
-
-    Therefore:
-        log(mu_i) = log(dt_i) + beta0 + x_i beta
-
-    and the summed log-likelihood is:
-        sum_i [y_i log(mu_i) - mu_i - log(y_i!)]
-
-    The gammaln(y + 1) term is log(y!), written in a numerically stable form.
-    """
-
-    eta = beta[0] + x @ beta[1:]
-    eta = np.clip(eta, -50.0, 20.0)
-    log_mu = np.log(dt) + eta
-    mu = np.exp(log_mu)
-    return float(np.sum(y * log_mu - mu - gammaln(y + 1.0)))
+    return binned_poisson_loglik(beta, x, y, dt)
 
 
 def negative_loglik(beta: np.ndarray, x: np.ndarray, y: np.ndarray, dt: np.ndarray) -> float:
     """Objective passed to scipy.optimize.minimize."""
 
-    value = -poisson_loglik(beta, x, y, dt)
-    if not np.isfinite(value):
-        return 1e100
-    return value
+    return negative_binned_poisson_loglik(beta, x, y, dt)
 
 
 def fit_poisson_model(
@@ -504,19 +486,10 @@ def fit_poisson_model(
         message = str(result.message)
 
     # Convert fitted log-rates back to rates per kyr and expected bin counts.
-    eta = np.clip(beta[0] + x @ beta[1:], -50.0, 20.0)
-    rate = np.exp(eta)
-    mu = rate * dt
+    rate, mu = fitted_rate_and_mu(beta, x, dt)
     log_likelihood = poisson_loglik(beta, x, y, dt)
     k = len(beta)
-    # AICc is the small-sample corrected Akaike information criterion. Lower
-    # AICc indicates better expected out-of-sample support after penalizing the
-    # number of fitted parameters.
-    aic = 2.0 * k - 2.0 * log_likelihood
-    # Small-sample correction follows the usual Hurvich and Tsai (1989) form.
-    # Reference: https://www.rdocumentation.org/packages/sme/versions/1.0.2/topics/AICc
-    aicc = aic + (2.0 * k * (k + 1.0)) / max(n_obs - k - 1.0, 1.0)
-    bic = np.log(n_obs) * k - 2.0 * log_likelihood
+    criteria = information_criteria(log_likelihood, k, n_obs)
 
     return FittedPoissonModel(
         dataset_id=str(dataset_frame["dataset_id"].iloc[0]),
@@ -528,9 +501,9 @@ def fit_poisson_model(
         converged=converged,
         optimizer_message=message,
         log_likelihood=log_likelihood,
-        aic=aic,
-        aicc=aicc,
-        bic=bic,
+        aic=criteria["AIC"],
+        aicc=criteria["AICc"],
+        bic=criteria["BIC"],
         fitted_rate_per_kyr=rate,
         fitted_mu_per_bin=mu,
     )
@@ -642,19 +615,9 @@ def build_likelihood_tests(models: list[FittedPoissonModel]) -> pd.DataFrame:
         for comparison_id, reduced_id, full_id in comparisons:
             reduced = lookup[(dataset_id, reduced_id)]
             full = lookup[(dataset_id, full_id)]
-            # Wilks-style nested model comparison:
-            # LR = -2 log(L_reduced / L_full)
-            #    = 2 * (logL_full - logL_reduced).
-            # Under the null that the added coefficients are unnecessary, this
-            # statistic is asymptotically chi-square distributed. The degrees
-            # of freedom are the number of added free coefficients; for
-            # ``phase_after_climate`` this is 2 because sin(theta) and
-            # cos(theta) are added together.
-            # Reference: https://www.geeksforgeeks.org/r-language/likelihood-ratio-test/
-            lr_stat = 2.0 * (full.log_likelihood - reduced.log_likelihood)
+            ll_gain = likelihood_gain(full.log_likelihood, reduced.log_likelihood)
             df = len(full.beta) - len(reduced.beta)
-
-            p_value = float(chi2.sf(max(lr_stat, 0.0), df))
+            lr_stat, p_value = likelihood_ratio_p_value(ll_gain, df)
             rows.append(
                 {
                     "dataset_id": dataset_id,

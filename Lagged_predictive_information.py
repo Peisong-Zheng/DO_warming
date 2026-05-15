@@ -9,9 +9,9 @@ This script asks two predictive-information questions on 0.2 kyr event bins:
 2. After controlling LR04 and CO2, does precession phase still provide
    additional lagged predictive information?
 
-We use Poisson hazard models rather than a fully non-parametric TE estimator
-because the event series is sparse. The reported quantity is a TE-like
-conditional log-likelihood gain:
+Because the event series is sparse, the scan uses nested Poisson event-rate
+models to estimate conditional predictive information. The reported quantity
+is the log-likelihood gain:
 
     I_like = logL(full model) - logL(reduced model)
 
@@ -35,9 +35,7 @@ The TE-like information is the gain in fitted log-likelihood:
 
     I_like = logL(full) - logL(reduced).
 
-It is reported in nats and in bits per bin/event. This should be read as a
-model-based predictive-information score, not as a fully non-parametric or
-strictly causal transfer-entropy estimate.
+It is reported in nats and in bits per bin/event.
 """
 
 from __future__ import annotations
@@ -53,9 +51,19 @@ from matplotlib.colors import to_rgb
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
-from scipy.special import gammaln
-from scipy.stats import chi2
 from paper_figure_export import save_paper_pdf
+from toolbox.model_stats import (
+    bits_from_loglik_gain,
+    information_criteria,
+    likelihood_gain,
+    likelihood_ratio_p_value,
+)
+from toolbox.poisson import (
+    binned_poisson_loglik,
+    design_matrix,
+    fitted_rate_and_mu,
+    negative_binned_poisson_loglik,
+)
 
 from Bin_hazard_phase_poisson import (
     ANALYSIS_END_KA,
@@ -210,39 +218,15 @@ def add_lagged_columns(
 
 
 def poisson_loglik(beta: np.ndarray, x: np.ndarray, y: np.ndarray, dt: np.ndarray) -> float:
-    """Poisson log-likelihood for the model-based TE calculations.
+    """Poisson log likelihood for the model-based information calculations."""
 
-    The likelihood is the same binned hazard likelihood used in the baseline
-    GLM scripts:
-
-        y_i ~ Poisson(mu_i)
-        mu_i = dt_i * exp(beta0 + x_i beta)
-
-    The log(dt_i) offset makes the model estimate a per-kyr rate while the
-    response remains an event count per bin.
-
-    ``beta`` is already the fitted parameter vector from maximum likelihood.
-    This function only evaluates the Poisson log likelihood at that parameter
-    vector; the full and reduced likelihoods are then compared downstream.
-    """
-
-    # eta is log(lambda_i), where lambda_i is the per-kyr hazard. Adding
-    # log(dt_i) converts it to the expected count in the 0.2 kyr bin:
-    # log(mu_i) = log(dt_i) + log(lambda_i).
-    eta = beta[0] + x @ beta[1:]
-    eta = np.clip(eta, -50.0, 20.0)
-    log_mu = np.log(dt) + eta
-    mu = np.exp(log_mu)
-    return float(np.sum(y * log_mu - mu - gammaln(y + 1.0)))
+    return binned_poisson_loglik(beta, x, y, dt)
 
 
 def negative_loglik(beta: np.ndarray, x: np.ndarray, y: np.ndarray, dt: np.ndarray) -> float:
     """Numerically safe optimizer objective."""
 
-    value = -poisson_loglik(beta, x, y, dt)
-    if not np.isfinite(value):
-        return 1e100
-    return value
+    return negative_binned_poisson_loglik(beta, x, y, dt)
 
 
 def fit_poisson(frame: pd.DataFrame, terms: tuple[str, ...]) -> dict:
@@ -284,7 +268,7 @@ def fit_poisson(frame: pd.DataFrame, terms: tuple[str, ...]) -> dict:
     # Each entry in ``terms`` is a fitted predictor column. In the single-driver
     # scan this means reduced_terms=(same-type history, sampling resolution) and
     # full_terms=reduced_terms + lagged_driver_terms.
-    x = data.loc[:, list(terms)].to_numpy(dtype=float) if terms else np.empty((len(data), 0))
+    x = design_matrix(data, terms)
     duration = float(dt.sum())
     beta0 = np.zeros(1 + len(terms), dtype=float)
     beta0[0] = np.log(max(y.sum() / duration, 1e-12))
@@ -314,11 +298,8 @@ def fit_poisson(frame: pd.DataFrame, terms: tuple[str, ...]) -> dict:
     log_likelihood = poisson_loglik(beta, x, y, dt)
     n_obs = len(data)
     k = len(beta)
-    aic = 2.0 * k - 2.0 * log_likelihood
-    aicc = aic + (2.0 * k * (k + 1.0)) / max(n_obs - k - 1.0, 1.0)
-    bic = np.log(n_obs) * k - 2.0 * log_likelihood
-    eta = np.clip(beta[0] + x @ beta[1:], -50.0, 20.0)
-    rate = np.exp(eta)
+    criteria = information_criteria(log_likelihood, k, n_obs)
+    rate, _ = fitted_rate_and_mu(beta, x, dt)
     return {
         "ok": True,
         "terms": terms,
@@ -328,9 +309,9 @@ def fit_poisson(frame: pd.DataFrame, terms: tuple[str, ...]) -> dict:
         "n_bins": int(n_obs),
         "n_events": int(y.sum()),
         "log_likelihood": log_likelihood,
-        "AIC": aic,
-        "AICc": aicc,
-        "BIC": bic,
+        "AIC": criteria["AIC"],
+        "AICc": criteria["AICc"],
+        "BIC": criteria["BIC"],
         "expected_events": float(np.sum(rate * dt)),
         "mean_rate_per_kyr": float(np.mean(rate)),
         "max_rate_per_kyr": float(np.max(rate)),
@@ -394,11 +375,10 @@ def compare_nested_models(
     df = len(full["beta"]) - len(reduced["beta"])
     # TE-like information gain in nats. The same quantity is converted to
     # bits/bin and bits/event below, and 2*ll_gain gives the LR statistic.
-    ll_gain = full["log_likelihood"] - reduced["log_likelihood"]
-    lr_stat = 2.0 * ll_gain
-    p_value = float(chi2.sf(max(lr_stat, 0.0), df))
-    bits_per_bin = ll_gain / np.log(2.0) / full["n_bins"]
-    bits_per_event = ll_gain / np.log(2.0) / max(full["n_events"], 1)
+    ll_gain = likelihood_gain(full["log_likelihood"], reduced["log_likelihood"])
+    lr_stat, p_value = likelihood_ratio_p_value(ll_gain, df)
+    bits_per_bin = bits_from_loglik_gain(ll_gain, full["n_bins"])
+    bits_per_event = bits_from_loglik_gain(ll_gain, full["n_events"])
     comparison = {
         "ok": True,
         "n_bins": full["n_bins"],

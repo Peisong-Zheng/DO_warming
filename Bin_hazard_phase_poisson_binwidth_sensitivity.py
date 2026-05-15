@@ -21,9 +21,9 @@ The likelihood is the same as in the core binned hazard scripts:
     log(lambda_i) = beta0 + beta X_i
 
 Only the bin grid changes; the 5 kyr history window and Cheng sampling-
-resolution control are recomputed on each candidate grid. The main paper-ready table is
-``bin_width_paper_summary.csv``; detailed model and test tables are also
-written for auditability.
+resolution control are recomputed on each candidate grid. The compact summary
+table is ``bin_width_paper_summary.csv``; detailed model and test tables are
+written alongside it.
 """
 
 from __future__ import annotations
@@ -307,7 +307,7 @@ def build_paper_summary_formatted(paper: pd.DataFrame) -> pd.DataFrame:
         ("lr04_after_baseline_p", "LR04 p"),
         ("co2_after_baseline_p", "CO2 p"),
         ("pre_phase_after_baseline_p", "pre phase p"),
-        ("phase_after_climate_p", "phase after adjusted climate p"),
+        ("phase_after_climate_p", "phase after climate-state model p"),
     ]:
         out[dst] = out[src].map(format_p_value)
     out["matches 0.2 kyr"] = np.where(out["qualitatively_matches_0p2"], "yes", "no")
@@ -324,7 +324,7 @@ def build_paper_summary_formatted(paper: pd.DataFrame) -> pd.DataFrame:
             "LR04 p",
             "CO2 p",
             "pre phase p",
-            "phase after adjusted climate p",
+            "phase after climate-state model p",
             "phase-after-climate Delta AICc",
             "preferred phase (deg)",
             "phase shift vs 0.2 kyr (deg)",
@@ -366,7 +366,7 @@ def plot_phase_stability(paper: pd.DataFrame, write_pdf: bool) -> None:
     axes[0, 0].set_title("Precession phase after adjusted LR04 + CO2", loc="left")
 
     axes[0, 1].axhline(0.0, color="#555555", lw=0.8, ls="--")
-    axes[0, 1].set_ylabel("Delta AICc full - adjusted climate")
+    axes[0, 1].set_ylabel("Delta AICc full - climate-state")
     axes[0, 1].set_title("AICc support for adding phase", loc="left")
 
     axes[1, 0].set_ylim(0, 360)

@@ -54,8 +54,8 @@ from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 import xarray as xr
-from scipy.stats import chi2
 from paper_figure_export import save_paper_pdf
+from toolbox.model_stats import nested_likelihood_metrics
 
 from Bin_hazard_phase_poisson import (
     ANALYSIS_END_KA,
@@ -399,9 +399,8 @@ def build_sensitivity_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame
 def fit_sensitivity_models(binned_inputs: pd.DataFrame) -> list:
     """Fit every sensitivity model for strong and weak event datasets.
 
-    The actual optimizer and Poisson likelihood are imported from the baseline
-    script. This function only loops over the expanded model specification
-    table, so it is deliberately a thin wrapper.
+    The optimizer and Poisson likelihood are imported from the core model
+    script. This function only loops over the expanded model specification.
     """
 
     fit_frame = predictive.model_frame(binned_inputs)
@@ -539,12 +538,16 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
         for comparison_id, family, reduced_id, full_id, label in comparisons:
             reduced = lookup[(dataset_id, reduced_id)]
             full = lookup[(dataset_id, full_id)]
-            # All comparisons are nested by construction. A positive logL gain
-            # means the full model predicts the binned event counts better; the
-            # chi-square df is the number of added free coefficients.
-            lr_stat = 2.0 * (full.log_likelihood - reduced.log_likelihood)
             df = len(full.beta) - len(reduced.beta)
-            p_value = float(chi2.sf(max(lr_stat, 0.0), df))
+            metrics = nested_likelihood_metrics(
+                loglik_full=full.log_likelihood,
+                loglik_reduced=reduced.log_likelihood,
+                df=df,
+                n_bins=n_bins,
+                n_events=n_events,
+                aicc_full=full.aicc,
+                aicc_reduced=reduced.aicc,
+            )
             rows.append(
                 {
                     "dataset_id": dataset_id,
@@ -554,21 +557,7 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
                     "comparison_label": label,
                     "reduced_model_id": reduced_id,
                     "full_model_id": full_id,
-                    "df": int(df),
-                    "n_bins": int(n_bins),
-                    "n_events": int(n_events),
-                    "loglik_reduced": reduced.log_likelihood,
-                    "loglik_full": full.log_likelihood,
-                    "ll_gain_nats": full.log_likelihood - reduced.log_likelihood,
-                    "info_bits_per_event": (full.log_likelihood - reduced.log_likelihood)
-                    / np.log(2.0)
-                    / max(n_events, 1),
-                    "info_bits_per_bin": (full.log_likelihood - reduced.log_likelihood)
-                    / np.log(2.0)
-                    / max(n_bins, 1),
-                    "LR_statistic": lr_stat,
-                    "LR_p_value": p_value,
-                    "delta_AICc_full_minus_reduced": full.aicc - reduced.aicc,
+                    **metrics,
                 }
             )
     return pd.DataFrame(rows)

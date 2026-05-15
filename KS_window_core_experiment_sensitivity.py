@@ -5,7 +5,7 @@ This script compares the complete 0.4-4 kyr KS transition catalogue against
 the 0.6-4 kyr catalogue for:
 
 1. Rayleigh tests for orbital phase preference.
-2. History- and resolution-adjusted predictive Poisson hazard models with
+2. Event-process-baseline predictive models with
    LR04, CO2, and precession phase controls.
 
 The implementation reuses the core definitions from the main analysis scripts
@@ -192,7 +192,7 @@ def hazard_events_for_window(catalogues: list[EventCatalogue]) -> list[hazard.Ev
 def fit_sensitivity_poisson_models(
     binned_inputs: pd.DataFrame,
 ) -> list[hazard.FittedPoissonModel]:
-    """Fit the adjusted predictive-hazard model set for one KS catalogue.
+    """Fit the predictive model set for one KS catalogue.
 
     The KS window changes which transition ages enter the event histogram. The
     model frame is otherwise identical to the main adjusted analysis: bins with
@@ -211,7 +211,7 @@ def build_sensitivity_likelihood_tests(
     models: list[hazard.FittedPoissonModel],
     fit_frame: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Use the main adjusted nested-model comparisons for the KS sensitivity."""
+    """Use the main predictive-model comparisons for the KS sensitivity."""
 
     return predictive.build_adjusted_likelihood_tests(
         models,
@@ -232,7 +232,7 @@ def add_window_columns(frame: pd.DataFrame, ks_window_id: str) -> pd.DataFrame:
 def run_poisson_for_all(
     catalogues_by_window: dict[str, list[EventCatalogue]],
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Run the adjusted predictive-hazard workflow for each KS window.
+    """Run the predictive-information workflow for each KS window.
 
     For each catalogue we rebuild the event histogram, append the Cheng
     sampling-resolution control and same-type history term, then reuse the
@@ -359,7 +359,7 @@ def build_consistency_summary(
             ].iloc[0]
             rows.append(
                 consistency_row(
-                    experiment="poisson_hazard",
+                    experiment="predictive_model",
                     metric_id=comparison_id,
                     event_type=event_type,
                     p_04=float(p04["LR_p_value"]),
@@ -381,7 +381,7 @@ def build_consistency_summary(
         ].iloc[0]
         rows.append(
             {
-                "experiment": "poisson_hazard",
+                "experiment": "predictive_model",
                 "metric_id": "full_model_preferred_phase_and_rate_ratio",
                 "event_type": event_type,
                 "ks_0p4_4kyr_p_value": np.nan,
@@ -452,11 +452,11 @@ def significance_label(value: float) -> str:
 def metric_display_name(metric_id: str) -> str:
     labels = {
         "precession_phase_uniformity": "Rayleigh: precession phase",
-        "climate_lr04_co2_after_baseline": "Poisson: LR04+CO2 after adjusted baseline",
-        "phase_after_adjusted_climate": "Poisson: phase after adjusted LR04+CO2",
-        "lr04_after_adjusted_co2_phase": "Poisson: LR04 after adjusted CO2+phase",
-        "co2_after_adjusted_lr04_phase": "Poisson: CO2 after adjusted LR04+phase",
-        "full_vs_baseline": "Poisson: full model vs adjusted baseline",
+        "climate_lr04_co2_after_baseline": "Predictive: climate-state vs EP baseline",
+        "phase_after_adjusted_climate": "Predictive: phase vs climate-state",
+        "lr04_after_adjusted_co2_phase": "Predictive: full model vs -LR04",
+        "co2_after_adjusted_lr04_phase": "Predictive: full model vs -CO2",
+        "full_vs_baseline": "Predictive: full model vs EP baseline",
     }
     return labels.get(metric_id, metric_id)
 
