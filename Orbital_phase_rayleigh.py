@@ -16,6 +16,7 @@ to inspect before interpreting the Rayleigh tests.
 from __future__ import annotations
 
 import argparse
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -36,8 +37,8 @@ OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
 STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv"
 WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv"
-PRE_TXT = PROJECT_ROOT / "data/raw/pre_800_inter100.txt"
-OBL_TXT = PROJECT_ROOT / "data/raw/obl_800_inter100.txt"
+PRE_TXT = PROJECT_ROOT / "data/raw/pre_1000_60_inter100.txt"
+OBL_TXT = PROJECT_ROOT / "data/raw/obl_1000_60_inter100.txt"
 
 ANALYSIS_START_KA = 0.0
 ANALYSIS_END_KA = 640.0
@@ -84,6 +85,11 @@ class OrbitalPhase:
     label: str
     series: pd.DataFrame
     extrema: pd.DataFrame
+
+
+# ---------------------------------------------------------------------------
+# Utilities and input loading
+# ---------------------------------------------------------------------------
 
 
 def ensure_dir(path: Path) -> None:
@@ -133,15 +139,19 @@ def load_orbital_series(path: Path, driver: str, label: str) -> pd.DataFrame:
         {
             "driver": driver,
             "driver_label": label,
-            "age_ka": pd.to_numeric(raw["age_raw_ka"], errors="coerce").abs(),
+            "age_ka": -pd.to_numeric(raw["age_raw_ka"], errors="coerce"),
             "value": pd.to_numeric(raw["value"], errors="coerce"),
             "source": str(path.relative_to(PROJECT_ROOT)),
         }
     )
     out = out.dropna(subset=["age_ka", "value"])
-    out = out.groupby(["driver", "driver_label", "age_ka", "source"], as_index=False)["value"].mean()
     out = out.sort_values("age_ka").reset_index(drop=True)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Orbital phase construction
+# ---------------------------------------------------------------------------
 
 
 def enforce_alternating_extrema(extrema: pd.DataFrame) -> pd.DataFrame:
@@ -155,7 +165,7 @@ def enforce_alternating_extrema(extrema: pd.DataFrame) -> pd.DataFrame:
             rows.append(row.copy())
             continue
         if row["extremum_type"] == "maximum":
-            if float(row["value"]) > float(prev["value"]):
+            if float(row["value"]) > float(prev["value"]): # enforce extremum alternation by ignoring the values that are smaller than the previous one
                 rows[-1] = row.copy()
         else:
             if float(row["value"]) < float(prev["value"]):
@@ -195,12 +205,19 @@ def interpolate_unwrapped_phase(
     ages_ka: np.ndarray,
     extrema_age_ka: np.ndarray,
     extrema_phase_unwrapped_rad: np.ndarray,
+    warn_on_extrapolation: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     ages = np.asarray(ages_ka, dtype=float)
     x = np.asarray(extrema_age_ka, dtype=float)
     y = np.asarray(extrema_phase_unwrapped_rad, dtype=float)
     phase = np.interp(ages, x, y)
-    extrapolated = (ages < x[0]) | (ages > x[-1])
+    extrapolated = (ages < x[0]) | (ages > x[-1]) # in case that the phase series cannot fully covers the age range
+
+    if warn_on_extrapolation and np.any(extrapolated):
+        warnings.warn(
+            "The phase extrema do not fully cover the requested ages; extrapolated phase values are used.",
+            stacklevel=2,
+        )
 
     if len(x) >= 2:
         left = ages < x[0]
@@ -215,20 +232,61 @@ def interpolate_unwrapped_phase(
     return phase, extrapolated
 
 
+def make_phase_columns(
+    phase_unwrapped_rad: np.ndarray,
+    phase_extrapolated: np.ndarray,
+) -> pd.DataFrame:
+    """Return the standard phase columns used throughout this script."""
+
+    phase_unwrapped_rad = np.asarray(phase_unwrapped_rad, dtype=float)
+    phase_rad = np.mod(phase_unwrapped_rad, 2.0 * np.pi)
+    return pd.DataFrame(
+        {
+            "phase_unwrapped_rad": phase_unwrapped_rad,
+            "phase_rad": phase_rad,
+            "phase_deg": np.degrees(phase_rad),
+            "phase_fraction": phase_rad / (2.0 * np.pi),
+            "phase_extrapolated": np.asarray(phase_extrapolated, dtype=bool),
+        }
+    )
+
+
+def evaluate_phase_at_ages(
+    ages_ka: np.ndarray,
+    extrema: pd.DataFrame,
+    warn_on_extrapolation: bool = False,
+) -> pd.DataFrame:
+    """Evaluate wrapped/unwrapped orbital phase at arbitrary ages.
+
+    This is the single high-level entry point for phase interpolation. It keeps
+    the phase columns identical for the orbital grid and for event ages.
+    """
+
+    ages = np.asarray(ages_ka, dtype=float)
+    phase_unwrapped, phase_extrapolated = interpolate_unwrapped_phase(
+        ages,
+        extrema["age_ka"].to_numpy(dtype=float),
+        extrema["anchor_phase_unwrapped_rad"].to_numpy(dtype=float),
+        warn_on_extrapolation=warn_on_extrapolation,
+    )
+    out = make_phase_columns(phase_unwrapped, phase_extrapolated)
+    out.insert(0, "age_ka", ages)
+    return out
+
+
 def build_phase_series(driver: str, settings: dict) -> OrbitalPhase:
     orbital = load_orbital_series(settings["path"], driver, settings["label"])
     extrema = detect_extrema(orbital)
     extrema = assign_anchor_phases(extrema)
-    phase_unwrapped, phase_extrapolated = interpolate_unwrapped_phase(
-        orbital["age_ka"].to_numpy(dtype=float),
-        extrema["age_ka"].to_numpy(dtype=float),
-        extrema["anchor_phase_unwrapped_rad"].to_numpy(dtype=float),
-    )
+    phase_table = evaluate_phase_at_ages(orbital["age_ka"].to_numpy(dtype=float), extrema)
     orbital = orbital.copy()
-    orbital["phase_unwrapped_rad"] = phase_unwrapped
-    orbital["phase_rad"] = np.mod(phase_unwrapped, 2.0 * np.pi)
-    orbital["phase_deg"] = np.degrees(orbital["phase_rad"])
-    orbital["phase_extrapolated"] = phase_extrapolated
+    for column in [
+        "phase_unwrapped_rad",
+        "phase_rad",
+        "phase_deg",
+        "phase_extrapolated",
+    ]:
+        orbital[column] = phase_table[column].to_numpy()
     return OrbitalPhase(driver=driver, label=settings["label"], series=orbital, extrema=extrema)
 
 
@@ -240,38 +298,65 @@ def sample_event_phases(events: pd.DataFrame, phase_products: dict[str, OrbitalP
     rows = []
     for phase_product in phase_products.values():
         series = phase_product.series
-        ext = phase_product.extrema
-        event_phase_unwrapped, event_extrapolated = interpolate_unwrapped_phase(
+        event_phase = evaluate_phase_at_ages(
             events["event_age_ka"].to_numpy(dtype=float),
-            ext["age_ka"].to_numpy(dtype=float),
-            ext["anchor_phase_unwrapped_rad"].to_numpy(dtype=float),
+            phase_product.extrema,
+            warn_on_extrapolation=True,
         )
-        event_phase = np.mod(event_phase_unwrapped, 2.0 * np.pi)
         value_at_event = np.interp(
             events["event_age_ka"].to_numpy(dtype=float),
             series["age_ka"].to_numpy(dtype=float),
             series["value"].to_numpy(dtype=float),
         )
-        for idx, (_, event) in enumerate(events.iterrows()):
-            rows.append(
-                {
-                    "driver": phase_product.driver,
-                    "driver_label": phase_product.label,
-                    "event_type": event["event_type"],
-                    "event_label": event["event_label"],
-                    "event_index": int(event["event_index"]),
-                    "event_age_ka": float(event["event_age_ka"]),
-                    "orbital_value_at_event": float(value_at_event[idx]),
-                    "phase_unwrapped_rad": float(event_phase_unwrapped[idx]),
-                    "phase_rad": float(event_phase[idx]),
-                    "phase_deg": float(np.degrees(event_phase[idx])),
-                    "phase_fraction": float(event_phase[idx] / (2.0 * np.pi)),
-                    "phase_extrapolated": bool(event_extrapolated[idx]),
-                    "signed_distance_to_min_rad": float(circular_distance_to_phase(event_phase[idx], 0.0)),
-                    "signed_distance_to_max_rad": float(circular_distance_to_phase(event_phase[idx], np.pi)),
-                    "source_event_order": event.get("order", np.nan),
-                }
-            )
+        driver_events = events.reset_index(drop=True).copy()
+        driver_events["driver"] = phase_product.driver
+        driver_events["driver_label"] = phase_product.label
+        driver_events["orbital_value_at_event"] = value_at_event
+        for column in [
+            "phase_unwrapped_rad",
+            "phase_rad",
+            "phase_deg",
+            "phase_fraction",
+            "phase_extrapolated",
+        ]:
+            driver_events[column] = event_phase[column].to_numpy()
+        driver_events["signed_distance_to_min_rad"] = circular_distance_to_phase(
+            driver_events["phase_rad"].to_numpy(dtype=float),
+            0.0,
+        )
+        driver_events["signed_distance_to_max_rad"] = circular_distance_to_phase(
+            driver_events["phase_rad"].to_numpy(dtype=float),
+            np.pi,
+        )
+        driver_events["source_event_order"] = driver_events.get("order", np.nan)
+        rows.append(
+            driver_events[
+                [
+                    "driver",
+                    "driver_label",
+                    "event_type",
+                    "event_label",
+                    "event_index",
+                    "event_age_ka",
+                    "orbital_value_at_event",
+                    "phase_unwrapped_rad",
+                    "phase_rad",
+                    "phase_deg",
+                    "phase_fraction",
+                    "phase_extrapolated",
+                    "signed_distance_to_min_rad",
+                    "signed_distance_to_max_rad",
+                    "source_event_order",
+                ]
+            ]
+        )
+    return pd.concat(rows, ignore_index=True)
+
+
+# ---------------------------------------------------------------------------
+# Rayleigh statistics
+# ---------------------------------------------------------------------------
+
     return pd.DataFrame(rows)
 
 
@@ -348,6 +433,7 @@ def rayleigh_test(phases_rad: np.ndarray) -> dict[str, float]:
             "rayleigh_p": np.nan,
         }
 
+    # see https://metricgate.com/docs/rayleigh-uniformity-test/
     c = float(np.sum(np.cos(theta)))
     s = float(np.sum(np.sin(theta)))
     rayleigh_R = float(np.hypot(c, s))
@@ -405,6 +491,83 @@ def build_rayleigh_results(event_phases: pd.DataFrame) -> pd.DataFrame:
             "rayleigh_p",
         ]
     ].sort_values(["driver", "event_type"]).reset_index(drop=True)
+
+
+def build_debug_summary(
+    phase_products: dict[str, OrbitalPhase],
+    events: pd.DataFrame,
+    event_phases: pd.DataFrame,
+) -> pd.DataFrame:
+    """Compact diagnostics for checking coverage and extrapolation."""
+
+    rows = []
+    event_age_min = float(events["event_age_ka"].min())
+    event_age_max = float(events["event_age_ka"].max())
+    for phase_product in phase_products.values():
+        series = phase_product.series
+        extrema = phase_product.extrema
+        driver_events = event_phases[event_phases["driver"].eq(phase_product.driver)]
+        rows.append(
+            {
+                "driver": phase_product.driver,
+                "source": str(series["source"].iloc[0]),
+                "series_min_ka": float(series["age_ka"].min()),
+                "series_max_ka": float(series["age_ka"].max()),
+                "extrema_min_ka": float(extrema["age_ka"].min()),
+                "extrema_max_ka": float(extrema["age_ka"].max()),
+                "n_extrema": int(len(extrema)),
+                "event_min_ka": event_age_min,
+                "event_max_ka": event_age_max,
+                "n_event_phases": int(len(driver_events)),
+                "n_extrapolated_event_phases": int(driver_events["phase_extrapolated"].sum()),
+                "n_extrapolated_grid_points": int(series["phase_extrapolated"].sum()),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def print_debug_summary(
+    phase_products: dict[str, OrbitalPhase],
+    events: pd.DataFrame,
+    event_phases: pd.DataFrame,
+    rayleigh: pd.DataFrame,
+) -> None:
+    """Print intermediate checks useful when changing orbital inputs."""
+
+    print("\nDebug: event catalogue summary")
+    print(
+        events.groupby("event_type", sort=False)
+        .agg(
+            n_events=("event_age_ka", "size"),
+            min_age_ka=("event_age_ka", "min"),
+            max_age_ka=("event_age_ka", "max"),
+        )
+        .reset_index()
+        .to_string(index=False)
+    )
+
+    print("\nDebug: phase coverage summary")
+    print(build_debug_summary(phase_products, events, event_phases).to_string(index=False))
+
+    print("\nDebug: Rayleigh summary")
+    print(
+        rayleigh[
+            [
+                "driver",
+                "event_type",
+                "n_phase_events_used",
+                "n_extrapolated_phase_events",
+                "mean_phase_deg",
+                "mean_resultant_length",
+                "rayleigh_p",
+            ]
+        ].to_string(index=False)
+    )
+
+
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
@@ -837,6 +1000,69 @@ def plot_phase_ecdf(event_phases: pd.DataFrame, write_pdf: bool) -> None:
     save_figure(fig, "fig04_phase_ecdf_uniform_check", write_pdf)
 
 
+def plot_debug_phase_coverage(
+    phase_products: dict[str, OrbitalPhase],
+    events: pd.DataFrame,
+    event_phases: pd.DataFrame,
+    write_pdf: bool,
+) -> None:
+    """Extra diagnostic plot for checking age coverage and extrapolation."""
+
+    fig, axes = plt.subplots(len(phase_products), 1, figsize=(11.5, 1.9 * len(phase_products)), sharex=True)
+    axes = np.atleast_1d(axes)
+    event_age_min = float(events["event_age_ka"].min())
+    event_age_max = float(events["event_age_ka"].max())
+
+    for ax, phase_product in zip(axes, phase_products.values()):
+        series = phase_product.series
+        extrema = phase_product.extrema
+        color = DRIVER_SETTINGS[phase_product.driver]["color"]
+
+        ax.hlines(2.0, series["age_ka"].min(), series["age_ka"].max(), color=color, lw=5, alpha=0.35, label="orbital series")
+        ax.hlines(1.0, extrema["age_ka"].min(), extrema["age_ka"].max(), color=color, lw=5, alpha=0.85, label="phase extrema anchors")
+        ax.hlines(0.0, event_age_min, event_age_max, color="#333333", lw=3, alpha=0.8, label="event age range")
+
+        phase_sub = event_phases[event_phases["driver"].eq(phase_product.driver)]
+        for offset, (event_type, group) in enumerate(phase_sub.groupby("event_type", sort=False)):
+            y = np.full(len(group), -0.35 - 0.18 * offset)
+            ax.scatter(
+                group["event_age_ka"],
+                y,
+                s=12,
+                color=EVENT_COLORS[event_type],
+                alpha=0.75,
+                label=group["event_label"].iloc[0],
+            )
+            extrapolated = group[group["phase_extrapolated"].astype(bool)]
+            if not extrapolated.empty:
+                ax.scatter(
+                    extrapolated["event_age_ka"],
+                    np.full(len(extrapolated), -0.35 - 0.18 * offset),
+                    s=46,
+                    facecolors="none",
+                    edgecolors="#d73027",
+                    linewidths=1.2,
+                    label="extrapolated event phase",
+                    zorder=5,
+                )
+
+        ax.set_yticks([2.0, 1.0, 0.0])
+        ax.set_yticklabels(["series", "extrema", "events"])
+        ax.set_ylim(-0.85, 2.45)
+        ax.set_title(f"{phase_product.label}: phase-age coverage check", loc="left")
+        ax.grid(True, axis="x", color="#e6e6e6", lw=0.7)
+        ax.legend(frameon=False, loc="upper right", ncol=3, fontsize=7.5)
+
+    axes[-1].set_xlabel("Age (ka BP)")
+    fig.subplots_adjust(hspace=0.35)
+    save_figure(fig, "debug_phase_coverage_check", write_pdf)
+
+
+# ---------------------------------------------------------------------------
+# Output and command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def write_outputs(
     phase_products: dict[str, OrbitalPhase],
     events: pd.DataFrame,
@@ -857,7 +1083,7 @@ def write_outputs(
     rayleigh.to_csv(OUT_DATA_DIR / "rayleigh_phase_preference_results.csv", index=False)
 
 
-def run_analysis(write_pdf: bool) -> pd.DataFrame:
+def run_analysis(write_pdf: bool, debug: bool = False, debug_plots: bool = False) -> pd.DataFrame:
     ensure_dir(OUT_DATA_DIR)
     ensure_dir(OUT_FIG_DIR)
     events = load_all_events()
@@ -873,6 +1099,10 @@ def run_analysis(write_pdf: bool) -> pd.DataFrame:
     plot_polar_rayleigh(event_phases, rayleigh, write_pdf)
     plot_split_polar_rayleigh(event_phases, rayleigh, write_pdf)
     plot_phase_ecdf(event_phases, write_pdf)
+    if debug_plots:
+        plot_debug_phase_coverage(phase_products, events, event_phases, write_pdf)
+    if debug:
+        print_debug_summary(phase_products, events, event_phases, rayleigh)
     return rayleigh
 
 
@@ -881,12 +1111,18 @@ def parse_args() -> argparse.Namespace:
         description="Rayleigh tests of Rousseau 2023 monsoon-start phases relative to precession and obliquity."
     )
     parser.add_argument("--no-pdf", action="store_true", help="Only write PNG figures.")
+    parser.add_argument("--debug", action="store_true", help="Print intermediate event, coverage, and Rayleigh diagnostics.")
+    parser.add_argument("--debug-plots", action="store_true", help="Write extra diagnostic figures for phase coverage checks.")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    rayleigh = run_analysis(write_pdf=not args.no_pdf)
+    rayleigh = run_analysis(
+        write_pdf=not args.no_pdf,
+        debug=args.debug or args.debug_plots,
+        debug_plots=args.debug_plots,
+    )
     print(
         rayleigh[
             [

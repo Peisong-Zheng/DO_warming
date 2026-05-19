@@ -1,6 +1,6 @@
 forcing_id,forcing_label,source,mean,min,max,range
 lr04,LR04 benthic d18O,data/raw/lr04.xlsx,4.153046875,3.1079999999999997,5.08,1.9720000000000004
 co2,CO2,data/raw/composite_co2.xlsx,227.8403503473071,180.57941971761974,298.5578972816154,117.97847756399565
-pre_phase_sin,sin(precession phase),data/raw/pre_800_inter100.txt,-0.0017051421036675851,-1.0,1.0,2.0
-pre_phase_cos,cos(precession phase),data/raw/pre_800_inter100.txt,-0.00946755266533579,-1.0,1.0,2.0
+pre_phase_sin,sin(precession phase),data/raw/pre_1000_60_inter100.txt,-0.001063531713306341,-1.0,1.0,2.0
+pre_phase_cos,cos(precession phase),data/raw/pre_1000_60_inter100.txt,-0.009442229950704446,-1.0,1.0,2.0
 cheng_log_resolution_scaled,log Cheng composite local age spacing,data/raw/Cheng_2016.xlsx,-2.0579643375542584,-5.101136695352957,0.266007809767938,5.367144505120895

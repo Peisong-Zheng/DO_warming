@@ -1,9 +1,9 @@
 dataset_id,dataset_label,comparison_id,reduced_model_id,full_model_id,df,loglik_reduced,loglik_full,LR_statistic,LR_p_value,delta_AICc_full_minus_reduced
 strong_monsoon_start,Strong monsoon starts,climate_vs_stationary,stationary,climate_lr04_co2,2,-432.62955814271913,-427.94062038059724,9.377875524243791,0.009196449786985226,-5.371616919248936
-strong_monsoon_start,Strong monsoon starts,pre_phase_vs_stationary,stationary,pre_phase,2,-432.62955814271913,-425.92616338657433,13.406789512289606,0.001226740341650594,-9.400530907294751
-strong_monsoon_start,Strong monsoon starts,phase_after_climate,climate_lr04_co2,climate_lr04_co2_pre_phase,2,-427.94062038059724,-420.3881735639055,15.104893633383426,0.0005248244056791511,-11.093617797825004
-strong_monsoon_start,Strong monsoon starts,full_vs_stationary,stationary,climate_lr04_co2_pre_phase,4,-432.62955814271913,-420.3881735639055,24.482769157627217,6.39098246292067e-05,-16.46523471707394
+strong_monsoon_start,Strong monsoon starts,pre_phase_vs_stationary,stationary,pre_phase,2,-432.62955814271913,-425.92567955191623,13.407757181605803,0.00122614694572115,-9.401498576610948
+strong_monsoon_start,Strong monsoon starts,phase_after_climate,climate_lr04_co2,climate_lr04_co2_pre_phase,2,-427.94062038059724,-420.38467209730715,15.111896566580185,0.0005229899640449343,-11.100620731021763
+strong_monsoon_start,Strong monsoon starts,full_vs_stationary,stationary,climate_lr04_co2_pre_phase,4,-432.62955814271913,-420.38467209730715,24.489772090823976,6.370327866402404e-05,-16.4722376502707
 weak_monsoon_start,Weak monsoon starts,climate_vs_stationary,stationary,climate_lr04_co2,2,-446.5735902799727,-436.5155645176957,20.116051524553995,4.284053764998884e-05,-16.10979291955914
-weak_monsoon_start,Weak monsoon starts,pre_phase_vs_stationary,stationary,pre_phase,2,-446.5735902799727,-441.04337661984033,11.060427320264694,0.003965141805855952,-7.054168715269839
-weak_monsoon_start,Weak monsoon starts,phase_after_climate,climate_lr04_co2,climate_lr04_co2_pre_phase,2,-436.5155645176957,-430.4970959076285,12.036937220134405,0.0024333932170133494,-8.025661384575983
-weak_monsoon_start,Weak monsoon starts,full_vs_stationary,stationary,climate_lr04_co2_pre_phase,4,-446.5735902799727,-430.4970959076285,32.1529887446884,1.7801882290909403e-06,-24.135454304135123
+weak_monsoon_start,Weak monsoon starts,pre_phase_vs_stationary,stationary,pre_phase,2,-446.5735902799727,-441.0172421042877,11.112696351370005,0.0038628571474063718,-7.10643774637515
+weak_monsoon_start,Weak monsoon starts,phase_after_climate,climate_lr04_co2,climate_lr04_co2_pre_phase,2,-436.5155645176957,-430.46908917367773,12.092950688035899,0.0023661873222343074,-8.081674852477477
+weak_monsoon_start,Weak monsoon starts,full_vs_stationary,stationary,climate_lr04_co2_pre_phase,4,-446.5735902799727,-430.46908917367773,32.209002212589894,1.7338616752738134e-06,-24.191467772036617

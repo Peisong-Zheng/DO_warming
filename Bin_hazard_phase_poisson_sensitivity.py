@@ -80,8 +80,8 @@ OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
 AT_CSV = PROJECT_ROOT / "data/raw/AT.csv"
-OBL_TXT = PROJECT_ROOT / "data/raw/obl_800_inter100.txt"
-ECC_TXT = PROJECT_ROOT / "data/raw/ecc_1000_inter100.txt"
+OBL_TXT = PROJECT_ROOT / "data/raw/obl_1000_60_inter100.txt"
+ECC_TXT = PROJECT_ROOT / "data/raw/ecc_1000_60_inter100.txt"
 INSOLATION_NC = PROJECT_ROOT / "data/raw/solstice_insolation_NH.nc"
 INSOLATION_LATITUDE_DEG_N = 65.0
 
@@ -310,7 +310,7 @@ def load_orbital_text(
     return scale_interpolated_forcing(
         forcing_id,
         forcing_label,
-        np.abs(raw["age_raw_ka"].to_numpy(dtype=float)),
+        -raw["age_raw_ka"].to_numpy(dtype=float),
         raw["value"].to_numpy(dtype=float),
         centers_ka,
         path,

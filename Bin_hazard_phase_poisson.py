@@ -70,7 +70,7 @@ STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_s
 WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv"
 LR04_XLSX = PROJECT_ROOT / "data/raw/lr04.xlsx"
 CO2_XLSX = PROJECT_ROOT / "data/raw/composite_co2.xlsx"
-PRE_TXT = PROJECT_ROOT / "data/raw/pre_800_inter100.txt"
+PRE_TXT = PROJECT_ROOT / "data/raw/pre_1000_60_inter100.txt"
 
 ANALYSIS_START_KA = 0.0
 ANALYSIS_END_KA = 640.0
@@ -269,7 +269,7 @@ def load_co2(centers_ka: np.ndarray) -> tuple[np.ndarray, dict]:
 
 def load_precession_series() -> pd.DataFrame:
     raw = pd.read_csv(PRE_TXT, sep=r"\s+", header=None, names=["age_raw_ka", "value"])
-    age, value = clean_series(np.abs(raw["age_raw_ka"].to_numpy()), raw["value"].to_numpy())
+    age, value = clean_series(-raw["age_raw_ka"].to_numpy(), raw["value"].to_numpy())
     return pd.DataFrame({"age_ka": age, "precession_index": value})
 
 
