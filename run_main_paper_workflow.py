@@ -30,6 +30,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 
 @dataclass(frozen=True)
 class WorkflowStep:
+    """One script in the lightweight paper-refresh workflow."""
+
     script: str
     description: str
 
@@ -56,6 +58,8 @@ EXPORT_STEP = WorkflowStep(
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the workflow runner."""
+
     parser = argparse.ArgumentParser(
         description=(
             "Regenerate the main-text analyses without running sensitivity "
@@ -87,6 +91,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def workflow_steps(skip_export: bool) -> list[WorkflowStep]:
+    """Return the ordered workflow, optionally omitting figure export."""
+
     steps = list(MAIN_ANALYSIS_STEPS)
     if not skip_export:
         steps.append(EXPORT_STEP)
@@ -94,6 +100,8 @@ def workflow_steps(skip_export: bool) -> list[WorkflowStep]:
 
 
 def run_step(step: WorkflowStep, log_file) -> int:
+    """Run one workflow step while teeing its output to the log file."""
+
     command = [sys.executable, step.script]
     print(f"\n==> {step.script}", flush=True)
     print(f"    {step.description}", flush=True)
@@ -124,6 +132,8 @@ def run_step(step: WorkflowStep, log_file) -> int:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     steps = workflow_steps(args.skip_export)
 

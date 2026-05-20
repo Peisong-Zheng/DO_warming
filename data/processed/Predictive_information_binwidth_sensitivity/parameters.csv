@@ -1,0 +1,2 @@
+bin_widths_ka,phase_match_tolerance_deg,history_window_ka,baseline_model_id,main_model_id,phase_test,phase_convention,note
+0.2 0.4 0.6 0.8 1,30.0,5.0,history_resolution_baseline,baseline_climate_lr04_co2_pre_phase,phase_after_climate_state,precession-index minima=0 rad; maxima=pi rad,"qualitatively_matches_0p2 requires phase p<0.05, Delta AICc<0, and preferred phase within tolerance of the 0.2 kyr result"

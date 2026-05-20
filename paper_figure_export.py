@@ -35,9 +35,9 @@ class PaperFigure:
 
 PAPER_FIGURES: tuple[PaperFigure, ...] = (
     PaperFigure(
-        stem="fig01_adjusted_inputs_and_fitted_hazards",
+        stem="fig01_predictive_inputs_and_fitted_rates",
         paper_name="Fig01.pdf",
-        source_relpath="figures/Predictive_information_model/fig01_adjusted_inputs_and_fitted_hazards.pdf",
+        source_relpath="figures/Predictive_information_model/fig01_predictive_inputs_and_fitted_rates.pdf",
         tex_file="main.tex",
         figure_label="fig:data_phase_framework",
     ),
@@ -49,9 +49,9 @@ PAPER_FIGURES: tuple[PaperFigure, ...] = (
         figure_label="fig:precession_rayleigh",
     ),
     PaperFigure(
-        stem="fig02_adjusted_model_comparison_delta_aicc",
+        stem="fig02_predictive_model_comparison_delta_aicc",
         paper_name="Fig03.pdf",
-        source_relpath="figures/Predictive_information_model/fig02_adjusted_model_comparison_delta_aicc.pdf",
+        source_relpath="figures/Predictive_information_model/fig02_predictive_model_comparison_delta_aicc.pdf",
         tex_file="main.tex",
         figure_label="fig:predictive_model_comparison",
     ),
@@ -86,21 +86,21 @@ PAPER_FIGURES: tuple[PaperFigure, ...] = (
     PaperFigure(
         stem="fig07_extended_baseline_predictor_correlation",
         paper_name="FigS04.pdf",
-        source_relpath="figures/Bin_hazard_phase_poisson_sensitivity/fig07_extended_baseline_predictor_correlation.pdf",
+        source_relpath="figures/Predictive_information_extra_forcing_sensitivity/fig07_extended_baseline_predictor_correlation.pdf",
         tex_file="SI.tex",
         figure_label="fig:extended_baseline_correlation",
     ),
     PaperFigure(
         stem="fig06_sensitivity_aicc_and_likelihood_tests",
         paper_name="FigS05.pdf",
-        source_relpath="figures/Bin_hazard_phase_poisson_sensitivity/fig06_sensitivity_aicc_and_likelihood_tests.pdf",
+        source_relpath="figures/Predictive_information_extra_forcing_sensitivity/fig06_sensitivity_aicc_and_likelihood_tests.pdf",
         tex_file="SI.tex",
         figure_label="fig:sensitivity_aicc_lrt",
     ),
     PaperFigure(
         stem="fig04_base_vs_extended_hazards",
         paper_name="FigS06.pdf",
-        source_relpath="figures/Bin_hazard_phase_poisson_sensitivity/fig04_base_vs_extended_hazards.pdf",
+        source_relpath="figures/Predictive_information_extra_forcing_sensitivity/fig04_base_vs_extended_hazards.pdf",
         tex_file="SI.tex",
         figure_label="fig:base_vs_extended_hazards",
     ),
@@ -133,12 +133,16 @@ PAPER_FIGURE_NAMES = {entry.paper_name for entry in PAPER_FIGURES}
 
 
 def paper_figures_dir(project_root: Path = PROJECT_ROOT) -> Path:
+    """Return the paper figure directory, creating it if needed."""
+
     out_dir = Path(project_root) / "monsoon_paper" / "figures"
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
 
 
 def paper_path_for_stem(project_root: Path, stem: str) -> Path | None:
+    """Resolve a source figure stem to its paper-facing PDF path."""
+
     entry = PAPER_FIGURE_BY_STEM.get(stem)
     if entry is None:
         return None
@@ -146,6 +150,8 @@ def paper_path_for_stem(project_root: Path, stem: str) -> Path | None:
 
 
 def save_paper_pdf(fig, project_root: Path, stem: str) -> Path | None:
+    """Save a Matplotlib figure to the mapped paper PDF path."""
+
     out_path = paper_path_for_stem(project_root, stem)
     if out_path is None:
         return None
@@ -154,6 +160,8 @@ def save_paper_pdf(fig, project_root: Path, stem: str) -> Path | None:
 
 
 def copy_pdf_to_paper(project_root: Path, source_pdf: Path, stem: str | None = None) -> Path | None:
+    """Copy an existing PDF into the mapped paper figure slot."""
+
     out_stem = stem if stem is not None else Path(source_pdf).stem
     out_path = paper_path_for_stem(project_root, out_stem)
     if out_path is None:
@@ -163,6 +171,8 @@ def copy_pdf_to_paper(project_root: Path, source_pdf: Path, stem: str | None = N
 
 
 def export_all(project_root: Path = PROJECT_ROOT, *, clean: bool = True) -> list[Path]:
+    """Refresh all mapped paper figure PDFs from their source files."""
+
     out_dir = paper_figures_dir(project_root)
     written: list[Path] = []
     for entry in PAPER_FIGURES:
@@ -180,6 +190,8 @@ def export_all(project_root: Path = PROJECT_ROOT, *, clean: bool = True) -> list
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     written = export_all(PROJECT_ROOT, clean=True)
     print("Exported paper figures:")
     for path in written:

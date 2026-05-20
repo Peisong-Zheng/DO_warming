@@ -38,20 +38,30 @@ from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
 from paper_figure_export import save_paper_pdf
+from toolbox.data_checks import require_unique_values
+import toolbox.event_inputs as event_inputs
+import toolbox.poisson as poisson
+from toolbox.project_config import (
+    ANALYSIS_START_KA,
+    BIN_WIDTH_KA,
+    CO2_XLSX,
+    LR04_XLSX,
+    PRE_TXT,
+    PROJECT_ROOT,
+)
 from toolbox.model_stats import nested_likelihood_metrics
 
-import Bin_hazard_phase_poisson as base
 import Orbital_phase_rayleigh as rayleigh
 import Predictive_information_model as predictive
 
 
 RUN_NAME = "Barker2011_do_predictive_information"
-OUT_DATA_DIR = base.PROJECT_ROOT / "data" / "processed" / RUN_NAME
-OUT_FIG_DIR = base.PROJECT_ROOT / "figures" / RUN_NAME
+OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
+OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
-BARKER_XLS = base.PROJECT_ROOT / "data/raw/Barker et al-2011-SOM.xls"
+BARKER_XLS = PROJECT_ROOT / "data/raw/Barker et al-2011-SOM.xls"
 JOUZEL_TXT = (
-    base.PROJECT_ROOT
+    PROJECT_ROOT
     / "data/raw/Jouzel-etal-2007-Science-Orbital and Millennial Antarctic Climate Variability over the Past 800,000 Years.txt"
 )
 
@@ -173,20 +183,31 @@ plt.rcParams.update(
 )
 
 
+# ---------------------------------------------------------------------------
+# General utilities
+# ---------------------------------------------------------------------------
+
+
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool = True) -> None:
+    """Save a figure to this run's directory and mapped paper PDF if needed."""
+
     ensure_dir(OUT_FIG_DIR)
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
-        save_paper_pdf(fig, base.PROJECT_ROOT, stem)
+        save_paper_pdf(fig, PROJECT_ROOT, stem)
     plt.close(fig)
 
 
 def format_p(value: float) -> str:
+    """Format p values for compact Barker figure annotations."""
+
     if not np.isfinite(value):
         return "NA"
     if value < 1e-4:
@@ -204,6 +225,11 @@ def short_variant_label(settings: dict) -> str:
     if "edc3_0_640" in settings["dataset_id"]:
         return "EDC3 0-640 kyr"
     return "SpeleoAge 0-400 kyr"
+
+
+# ---------------------------------------------------------------------------
+# Input preparation and model fitting
+# ---------------------------------------------------------------------------
 
 
 def load_barker_table_s3() -> pd.DataFrame:
@@ -234,7 +260,7 @@ def load_barker_speleo_age_mapping() -> pd.DataFrame:
     mapping["edc3_age_ka"] = pd.to_numeric(mapping["EDC3 Age (kyr)"], errors="coerce")
     mapping["speleo_age_ka"] = pd.to_numeric(mapping["SpeloAge (kyr)"], errors="coerce")
     mapping = mapping.dropna(subset=["edc3_age_ka", "speleo_age_ka"])
-    mapping = mapping.groupby("speleo_age_ka", as_index=False)["edc3_age_ka"].mean()
+    require_unique_values(mapping, "speleo_age_ka", context="Barker SpeleoAge-to-EDC3 mapping")
     return mapping.sort_values("speleo_age_ka").reset_index(drop=True)
 
 
@@ -294,7 +320,7 @@ def load_jouzel_edc_resolution_source() -> pd.DataFrame:
         }
     )
     frame = frame.dropna(subset=["edc3_age_ka"])
-    frame = frame.groupby("edc3_age_ka", as_index=False)[["deuterium", "temperature"]].mean()
+    require_unique_values(frame, "edc3_age_ka", context="Jouzel EDC3 resolution source")
     frame = frame.sort_values("edc3_age_ka").reset_index(drop=True)
     age = frame["edc3_age_ka"].to_numpy(dtype=float)
     previous_gap = np.r_[np.nan, np.diff(age)]
@@ -331,7 +357,7 @@ def add_edc_resolution_control(binned: pd.DataFrame, resolution_age_axis: str) -
     )
     spacing = np.clip(spacing, 1e-6, None)
     log_spacing = np.log(spacing)
-    scaled, mean, vmin, vmax, value_range = base.scale_to_zero_mean_range_one(log_spacing)
+    scaled, mean, vmin, vmax, value_range = event_inputs.scale_to_zero_mean_range_one(log_spacing)
 
     out = binned.copy()
     out["resolution_edc3_age_ka"] = edc3_centers
@@ -345,7 +371,7 @@ def add_edc_resolution_control(binned: pd.DataFrame, resolution_age_axis: str) -
                 "dataset_id": str(out["dataset_id"].iloc[0]),
                 "forcing_id": RESOLUTION_TERM,
                 "forcing_label": "log EDC local age spacing",
-                "source": str(JOUZEL_TXT.relative_to(base.PROJECT_ROOT)),
+                "source": str(JOUZEL_TXT.relative_to(PROJECT_ROOT)),
                 "resolution_age_axis": resolution_age_axis,
                 "mean": mean,
                 "min": vmin,
@@ -357,10 +383,12 @@ def add_edc_resolution_control(binned: pd.DataFrame, resolution_age_axis: str) -
     return out, meta
 
 
-def build_event_catalogues() -> tuple[pd.DataFrame, list[base.EventDataset]]:
+def build_event_catalogues() -> tuple[pd.DataFrame, list[event_inputs.EventDataset]]:
+    """Build Barker catalogue variants as event tables and EventDataset objects."""
+
     table = load_barker_table_s3()
     event_frames = []
-    datasets: list[base.EventDataset] = []
+    datasets: list[event_inputs.EventDataset] = []
     for settings in CATALOGUE_VARIANTS:
         age = pd.to_numeric(table[settings["age_column"]], errors="coerce")
         pick = pd.to_numeric(table[settings["pick_column"]], errors="coerce")
@@ -388,16 +416,16 @@ def build_event_catalogues() -> tuple[pd.DataFrame, list[base.EventDataset]]:
         frame["pick_column"] = settings["pick_column"]
         frame["analysis_start_ka"] = settings["analysis_start_ka"]
         frame["analysis_end_ka"] = settings["analysis_end_ka"]
-        frame["source"] = str(BARKER_XLS.relative_to(base.PROJECT_ROOT))
+        frame["source"] = str(BARKER_XLS.relative_to(PROJECT_ROOT))
         event_frames.append(frame)
 
         datasets.append(
-            base.EventDataset(
+            event_inputs.EventDataset(
                 dataset_id=settings["dataset_id"],
                 label=settings["label"],
                 color=settings["color"],
                 ages_ka=frame["event_age_ka"].to_numpy(dtype=float),
-                source=str(BARKER_XLS.relative_to(base.PROJECT_ROOT)),
+                source=str(BARKER_XLS.relative_to(PROJECT_ROOT)),
             )
         )
 
@@ -405,6 +433,8 @@ def build_event_catalogues() -> tuple[pd.DataFrame, list[base.EventDataset]]:
 
 
 def build_rayleigh_tables(events: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Sample Barker event phases and compute Rayleigh statistics."""
+
     phase_products = {
         driver: rayleigh.build_phase_series(driver, settings)
         for driver, settings in rayleigh.DRIVER_SETTINGS.items()
@@ -415,21 +445,22 @@ def build_rayleigh_tables(events: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
 
 
 def build_variant_binned_inputs(
-    dataset: base.EventDataset,
+    dataset: event_inputs.EventDataset,
     analysis_end_ka: float,
     resolution_age_axis: str,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Build base predictor bins and append history/resolution controls."""
 
-    old_start = base.ANALYSIS_START_KA
-    old_end = base.ANALYSIS_END_KA
-    try:
-        base.ANALYSIS_START_KA = 0.0
-        base.ANALYSIS_END_KA = float(analysis_end_ka)
-        binned, _, _ = base.build_binned_inputs([dataset])
-    finally:
-        base.ANALYSIS_START_KA = old_start
-        base.ANALYSIS_END_KA = old_end
+    binned, _, _ = event_inputs.build_binned_inputs(
+        [dataset],
+        analysis_start_ka=0.0,
+        analysis_end_ka=float(analysis_end_ka),
+        bin_width_ka=BIN_WIDTH_KA,
+        lr04_path=LR04_XLSX,
+        co2_path=CO2_XLSX,
+        precession_path=PRE_TXT,
+        project_root=PROJECT_ROOT,
+    )
 
     binned = binned[
         binned["bin_center_ka"].between(0.0, analysis_end_ka, inclusive="both")
@@ -439,20 +470,24 @@ def build_variant_binned_inputs(
     return binned, resolution_meta
 
 
-def fit_predictive_models(binned: pd.DataFrame) -> tuple[list[base.FittedPoissonModel], pd.DataFrame]:
+def fit_predictive_models(binned: pd.DataFrame) -> tuple[list[poisson.FittedPoissonModel], pd.DataFrame]:
+    """Fit all Barker predictive models on their complete-history support."""
+
     fit_frame = predictive.model_frame(binned)
-    models: list[base.FittedPoissonModel] = []
+    models: list[poisson.FittedPoissonModel] = []
     for _, group in fit_frame.groupby("dataset_id", sort=False):
         for model_id, terms, label in MODEL_SPECS:
-            models.append(base.fit_poisson_model(group, model_id, terms, label))
+            models.append(poisson.fit_poisson_model(group, model_id, terms, label))
     return models, fit_frame
 
 
 def build_likelihood_tests(
-    models: list[base.FittedPoissonModel],
+    models: list[poisson.FittedPoissonModel],
     fit_frame: pd.DataFrame,
 ) -> pd.DataFrame:
-    lookup = base.model_lookup(models)
+    """Compute nested LR/predictive-information tests for Barker variants."""
+
+    lookup = poisson.model_lookup(models)
     rows = []
     for dataset_id, group in fit_frame.groupby("dataset_id", sort=False):
         n_events = int(group["event_count"].sum())
@@ -487,8 +522,10 @@ def build_likelihood_tests(
 
 
 def build_predictive_tables(
-    datasets: list[base.EventDataset],
+    datasets: list[event_inputs.EventDataset],
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Fit Barker variants and collect binned inputs, summaries, and rates."""
+
     binned_frames = []
     summary_frames = []
     lrt_frames = []
@@ -506,9 +543,9 @@ def build_predictive_tables(
             resolution_lookup[dataset.dataset_id],
         )
         models, fit_frame = fit_predictive_models(binned)
-        summary = base.build_model_summary(models, fit_frame)
+        summary = poisson.build_model_summary(models, fit_frame)
         lrt = build_likelihood_tests(models, fit_frame)
-        fitted = base.build_fitted_rate_table(models, fit_frame)
+        fitted = poisson.build_fitted_rate_table(models, fit_frame)
 
         binned_frames.append(fit_frame)
         summary_frames.append(summary)
@@ -525,6 +562,11 @@ def build_predictive_tables(
     )
 
 
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+
 def draw_rayleigh_precession_panel(
     ax: plt.Axes,
     event_phases: pd.DataFrame,
@@ -533,6 +575,8 @@ def draw_rayleigh_precession_panel(
     panel_label: str,
     title_pad: float = 29.0,
 ) -> None:
+    """Draw one Barker precession Rayleigh polar panel."""
+
     event_type = settings["event_type"]
     phases = event_phases[
         event_phases["driver"].eq("pre")
@@ -616,6 +660,8 @@ def draw_rayleigh_precession_panel(
 
 
 def plot_rayleigh_precession(event_phases: pd.DataFrame, results: pd.DataFrame) -> None:
+    """Plot the Barker precession Rayleigh panels."""
+
     variants = [settings for settings in CATALOGUE_VARIANTS if settings["pick_column"] == "DO pick variable threshold"]
     fig, axes = plt.subplots(
         1,
@@ -636,6 +682,8 @@ def plot_predictive_summary(
     rayleigh_results: pd.DataFrame,
     lrt: pd.DataFrame,
 ) -> None:
+    """Plot Barker Rayleigh and predictive-information sensitivity summary."""
+
     wanted = [
         "climate_lr04_co2_after_baseline",
         "phase_after_baseline_climate",
@@ -939,6 +987,11 @@ def plot_inputs_and_rates(binned: pd.DataFrame, fitted: pd.DataFrame, lrt: pd.Da
     save_figure(fig, "fig03_barker_inputs_and_fitted_rates")
 
 
+# ---------------------------------------------------------------------------
+# Output and command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def write_outputs(
     events: pd.DataFrame,
     event_phases: pd.DataFrame,
@@ -949,6 +1002,8 @@ def write_outputs(
     fitted: pd.DataFrame,
     resolution_meta: pd.DataFrame,
 ) -> None:
+    """Write Barker event, model, and diagnostic tables."""
+
     ensure_dir(OUT_DATA_DIR)
     events.to_csv(OUT_DATA_DIR / "barker2011_event_catalogues_used.csv", index=False)
     event_phases.to_csv(OUT_DATA_DIR / "barker2011_event_orbital_phases.csv", index=False)
@@ -962,9 +1017,9 @@ def write_outputs(
         [
             {
                 "run_name": RUN_NAME,
-                "source": str(BARKER_XLS.relative_to(base.PROJECT_ROOT)),
-                "resolution_source": str(JOUZEL_TXT.relative_to(base.PROJECT_ROOT)),
-                "bin_width_ka": base.BIN_WIDTH_KA,
+                "source": str(BARKER_XLS.relative_to(PROJECT_ROOT)),
+                "resolution_source": str(JOUZEL_TXT.relative_to(PROJECT_ROOT)),
+                "bin_width_ka": BIN_WIDTH_KA,
                 "history_window_ka": MAIN_HISTORY_WINDOW_KA,
                 "note": "Baseline includes same-type history and EDC local age-spacing resolution.",
             }
@@ -973,6 +1028,8 @@ def write_outputs(
 
 
 def print_summary(rayleigh_results: pd.DataFrame, summary: pd.DataFrame, lrt: pd.DataFrame) -> None:
+    """Print Barker Rayleigh and predictive-information summaries."""
+
     print("\nBarker et al. (2011) Rayleigh results:")
     ray = rayleigh_results[rayleigh_results["driver"].eq("pre")].copy()
     print(
@@ -1023,11 +1080,13 @@ def print_summary(rayleigh_results: pd.DataFrame, summary: pd.DataFrame, lrt: pd
     ]
     print("\nFull-model precession-phase estimates:")
     print(full[cols].to_string(index=False))
-    print(f"\nWrote outputs to {OUT_DATA_DIR.relative_to(base.PROJECT_ROOT)}")
-    print(f"Wrote figures to {OUT_FIG_DIR.relative_to(base.PROJECT_ROOT)}")
+    print(f"\nWrote outputs to {OUT_DATA_DIR.relative_to(PROJECT_ROOT)}")
+    print(f"Wrote figures to {OUT_FIG_DIR.relative_to(PROJECT_ROOT)}")
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     events, datasets = build_event_catalogues()
     event_phases, rayleigh_results = build_rayleigh_tables(events)
     binned, model_summary, lrt, fitted, resolution_meta = build_predictive_tables(datasets)

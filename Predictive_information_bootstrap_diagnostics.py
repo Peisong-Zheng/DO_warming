@@ -1,6 +1,6 @@
 """
-Sparse-bin diagnostics and parametric-bootstrap LR tests for the adjusted
-predictive Poisson hazard models.
+Sparse-bin diagnostics and parametric-bootstrap LR tests for the predictive
+Poisson event-rate models.
 
 The main script fits the models used in the paper. This diagnostic script asks
 whether the two main likelihood-ratio tests still look significant when the
@@ -43,14 +43,15 @@ import pandas as pd
 from scipy.optimize import minimize
 from scipy.stats import chi2
 
-import Bin_hazard_phase_poisson as base
 import Predictive_information_model as predictive
 from toolbox.model_stats import information_criteria
+import toolbox.poisson as poisson
+from toolbox.project_config import BIN_WIDTH_KA, DATASET_SETTINGS, PROJECT_ROOT
 
 
 RUN_NAME = "Predictive_information_bootstrap_diagnostics"
-OUT_DATA_DIR = base.PROJECT_ROOT / "data" / "processed" / RUN_NAME
-OUT_FIG_DIR = base.PROJECT_ROOT / "figures" / RUN_NAME
+OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
+OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
 DEFAULT_N_BOOTSTRAP = 2000
 DEFAULT_SEED = 20260512
@@ -64,7 +65,7 @@ BOOTSTRAP_TESTS: tuple[tuple[str, str, str, str], ...] = (
         "LR04 + CO2 after history + resolution",
     ),
     (
-        "phase_after_adjusted_climate",
+        "phase_after_climate_state",
         "baseline_climate_lr04_co2",
         "baseline_climate_lr04_co2_pre_phase",
         "Precession phase after history + resolution + LR04 + CO2",
@@ -74,30 +75,45 @@ BOOTSTRAP_TESTS: tuple[tuple[str, str, str, str], ...] = (
 
 @dataclass(frozen=True)
 class BootstrapComparison:
+    """Nested model comparison used by the parametric bootstrap."""
+
     comparison_id: str
     reduced_model_id: str
     full_model_id: str
     label: str
 
 
+# ---------------------------------------------------------------------------
+# Model fitting, simulation, and bootstrap statistics
+# ---------------------------------------------------------------------------
+
+
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def model_spec(model_id: str) -> tuple[tuple[str, ...], str]:
+    """Return predictor terms and label for a predictive-model identifier."""
+
     for candidate_id, terms, label in predictive.MODEL_SPECS:
         if candidate_id == model_id:
             return terms, label
-    raise KeyError(f"Unknown adjusted model id: {model_id}")
+    raise KeyError(f"Unknown predictive model id: {model_id}")
 
 
 def comparison_specs() -> list[BootstrapComparison]:
+    """Return bootstrap comparisons as typed records."""
+
     return [BootstrapComparison(*values) for values in BOOTSTRAP_TESTS]
 
 
-def fit_model_by_id(frame: pd.DataFrame, model_id: str) -> base.FittedPoissonModel:
+def fit_model_by_id(frame: pd.DataFrame, model_id: str) -> poisson.FittedPoissonModel:
+    """Fit one predictive model by identifier on a supplied frame."""
+
     terms, label = model_spec(model_id)
-    return base.fit_poisson_model(frame, model_id, terms, label)
+    return poisson.fit_poisson_model(frame, model_id, terms, label)
 
 
 def fit_poisson_model_fast(
@@ -108,7 +124,7 @@ def fit_poisson_model_fast(
     *,
     initial_beta: np.ndarray | None = None,
     maxiter: int = DEFAULT_BOOTSTRAP_MAXITER,
-) -> base.FittedPoissonModel:
+) -> poisson.FittedPoissonModel:
     """Bootstrap-oriented version of the Poisson fitter.
 
     The paper-facing fit uses a generous optimizer budget. Bootstrap refits are
@@ -117,7 +133,7 @@ def fit_poisson_model_fast(
     structure as the main fitter.
     """
 
-    x = base.design_matrix(dataset_frame, terms)
+    x = poisson.design_matrix(dataset_frame, terms)
     y = dataset_frame["event_count"].to_numpy(dtype=float)
     dt = dataset_frame["dt_ka"].to_numpy(dtype=float)
     duration = float(dt.sum())
@@ -140,7 +156,7 @@ def fit_poisson_model_fast(
     else:
         bounds = [(-20.0, 5.0)] + [(-20.0, 20.0)] * len(terms)
         result = minimize(
-            base.negative_loglik,
+            poisson.negative_binned_poisson_loglik,
             beta0,
             args=(x, y, dt),
             method="L-BFGS-B",
@@ -154,11 +170,11 @@ def fit_poisson_model_fast(
     eta = np.clip(beta[0] + x @ beta[1:], -50.0, 20.0)
     rate = np.exp(eta)
     mu = rate * dt
-    log_likelihood = base.poisson_loglik(beta, x, y, dt)
+    log_likelihood = poisson.binned_poisson_loglik(beta, x, y, dt)
     k = len(beta)
     criteria = information_criteria(log_likelihood, k, n_obs)
 
-    return base.FittedPoissonModel(
+    return poisson.FittedPoissonModel(
         dataset_id=str(dataset_frame["dataset_id"].iloc[0]),
         dataset_label=str(dataset_frame["dataset_label"].iloc[0]),
         model_id=model_id,
@@ -180,10 +196,12 @@ def refit_comparison(
     frame: pd.DataFrame,
     comparison: BootstrapComparison,
     *,
-    initial_reduced: base.FittedPoissonModel | None = None,
-    initial_full: base.FittedPoissonModel | None = None,
+    initial_reduced: poisson.FittedPoissonModel | None = None,
+    initial_full: poisson.FittedPoissonModel | None = None,
     maxiter: int = DEFAULT_BOOTSTRAP_MAXITER,
-) -> tuple[base.FittedPoissonModel, base.FittedPoissonModel, float]:
+) -> tuple[poisson.FittedPoissonModel, poisson.FittedPoissonModel, float]:
+    """Refit the reduced/full pair and return their LR statistic."""
+
     reduced_terms, reduced_label = model_spec(comparison.reduced_model_id)
     full_terms, full_label = model_spec(comparison.full_model_id)
     reduced = fit_poisson_model_fast(
@@ -207,6 +225,8 @@ def refit_comparison(
 
 
 def poisson_deviance(y: np.ndarray, mu: np.ndarray) -> float:
+    """Return the Poisson deviance for observed and expected bin counts."""
+
     y = np.asarray(y, dtype=float)
     mu = np.clip(np.asarray(mu, dtype=float), 1e-15, None)
     positive = y > 0
@@ -218,7 +238,7 @@ def poisson_deviance(y: np.ndarray, mu: np.ndarray) -> float:
 
 def sparse_bin_diagnostics(
     fit_frame: pd.DataFrame,
-    models: list[base.FittedPoissonModel],
+    models: list[poisson.FittedPoissonModel],
 ) -> pd.DataFrame:
     """Compare observed sparsity with fitted Poisson expectations."""
 
@@ -272,7 +292,7 @@ def compute_history_from_counts(centers: np.ndarray, counts: np.ndarray, window_
 
 def simulate_dynamic_history_catalogue(
     full_support_frame: pd.DataFrame,
-    reduced_model: base.FittedPoissonModel,
+    reduced_model: poisson.FittedPoissonModel,
     rng: np.random.Generator,
     history_window_ka: float,
 ) -> pd.DataFrame:
@@ -313,7 +333,7 @@ def simulate_dynamic_history_catalogue(
 
 def simulate_conditional_catalogue(
     fit_frame: pd.DataFrame,
-    reduced_model: base.FittedPoissonModel,
+    reduced_model: poisson.FittedPoissonModel,
     rng: np.random.Generator,
 ) -> pd.DataFrame:
     """Simulate counts while keeping the fitted design matrix fixed."""
@@ -327,7 +347,7 @@ def bootstrap_lrt(
     *,
     binned_full_support: pd.DataFrame,
     fit_frame: pd.DataFrame,
-    observed_models: list[base.FittedPoissonModel],
+    observed_models: list[poisson.FittedPoissonModel],
     observed_lrt: pd.DataFrame,
     comparison: BootstrapComparison,
     n_bootstrap: int,
@@ -335,7 +355,9 @@ def bootstrap_lrt(
     mode: str,
     maxiter: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    lookup = base.model_lookup(observed_models)
+    """Run reduced-model bootstrap replicates for one nested comparison."""
+
+    lookup = poisson.model_lookup(observed_models)
     rows = []
     summary_rows = []
 
@@ -433,13 +455,20 @@ def bootstrap_lrt(
     return pd.DataFrame(rows), pd.DataFrame(summary_rows)
 
 
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+
 def plot_bootstrap_nulls(
     replicates: pd.DataFrame,
     summary: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Plot empirical bootstrap LR null distributions against chi-square curves."""
+
     comparisons = list(comparison_specs())
-    datasets = list(base.DATASET_SETTINGS)
+    datasets = list(DATASET_SETTINGS)
     modes = list(replicates["bootstrap_mode"].drop_duplicates())
     for mode in modes:
         fig, axes = plt.subplots(2, 2, figsize=(10.5, 7.4), sharex=False, sharey=False)
@@ -474,7 +503,7 @@ def plot_bootstrap_nulls(
                     label="observed LR",
                 )
                 ax.set_title(
-                    f"{base.DATASET_SETTINGS[dataset_id]['label']}\n{comparison.label}",
+                    f"{DATASET_SETTINGS[dataset_id]['label']}\n{comparison.label}",
                     loc="left",
                     fontsize=9,
                 )
@@ -509,6 +538,11 @@ def plot_bootstrap_nulls(
         plt.close(fig)
 
 
+# ---------------------------------------------------------------------------
+# Command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def run_analysis(
     *,
     n_bootstrap: int,
@@ -517,14 +551,16 @@ def run_analysis(
     maxiter: int,
     write_pdf: bool,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Run sparse-bin diagnostics and bootstrap LR calibration."""
+
     ensure_dir(OUT_DATA_DIR)
     ensure_dir(OUT_FIG_DIR)
     rng = np.random.default_rng(seed)
 
-    binned, _, _, _ = predictive.build_adjusted_inputs(predictive.MAIN_HISTORY_WINDOW_KA)
+    binned, _, _, _ = predictive.build_predictive_inputs(predictive.MAIN_HISTORY_WINDOW_KA)
     fit_frame = predictive.model_frame(binned)
-    observed_models = predictive.fit_adjusted_models(binned)
-    observed_lrt = predictive.build_adjusted_likelihood_tests(
+    observed_models = predictive.fit_predictive_models(binned)
+    observed_lrt = predictive.build_predictive_likelihood_tests(
         observed_models,
         fit_frame,
         predictive.MAIN_HISTORY_WINDOW_KA,
@@ -567,7 +603,7 @@ def run_analysis(
                 "seed": int(seed),
                 "bootstrap_mode": mode,
                 "bootstrap_maxiter": int(maxiter),
-                "bin_width_ka": base.BIN_WIDTH_KA,
+                "bin_width_ka": BIN_WIDTH_KA,
                 "history_window_ka": predictive.MAIN_HISTORY_WINDOW_KA,
                 "bootstrap_null": "simulate event counts from fitted reduced model",
                 "dynamic_history": "same-type history is recomputed from simulated event counts",
@@ -581,6 +617,8 @@ def run_analysis(
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the bootstrap diagnostics."""
+
     parser = argparse.ArgumentParser(
         description="Run sparse-bin diagnostics and reduced-model parametric-bootstrap LR tests."
     )
@@ -613,6 +651,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     diagnostics, summary, _ = run_analysis(
         n_bootstrap=args.n_bootstrap,
@@ -662,8 +702,8 @@ def main() -> None:
             ]
         ].to_string(index=False)
     )
-    print(f"\nWrote tables to: {OUT_DATA_DIR.relative_to(base.PROJECT_ROOT)}")
-    print(f"Wrote figures to: {OUT_FIG_DIR.relative_to(base.PROJECT_ROOT)}")
+    print(f"\nWrote tables to: {OUT_DATA_DIR.relative_to(PROJECT_ROOT)}")
+    print(f"Wrote figures to: {OUT_FIG_DIR.relative_to(PROJECT_ROOT)}")
 
 
 if __name__ == "__main__":

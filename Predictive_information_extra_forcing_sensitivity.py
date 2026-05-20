@@ -1,6 +1,6 @@
 """
-Sensitivity experiment for the Rousseau et al. (2023) 0.2 kyr bin Poisson
-hazard models.
+Extra-forcing sensitivity experiment for the Rousseau et al. (2023)
+predictive-information event-rate models.
 
 The main predictive-information script fits a compact binned Poisson model:
 
@@ -9,15 +9,15 @@ The main predictive-information script fits a compact binned Poisson model:
                     + LR04_i + CO2_i + sin(pre_phase_i) + cos(pre_phase_i)
 
 This script keeps the same binning, likelihood, and precession-phase
-convention, then asks whether additional forcings contribute beyond that
-baseline:
+convention, then asks whether additional forcings contribute beyond the full
+predictive model:
 
     AT, obliquity, eccentricity, and 65N summer-solstice insolation.
 
 The main sensitivity checks are nested likelihood-ratio tests:
 
-1. Add each extra forcing to the baseline model one at a time.
-2. Add all extra forcings jointly to the baseline model.
+1. Add each extra forcing to the full predictive model one at a time.
+2. Add all extra forcings jointly to the full predictive model.
 3. In the full model, drop each extra forcing one at a time to estimate its
    unique contribution after the other extra forcings are also present.
 
@@ -27,9 +27,9 @@ variables are already in the model.
 
 Method sketch
 -------------
-This script does not introduce a new likelihood. It imports the baseline
-Poisson hazard fitter and changes only the candidate model list. The baseline
-model is treated as the scientific reference model:
+This script does not introduce a new likelihood. It reuses the shared Poisson
+event-rate fitter and changes only the candidate model list. The full
+predictive model is treated as the scientific reference model:
 
     same-type history + Cheng composite sampling resolution
     + LR04 + CO2 + sin(pre_phase) + cos(pre_phase).
@@ -57,25 +57,19 @@ import xarray as xr
 from paper_figure_export import save_paper_pdf
 from toolbox.model_stats import nested_likelihood_metrics
 
-from Bin_hazard_phase_poisson import (
+import toolbox.event_inputs as event_inputs
+import toolbox.poisson as poisson
+from toolbox.project_config import (
     ANALYSIS_END_KA,
     ANALYSIS_START_KA,
     BIN_WIDTH_KA,
     DATASET_SETTINGS,
     PROJECT_ROOT,
-    build_binned_inputs,
-    build_coefficient_table,
-    build_fitted_rate_table,
-    build_model_summary,
-    clean_series,
-    fit_poisson_model,
-    load_all_events,
-    scale_to_zero_mean_range_one,
 )
 import Predictive_information_model as predictive
 
 
-RUN_NAME = "Bin_hazard_phase_poisson_sensitivity"
+RUN_NAME = "Predictive_information_extra_forcing_sensitivity"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
@@ -102,12 +96,12 @@ MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
         "Event-process baseline",
     ),
     (
-        "adjusted_climate",
+        "climate_state",
         predictive.BASELINE_TERMS + predictive.CLIMATE_TERMS,
         "Climate-state model",
     ),
     (
-        "base_adjusted_climate_phase",
+        "extended_baseline",
         BASE_TERMS,
         "Extended baseline\n(full predictive model)",
     ),
@@ -145,8 +139,8 @@ MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
 MODEL_COLORS = {
     "stationary": "#777777",
     "history_resolution_baseline": "#4d4d4d",
-    "adjusted_climate": "#1865C3",
-    "base_adjusted_climate_phase": "#C51B7D",
+    "climate_state": "#1865C3",
+    "extended_baseline": "#C51B7D",
     "base_plus_AT": "#8dd3c7",
     "base_plus_obl": "#80b1d3",
     "base_plus_ecc": "#fdb462",
@@ -185,8 +179,8 @@ LR_TEST_SHORT_LABELS = {
 MODEL_PLOT_LABELS = {
     "stationary": "Stationary",
     "history_resolution_baseline": "EP baseline",
-    "adjusted_climate": "Climate-state model",
-    "base_adjusted_climate_phase": "Extended baseline",
+    "climate_state": "Climate-state model",
+    "extended_baseline": "Extended baseline",
     "base_plus_AT": "+ Antarctic T",
     "base_plus_obl": "+ obliquity",
     "base_plus_ecc": "+ eccentricity",
@@ -242,17 +236,31 @@ plt.rcParams.update(
 )
 
 
+# ---------------------------------------------------------------------------
+# General utilities
+# ---------------------------------------------------------------------------
+
+
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
+    """Save a sensitivity figure and optional paper-facing PDF."""
+
     ensure_dir(OUT_FIG_DIR)
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
         save_paper_pdf(fig, PROJECT_ROOT, stem)
     plt.close(fig)
+
+
+# ---------------------------------------------------------------------------
+# Input preparation and model fitting
+# ---------------------------------------------------------------------------
 
 
 def scale_interpolated_forcing(
@@ -273,9 +281,9 @@ def scale_interpolated_forcing(
     qualitative way.
     """
 
-    age, cleaned = clean_series(age_ka, value)
+    age, cleaned = event_inputs.clean_series(age_ka, value)
     interpolated = np.interp(centers_ka, age, cleaned)
-    scaled, mean, vmin, vmax, value_range = scale_to_zero_mean_range_one(interpolated)
+    scaled, mean, vmin, vmax, value_range = event_inputs.scale_to_zero_mean_range_one(interpolated)
     meta = {
         "forcing_id": forcing_id,
         "forcing_label": forcing_label,
@@ -289,6 +297,8 @@ def scale_interpolated_forcing(
 
 
 def load_at(centers_ka: np.ndarray) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Load Antarctic temperature and interpolate it to bin centers."""
+
     raw = pd.read_csv(AT_CSV)
     return scale_interpolated_forcing(
         "AT",
@@ -306,6 +316,8 @@ def load_orbital_text(
     path: Path,
     centers_ka: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Load an orbital text file and interpolate/range-scale it."""
+
     raw = pd.read_csv(path, sep=r"\s+", header=None, names=["age_raw_ka", "value"])
     return scale_interpolated_forcing(
         forcing_id,
@@ -318,6 +330,8 @@ def load_orbital_text(
 
 
 def load_insolation_65n(centers_ka: np.ndarray) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Load 65N summer-solstice insolation from the NetCDF grid."""
+
     ds = xr.open_dataset(INSOLATION_NC)
     try:
         latitudes = np.asarray(ds["latitude_degN"].to_numpy(), dtype=float)
@@ -382,7 +396,7 @@ def build_sensitivity_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame
     solstice-insolation predictors.
     """
 
-    binned_inputs, base_scale_summary, phase_extrema, _ = predictive.build_adjusted_inputs(
+    binned_inputs, base_scale_summary, phase_extrema, _ = predictive.build_predictive_inputs(
         predictive.MAIN_HISTORY_WINDOW_KA
     )
     first_dataset = next(iter(DATASET_SETTINGS))
@@ -407,12 +421,8 @@ def fit_sensitivity_models(binned_inputs: pd.DataFrame) -> list:
     models = []
     for _, group in fit_frame.groupby("dataset_id", sort=False):
         for model_id, terms, label in MODEL_SPECS:
-            models.append(fit_poisson_model(group, model_id, terms, label))
+            models.append(poisson.fit_poisson_model(group, model_id, terms, label))
     return models
-
-
-def model_lookup(models: list) -> dict[tuple[str, str], object]:
-    return {(model.dataset_id, model.model_id): model for model in models}
 
 
 def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) -> pd.DataFrame:
@@ -444,54 +454,54 @@ def build_sensitivity_likelihood_tests(models: list, fit_frame: pd.DataFrame) ->
         df = number of added coefficients.
     """
 
-    lookup = model_lookup(models)
+    lookup = poisson.model_lookup(models)
     comparisons = [
         (
-            "base_vs_adjusted_baseline",
+            "full_vs_ep_baseline",
             "main_context",
             "history_resolution_baseline",
-            "base_adjusted_climate_phase",
+            "extended_baseline",
             "Full predictive model vs event-process baseline",
         ),
         (
-            "phase_after_adjusted_climate",
+            "phase_after_climate_state",
             "main_context",
-            "adjusted_climate",
-            "base_adjusted_climate_phase",
+            "climate_state",
+            "extended_baseline",
             "Precession phase after climate-state model",
         ),
         (
             "AT_after_base",
             "add_to_base",
-            "base_adjusted_climate_phase",
+            "extended_baseline",
             "base_plus_AT",
             "Add Antarctic T to extended baseline",
         ),
         (
             "obl_after_base",
             "add_to_base",
-            "base_adjusted_climate_phase",
+            "extended_baseline",
             "base_plus_obl",
             "Add obliquity to extended baseline",
         ),
         (
             "ecc_after_base",
             "add_to_base",
-            "base_adjusted_climate_phase",
+            "extended_baseline",
             "base_plus_ecc",
             "Add eccentricity to extended baseline",
         ),
         (
             "insol65N_after_base",
             "add_to_base",
-            "base_adjusted_climate_phase",
+            "extended_baseline",
             "base_plus_insol65N",
             "Add 65$^{\\circ}$N insolation to extended baseline",
         ),
         (
             "all_extras_after_base",
             "joint_add_to_base",
-            "base_adjusted_climate_phase",
+            "extended_baseline",
             "extended_all",
             "Add all extra forcings to extended baseline",
         ),
@@ -581,11 +591,18 @@ def build_predictor_correlation_table(binned_inputs: pd.DataFrame) -> pd.DataFra
     return out
 
 
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+
 def draw_model_delta_aicc(ax: plt.Axes, summary: pd.DataFrame, dataset_id: str) -> None:
+    """Draw one Delta AICc panel relative to the extended baseline."""
+
     model_order = [model_id for model_id, _, _ in MODEL_SPECS]
     sub = summary[summary["dataset_id"].eq(dataset_id)].set_index("model_id").reindex(model_order)
     model_labels = [MODEL_PLOT_LABELS.get(model_id, label) for model_id, label in zip(sub.index, sub["model_label"])]
-    base_aicc = float(sub.loc["base_adjusted_climate_phase", "AICc"])
+    base_aicc = float(sub.loc["extended_baseline", "AICc"])
     delta_aicc_from_base = sub["AICc"] - base_aicc
     colors = [MODEL_COLORS.get(model_id, "#999999") for model_id in sub.index]
     y = np.arange(len(sub)) * 1.25
@@ -603,6 +620,8 @@ def draw_model_delta_aicc(ax: plt.Axes, summary: pd.DataFrame, dataset_id: str) 
 
 
 def ordered_likelihood_tests(likelihood_tests: pd.DataFrame, dataset_id: str) -> pd.DataFrame:
+    """Return likelihood tests in the order used by sensitivity figures."""
+
     order = {comparison_id: idx for idx, comparison_id in enumerate(LR_TEST_ORDER)}
     sub = likelihood_tests[
         likelihood_tests["dataset_id"].eq(dataset_id)
@@ -629,6 +648,8 @@ def ordered_likelihood_tests(likelihood_tests: pd.DataFrame, dataset_id: str) ->
 
 
 def likelihood_test_axis_limit(likelihood_tests: pd.DataFrame) -> float:
+    """Choose an x-axis limit for -log10 p-value likelihood-test panels."""
+
     sub = likelihood_tests[likelihood_tests["comparison_id"].isin(LR_TEST_ORDER)].copy()
     if sub.empty:
         return -np.log10(0.05) + 1.0
@@ -644,6 +665,8 @@ def draw_likelihood_tests_merged(
     show_title: bool = True,
     annotate: bool = True,
 ) -> None:
+    """Draw one merged likelihood-test bar panel."""
+
     sub = ordered_likelihood_tests(likelihood_tests, dataset_id)
     threshold = -np.log10(0.05)
     colors = ["#3182bd" if p < 0.05 else "#bdbdbd" for p in sub["LR_p_value"]]
@@ -672,6 +695,8 @@ def draw_likelihood_tests_merged(
 
 
 def plot_model_delta_aicc(summary: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot sensitivity-model Delta AICc for both event catalogues."""
+
     fig, axes = plt.subplots(1, 2, figsize=(17.2, 6.4))
     for ax, dataset_id in zip(axes, DATASET_SETTINGS):
         draw_model_delta_aicc(ax, summary, dataset_id)
@@ -680,6 +705,8 @@ def plot_model_delta_aicc(summary: pd.DataFrame, write_pdf: bool) -> None:
 
 
 def plot_likelihood_tests(likelihood_tests: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot sensitivity likelihood tests as standalone panels."""
+
     fig, axes = plt.subplots(1, 2, figsize=(15.2, 6.2), sharex=True)
     xlim = 1.6
     for ax, dataset_id in zip(axes, DATASET_SETTINGS):
@@ -691,6 +718,8 @@ def plot_likelihood_tests(likelihood_tests: pd.DataFrame, write_pdf: bool) -> No
 def plot_aicc_and_likelihood_tests_combined(
     summary: pd.DataFrame, likelihood_tests: pd.DataFrame, write_pdf: bool
 ) -> None:
+    """Plot AICc and likelihood-test results in the combined SI figure."""
+
     fig, axes = plt.subplots(
         2,
         2,
@@ -728,6 +757,8 @@ def plot_aicc_and_likelihood_tests_combined(
 
 
 def plot_extended_coefficients(coefficients: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot coefficients for the extra forcings in the full sensitivity model."""
+
     terms = list(EXTRA_TERMS)
     labels = [EXTRA_TERM_LABELS[term] for term in terms]
     datasets = list(DATASET_SETTINGS)
@@ -768,6 +799,8 @@ def plot_base_vs_extended_rates(
     likelihood_tests: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Compare fitted rates from the extended baseline and all-extra model."""
+
     fig, axes = plt.subplots(2, 1, figsize=(9.2, 5.6), sharex=True)
     for ax_idx, (ax, dataset_id) in enumerate(zip(axes, DATASET_SETTINGS)):
         settings = DATASET_SETTINGS[dataset_id]
@@ -785,7 +818,7 @@ def plot_base_vs_extended_rates(
             zorder=1,
         )
         for model_id, color, label in [
-            ("base_adjusted_climate_phase", "#C51B7D", "extended baseline"),
+            ("extended_baseline", "#C51B7D", "extended baseline"),
             ("extended_all", "#202020", "extended baseline + extras"),
         ]:
             rates = fitted_rates[
@@ -867,6 +900,8 @@ def plot_base_vs_extended_rates(
 
 
 def plot_predictor_correlation(correlation_table: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot the full predictor correlation matrix on the analysis grid."""
+
     corr = correlation_table.pivot(index="term_1", columns="term_2", values="correlation")
     corr = corr.loc[list(PREDICTOR_TERMS), list(PREDICTOR_TERMS)]
     fig, ax = plt.subplots(figsize=(7.4, 6.2))
@@ -933,6 +968,8 @@ def write_outputs(
     fitted_rates: pd.DataFrame,
     predictor_correlation: pd.DataFrame,
 ) -> None:
+    """Write sensitivity input, model, test, and diagnostic tables."""
+
     ensure_dir(OUT_DATA_DIR)
     binned_inputs.to_csv(OUT_DATA_DIR / "sensitivity_binned_inputs_0p2kyr.csv", index=False)
     scale_summary.to_csv(OUT_DATA_DIR / "sensitivity_forcing_scale_summary.csv", index=False)
@@ -960,6 +997,11 @@ def write_outputs(
     params.to_csv(OUT_DATA_DIR / "parameters.csv", index=False)
 
 
+# ---------------------------------------------------------------------------
+# Command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Run the complete sensitivity experiment.
 
@@ -974,10 +1016,10 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
     binned_inputs, scale_summary, phase_extrema = build_sensitivity_inputs()
     fit_frame = predictive.model_frame(binned_inputs)
     models = fit_sensitivity_models(binned_inputs)
-    summary = build_model_summary(models, fit_frame)
-    coefficients = build_coefficient_table(models)
+    summary = poisson.build_model_summary(models, fit_frame)
+    coefficients = poisson.build_coefficient_table(models)
     likelihood_tests = build_sensitivity_likelihood_tests(models, fit_frame)
-    fitted_rates = build_fitted_rate_table(models, fit_frame)
+    fitted_rates = poisson.build_fitted_rate_table(models, fit_frame)
     predictor_correlation = build_predictor_correlation_table(fit_frame)
 
     write_outputs(
@@ -1002,6 +1044,8 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the extra-forcing sensitivity script."""
+
     parser = argparse.ArgumentParser(
         description="Sensitivity GLM for extra forcings in Rousseau 2023 binned monsoon-start hazards."
     )
@@ -1010,6 +1054,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     summary, likelihood_tests = run_analysis(write_pdf=not args.no_pdf)
     best = (

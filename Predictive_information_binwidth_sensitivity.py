@@ -1,17 +1,17 @@
 """
-Bin-width sensitivity for the Rousseau et al. (2023) binned Poisson hazard
-phase model.
+Bin-width sensitivity for the Rousseau et al. (2023) predictive-information
+event-rate model.
 
-The baseline script uses 0.2 kyr bins. That choice is a compromise: bins should
-be short enough that the event hazard is roughly constant within each bin, but
-not so short that almost every bin is empty. This script repeats the core GLM
-analysis for a range of bin widths and checks whether the main qualitative
-conclusions remain stable:
+The main predictive-information script uses 0.2 kyr bins. That choice is a
+compromise: bins should be short enough that the event hazard is roughly
+constant within each bin, but not so short that almost every bin is empty. This
+script repeats the core event-rate comparisons for a range of bin widths and
+checks whether the main qualitative conclusions remain stable:
 
 1. whether LR04, CO2, and precession phase improve event-hazard models after
    controlling same-type event history and Cheng composite sampling resolution;
-2. whether precession phase still adds information after the adjusted
-   LR04 + CO2 model;
+2. whether precession phase still adds information after the climate-state
+   model;
 3. whether the preferred precession phase is close to the 0.2 kyr result;
 4. how sparse the event counts are at each bin width.
 
@@ -38,13 +38,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import Bin_hazard_phase_poisson as base
+import toolbox.poisson as poisson
+from toolbox.project_config import DATASET_SETTINGS, PROJECT_ROOT
 import Predictive_information_model as predictive
 
 
-RUN_NAME = "Bin_hazard_phase_poisson_binwidth_sensitivity"
-OUT_DATA_DIR = base.PROJECT_ROOT / "data" / "processed" / RUN_NAME
-OUT_FIG_DIR = base.PROJECT_ROOT / "figures" / RUN_NAME
+RUN_NAME = "Predictive_information_binwidth_sensitivity"
+OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
+OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
 DEFAULT_BIN_WIDTHS_KA = (0.2, 0.4, 0.6, 0.8, 1.0)
 PHASE_MATCH_TOLERANCE_DEG = 30.0
@@ -76,11 +77,20 @@ plt.rcParams.update(
 )
 
 
+# ---------------------------------------------------------------------------
+# General utilities
+# ---------------------------------------------------------------------------
+
+
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
+    """Save a bin-width sensitivity figure."""
+
     ensure_dir(OUT_FIG_DIR)
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
@@ -89,36 +99,33 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
 
 
 def circular_signed_difference_deg(angle_deg: pd.Series, reference_deg: pd.Series) -> pd.Series:
+    """Return signed angular differences in degrees on [-180, 180)."""
+
     return ((angle_deg - reference_deg + 180.0) % 360.0) - 180.0
 
 
+# ---------------------------------------------------------------------------
+# Analysis helpers
+# ---------------------------------------------------------------------------
+
+
 def fit_models_for_width(bin_width_ka: float) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Fit all sensitivity models after temporarily changing the bin width.
+    """Fit all sensitivity models on a candidate bin-width grid."""
 
-    The original helper functions read ``base.BIN_WIDTH_KA`` when constructing
-    bin edges. Temporarily replacing that module-level value lets the
-    sensitivity test reuse exactly the same input construction and likelihood
-    code for every grid, then restore the default width before returning.
-    """
-
-    original_width = base.BIN_WIDTH_KA
-    try:
-        base.BIN_WIDTH_KA = float(bin_width_ka)
-        binned_inputs, _, phase_extrema, _ = predictive.build_adjusted_inputs(
-            predictive.MAIN_HISTORY_WINDOW_KA
-        )
-        fit_frame = predictive.model_frame(binned_inputs)
-        models = predictive.fit_adjusted_models(binned_inputs)
-        summary = base.build_model_summary(models, fit_frame)
-        likelihood_tests = predictive.build_adjusted_likelihood_tests(
-            models,
-            fit_frame,
-            predictive.MAIN_HISTORY_WINDOW_KA,
-        )
-        likelihood_tests.insert(0, "bin_width_ka", float(bin_width_ka))
-        occupancy = build_occupancy_summary(fit_frame, bin_width_ka)
-    finally:
-        base.BIN_WIDTH_KA = original_width
+    binned_inputs, _, phase_extrema, _ = predictive.build_predictive_inputs(
+        predictive.MAIN_HISTORY_WINDOW_KA,
+        bin_width_ka=float(bin_width_ka),
+    )
+    fit_frame = predictive.model_frame(binned_inputs)
+    models = predictive.fit_predictive_models(binned_inputs)
+    summary = poisson.build_model_summary(models, fit_frame, bin_width_ka=float(bin_width_ka))
+    likelihood_tests = predictive.build_predictive_likelihood_tests(
+        models,
+        fit_frame,
+        predictive.MAIN_HISTORY_WINDOW_KA,
+    )
+    likelihood_tests.insert(0, "bin_width_ka", float(bin_width_ka))
+    occupancy = build_occupancy_summary(fit_frame, bin_width_ka)
 
     binned_inputs = binned_inputs.copy()
     binned_inputs["bin_width_ka"] = float(bin_width_ka)
@@ -129,11 +136,9 @@ def fit_models_for_width(bin_width_ka: float) -> tuple[pd.DataFrame, pd.DataFram
     return binned_inputs, summary, likelihood_tests, occupancy
 
 
-def model_lookup(models: list[base.FittedPoissonModel]) -> dict[tuple[str, str], base.FittedPoissonModel]:
-    return {(model.dataset_id, model.model_id): model for model in models}
-
-
 def build_occupancy_summary(binned_inputs: pd.DataFrame, bin_width_ka: float) -> pd.DataFrame:
+    """Summarize empty/multi-event bin occupancy for one bin width."""
+
     rows = []
     for dataset_id, group in binned_inputs.groupby("dataset_id", sort=False):
         counts = group["event_count"].to_numpy(dtype=int)
@@ -165,6 +170,8 @@ def collect_test_value(
     value_col: str,
     out_col: str,
 ) -> pd.DataFrame:
+    """Extract one likelihood-test metric for merging into the summary table."""
+
     return tests[tests["comparison_id"].eq(comparison_id)][
         ["bin_width_ka", "dataset_id", value_col]
     ].rename(columns={value_col: out_col})
@@ -175,6 +182,8 @@ def build_paper_summary(
     likelihood_tests: pd.DataFrame,
     occupancy: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Build the compact bin-width sensitivity summary used by the paper."""
+
     core = model_summary[model_summary["model_id"].isin(CORE_MODEL_IDS)].copy()
     core["delta_AICc_core"] = core["AICc"] - core.groupby(["dataset_id", "bin_width_ka"])["AICc"].transform("min")
     core["rank_AICc_core"] = core.groupby(["dataset_id", "bin_width_ka"])["AICc"].rank(method="first")
@@ -212,9 +221,9 @@ def build_paper_summary(
         ("co2_after_baseline", "co2_after_baseline"),
         ("pre_phase_after_baseline", "pre_phase_after_baseline"),
         ("climate_lr04_co2_after_baseline", "climate_after_baseline"),
-        ("phase_after_adjusted_climate", "phase_after_adjusted_climate"),
-        ("lr04_after_adjusted_co2_phase", "lr04_unique"),
-        ("co2_after_adjusted_lr04_phase", "co2_unique"),
+        ("phase_after_climate_state", "phase_after_climate_state"),
+        ("lr04_after_co2_phase", "lr04_unique"),
+        ("co2_after_lr04_phase", "co2_unique"),
     ]:
         out = out.merge(
             collect_test_value(likelihood_tests, comparison_id, "LR_p_value", f"{prefix}_p"),
@@ -243,13 +252,13 @@ def build_paper_summary(
     # Backward-compatible aliases keep the plotting code readable while the
     # output names make clear that the reduced model includes history,
     # resolution, LR04, and CO2.
-    out["phase_after_climate_p"] = out["phase_after_adjusted_climate_p"]
+    out["phase_after_climate_p"] = out["phase_after_climate_state_p"]
     out["phase_after_climate_delta_AICc_full_minus_reduced"] = out[
-        "phase_after_adjusted_climate_delta_AICc_full_minus_reduced"
+        "phase_after_climate_state_delta_AICc_full_minus_reduced"
     ]
-    out["phase_after_climate_robust_p05"] = out["phase_after_adjusted_climate_p"] < 0.05
+    out["phase_after_climate_robust_p05"] = out["phase_after_climate_state_p"] < 0.05
     out["phase_after_climate_AICc_support"] = (
-        out["phase_after_adjusted_climate_delta_AICc_full_minus_reduced"] < 0.0
+        out["phase_after_climate_state_delta_AICc_full_minus_reduced"] < 0.0
     )
     out["preferred_phase_within_30deg_of_0p2"] = (
         out["preferred_phase_shift_vs_0p2_deg"].abs() <= PHASE_MATCH_TOLERANCE_DEG
@@ -286,6 +295,8 @@ def build_paper_summary(
 
 
 def format_p_value(value: float) -> str:
+    """Format p values for the bin-width summary table."""
+
     if not np.isfinite(value):
         return ""
     if value < 0.001:
@@ -294,6 +305,8 @@ def format_p_value(value: float) -> str:
 
 
 def build_paper_summary_formatted(paper: pd.DataFrame) -> pd.DataFrame:
+    """Return the bin-width summary with display-ready labels and values."""
+
     out = paper.copy()
     out["empty bins (%)"] = (100.0 * out["empty_bin_fraction"]).round(1)
     out["full Delta AICc among core models"] = out["full_model_core_delta_AICc"].round(2)
@@ -343,9 +356,16 @@ def build_paper_summary_formatted(paper: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+
 def plot_phase_stability(paper: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot phase-test stability and sparsity across bin widths."""
+
     fig, axes = plt.subplots(2, 2, figsize=(12.5, 7.8), sharex=True)
-    for dataset_id, settings in base.DATASET_SETTINGS.items():
+    for dataset_id, settings in DATASET_SETTINGS.items():
         sub = paper[paper["dataset_id"].eq(dataset_id)].sort_values("bin_width_ka")
         color = settings["color"]
         label = settings["label"]
@@ -363,7 +383,7 @@ def plot_phase_stability(paper: pd.DataFrame, write_pdf: bool) -> None:
     axes[0, 0].axhline(0.05, color="#555555", lw=0.8, ls="--")
     axes[0, 0].set_yscale("log")
     axes[0, 0].set_ylabel("LR p value")
-    axes[0, 0].set_title("Precession phase after adjusted LR04 + CO2", loc="left")
+    axes[0, 0].set_title("Precession phase after climate-state model", loc="left")
 
     axes[0, 1].axhline(0.0, color="#555555", lw=0.8, ls="--")
     axes[0, 1].set_ylabel("Delta AICc full - climate-state")
@@ -386,20 +406,22 @@ def plot_phase_stability(paper: pd.DataFrame, write_pdf: bool) -> None:
 
 
 def plot_driver_pvalues(likelihood_tests: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot nested-test p values across the bin-width grid."""
+
     comparisons = [
         ("lr04_after_baseline", "LR04 | baseline"),
         ("co2_after_baseline", "CO2 | baseline"),
         ("pre_phase_after_baseline", "pre phase | baseline"),
-        ("phase_after_adjusted_climate", "pre phase | adjusted LR04+CO2"),
+        ("phase_after_climate_state", "pre phase | climate-state"),
     ]
     fig, axes = plt.subplots(1, 2, figsize=(12.8, 4.8), sharey=True)
-    for ax, dataset_id in zip(axes, base.DATASET_SETTINGS):
+    for ax, dataset_id in zip(axes, DATASET_SETTINGS):
         sub = likelihood_tests[likelihood_tests["dataset_id"].eq(dataset_id)]
         for comparison_id, label in comparisons:
             g = sub[sub["comparison_id"].eq(comparison_id)].sort_values("bin_width_ka")
             ax.plot(g["bin_width_ka"], -np.log10(np.maximum(g["LR_p_value"], 1e-300)), marker="o", lw=1.5, label=label)
         ax.axhline(-np.log10(0.05), color="#555555", lw=0.8, ls="--", label="p=0.05")
-        ax.set_title(base.DATASET_SETTINGS[dataset_id]["label"], loc="left")
+        ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
         ax.set_xlabel("Bin width (kyr)")
         ax.grid(True, color="#e6e6e6", lw=0.6)
     axes[0].set_ylabel("-log10(LR p value)")
@@ -409,6 +431,8 @@ def plot_driver_pvalues(likelihood_tests: pd.DataFrame, write_pdf: bool) -> None
 
 
 def plot_model_delta_aicc(model_summary: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot model Delta AICc values across the bin-width grid."""
+
     model_ids = [
         "stationary",
         "history_resolution_baseline",
@@ -419,7 +443,7 @@ def plot_model_delta_aicc(model_summary: pd.DataFrame, write_pdf: bool) -> None:
         "baseline_climate_lr04_co2_pre_phase",
     ]
     fig, axes = plt.subplots(1, 2, figsize=(12.8, 4.8), sharey=True)
-    for ax, dataset_id in zip(axes, base.DATASET_SETTINGS):
+    for ax, dataset_id in zip(axes, DATASET_SETTINGS):
         sub = model_summary[model_summary["dataset_id"].eq(dataset_id)]
         for model_id in model_ids:
             g = sub[sub["model_id"].eq(model_id)].sort_values("bin_width_ka")
@@ -434,7 +458,7 @@ def plot_model_delta_aicc(model_summary: pd.DataFrame, write_pdf: bool) -> None:
                 label=g["model_label"].iloc[0],
             )
         ax.axhline(0.0, color="#555555", lw=0.8, ls=":")
-        ax.set_title(base.DATASET_SETTINGS[dataset_id]["label"], loc="left")
+        ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left")
         ax.set_xlabel("Bin width (kyr)")
         ax.grid(True, color="#e6e6e6", lw=0.6)
     axes[0].set_ylabel("Delta AICc within bin width")
@@ -452,6 +476,8 @@ def write_outputs(
     paper_summary_formatted: pd.DataFrame,
     bin_widths: tuple[float, ...],
 ) -> None:
+    """Write bin-width sensitivity tables and metadata."""
+
     ensure_dir(OUT_DATA_DIR)
     binned_inputs.to_csv(OUT_DATA_DIR / "bin_width_binned_inputs.csv", index=False)
     model_summary.to_csv(OUT_DATA_DIR / "bin_width_model_summary.csv", index=False)
@@ -467,15 +493,22 @@ def write_outputs(
                 "history_window_ka": predictive.MAIN_HISTORY_WINDOW_KA,
                 "baseline_model_id": "history_resolution_baseline",
                 "main_model_id": "baseline_climate_lr04_co2_pre_phase",
-                "phase_test": "phase_after_adjusted_climate",
+                "phase_test": "phase_after_climate_state",
                 "phase_convention": "precession-index minima=0 rad; maxima=pi rad",
-                "note": "qualitatively_matches_0p2 requires adjusted phase p<0.05, Delta AICc<0, and preferred phase within tolerance of the 0.2 kyr result",
+                "note": "qualitatively_matches_0p2 requires phase p<0.05, Delta AICc<0, and preferred phase within tolerance of the 0.2 kyr result",
             }
         ]
     ).to_csv(OUT_DATA_DIR / "parameters.csv", index=False)
 
 
+# ---------------------------------------------------------------------------
+# Command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def run_analysis(bin_widths: tuple[float, ...], write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Run the bin-width sensitivity workflow."""
+
     ensure_dir(OUT_DATA_DIR)
     ensure_dir(OUT_FIG_DIR)
 
@@ -513,6 +546,8 @@ def run_analysis(bin_widths: tuple[float, ...], write_pdf: bool) -> tuple[pd.Dat
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the bin-width sensitivity script."""
+
     parser = argparse.ArgumentParser(
         description="Bin-width sensitivity for Rousseau monsoon binned Poisson hazard models."
     )
@@ -528,6 +563,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     bin_widths = tuple(float(width) for width in args.bin_widths)
     paper_summary, paper_summary_formatted, _ = run_analysis(
@@ -550,8 +587,8 @@ def main() -> None:
             ]
         ].to_string(index=False)
     )
-    print(f"\nWrote tables to: {OUT_DATA_DIR.relative_to(base.PROJECT_ROOT)}")
-    print(f"Wrote figures to: {OUT_FIG_DIR.relative_to(base.PROJECT_ROOT)}")
+    print(f"\nWrote tables to: {OUT_DATA_DIR.relative_to(PROJECT_ROOT)}")
+    print(f"Wrote figures to: {OUT_FIG_DIR.relative_to(PROJECT_ROOT)}")
 
 
 if __name__ == "__main__":

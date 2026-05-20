@@ -39,7 +39,6 @@ back into a preferred phase and an amplitude.
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 from pathlib import Path
 
 import matplotlib
@@ -49,32 +48,25 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
-from scipy.signal import find_peaks
 from paper_figure_export import save_paper_pdf
-from toolbox.model_stats import information_criteria, likelihood_gain, likelihood_ratio_p_value
-from toolbox.poisson import (
-    binned_poisson_loglik,
-    design_matrix as make_design_matrix,
-    fitted_rate_and_mu,
-    negative_binned_poisson_loglik,
+from toolbox.model_stats import likelihood_gain, likelihood_ratio_p_value
+import toolbox.event_inputs as event_inputs
+import toolbox.poisson as poisson
+from toolbox.project_config import (
+    ANALYSIS_END_KA,
+    ANALYSIS_START_KA,
+    BIN_WIDTH_KA,
+    CO2_XLSX,
+    DATASET_SETTINGS,
+    LR04_XLSX,
+    PRE_TXT,
+    PROJECT_ROOT,
 )
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent
 RUN_NAME = "Bin_hazard_phase_poisson"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
-
-STRONG_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_strong_monsoon_start_times.csv"
-WEAK_CSV = PROJECT_ROOT / "data/raw/rousseau_2023_ks_0p4_4kyr_weak_monsoon_start_times.csv"
-LR04_XLSX = PROJECT_ROOT / "data/raw/lr04.xlsx"
-CO2_XLSX = PROJECT_ROOT / "data/raw/composite_co2.xlsx"
-PRE_TXT = PROJECT_ROOT / "data/raw/pre_1000_60_inter100.txt"
-
-ANALYSIS_START_KA = 0.0
-ANALYSIS_END_KA = 640.0
-BIN_WIDTH_KA = 0.2
 
 MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
     ("stationary", (), "Stationary"),
@@ -86,19 +78,6 @@ MODEL_SPECS: list[tuple[str, tuple[str, ...], str]] = [
         "LR04 + CO2 + precession phase",
     ),
 ]
-
-DATASET_SETTINGS = {
-    "strong_monsoon_start": {
-        "label": "Strong monsoon starts",
-        "path": STRONG_CSV,
-        "color": "#d95f02",
-    },
-    "weak_monsoon_start": {
-        "label": "Weak monsoon starts",
-        "path": WEAK_CSV,
-        "color": "#6a3d9a",
-    },
-}
 
 MODEL_COLORS = {
     "stationary": "#777777",
@@ -124,42 +103,20 @@ plt.rcParams.update(
 )
 
 
-@dataclass
-class EventDataset:
-    """One event catalogue: strong or weak monsoon starts."""
-
-    dataset_id: str
-    label: str
-    color: str
-    ages_ka: np.ndarray
-    source: str
-
-
-@dataclass
-class FittedPoissonModel:
-    """Container for one fitted binned Poisson hazard model."""
-
-    dataset_id: str
-    dataset_label: str
-    model_id: str
-    model_label: str
-    terms: tuple[str, ...]
-    beta: np.ndarray
-    converged: bool
-    optimizer_message: str
-    log_likelihood: float
-    aic: float
-    aicc: float
-    bic: float
-    fitted_rate_per_kyr: np.ndarray
-    fitted_mu_per_bin: np.ndarray
+# ---------------------------------------------------------------------------
+# General utilities
+# ---------------------------------------------------------------------------
 
 
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
+    """Save a figure to the run directory and, when requested, paper exports."""
+
     ensure_dir(OUT_FIG_DIR)
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
@@ -168,429 +125,22 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
     plt.close(fig)
 
 
-def find_column(columns: pd.Index, *needles: str) -> str:
-    normalized = {str(column).strip().lower(): column for column in columns}
-    for key, column in normalized.items():
-        if all(needle.lower() in key for needle in needles):
-            return str(column)
-    raise ValueError(f"Cannot find a column containing {needles}.")
+# ---------------------------------------------------------------------------
+# Model fitting and likelihood comparisons
+# ---------------------------------------------------------------------------
 
 
-def clean_series(age_ka: np.ndarray, value: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    age_ka = np.asarray(age_ka, dtype=float)
-    value = np.asarray(value, dtype=float)
-    ok = np.isfinite(age_ka) & np.isfinite(value)
-    df = pd.DataFrame({"age_ka": age_ka[ok], "value": value[ok]})
-    df = df.groupby("age_ka", as_index=False)["value"].mean().sort_values("age_ka")
-    return df["age_ka"].to_numpy(dtype=float), df["value"].to_numpy(dtype=float)
+def fit_all_models(binned_inputs: pd.DataFrame) -> list[poisson.FittedPoissonModel]:
+    """Fit every candidate model separately for strong and weak starts."""
 
-
-def scale_to_zero_mean_range_one(values: np.ndarray) -> tuple[np.ndarray, float, float, float, float]:
-    values = np.asarray(values, dtype=float)
-    mean = float(np.nanmean(values))
-    vmin = float(np.nanmin(values))
-    vmax = float(np.nanmax(values))
-    value_range = vmax - vmin
-    if not np.isfinite(value_range) or value_range <= 0.0:
-        return np.zeros_like(values, dtype=float), mean, vmin, vmax, 1.0
-    return (values - mean) / value_range, mean, vmin, vmax, value_range
-
-
-def load_events(path: Path, dataset_id: str, label: str, color: str) -> EventDataset:
-    df = pd.read_csv(path, encoding="utf-8-sig")
-    if "start_time_ka_BP" not in df.columns:
-        raise ValueError(f"{path} must contain start_time_ka_BP.")
-    ages = pd.to_numeric(df["start_time_ka_BP"], errors="coerce").dropna().to_numpy(dtype=float)
-    ages = np.sort(ages[(ages >= ANALYSIS_START_KA) & (ages <= ANALYSIS_END_KA)])
-    return EventDataset(
-        dataset_id=dataset_id,
-        label=label,
-        color=color,
-        ages_ka=ages,
-        source=str(path.relative_to(PROJECT_ROOT)),
-    )
-
-
-def load_all_events() -> list[EventDataset]:
-    return [
-        load_events(
-            settings["path"],
-            dataset_id,
-            settings["label"],
-            settings["color"],
-        )
-        for dataset_id, settings in DATASET_SETTINGS.items()
-    ]
-
-
-def make_bin_edges() -> np.ndarray:
-    edges = np.arange(ANALYSIS_START_KA, ANALYSIS_END_KA + BIN_WIDTH_KA / 2.0, BIN_WIDTH_KA)
-    edges[-1] = ANALYSIS_END_KA
-    return np.round(edges, 10)
-
-
-def load_lr04(centers_ka: np.ndarray) -> tuple[np.ndarray, dict]:
-    raw = pd.read_excel(LR04_XLSX)
-    age_col = find_column(raw.columns, "time")
-    value_col = find_column(raw.columns, "d18o")
-    age, value = clean_series(raw[age_col].to_numpy(), raw[value_col].to_numpy())
-    interpolated = np.interp(centers_ka, age, value)
-    scaled, mean, vmin, vmax, value_range = scale_to_zero_mean_range_one(interpolated)
-    meta = {
-        "forcing_id": "lr04",
-        "forcing_label": "LR04 benthic d18O",
-        "source": str(LR04_XLSX.relative_to(PROJECT_ROOT)),
-        "mean": mean,
-        "min": vmin,
-        "max": vmax,
-        "range": value_range,
-    }
-    return scaled, {"raw": interpolated, "meta": meta}
-
-
-def load_co2(centers_ka: np.ndarray) -> tuple[np.ndarray, dict]:
-    raw = pd.read_excel(CO2_XLSX, sheet_name="Sheet2")
-    age_col = find_column(raw.columns, "gasage")
-    value_col = find_column(raw.columns, "co2")
-    age, value = clean_series(raw[age_col].to_numpy() / 1000.0, raw[value_col].to_numpy())
-    interpolated = np.interp(centers_ka, age, value)
-    scaled, mean, vmin, vmax, value_range = scale_to_zero_mean_range_one(interpolated)
-    meta = {
-        "forcing_id": "co2",
-        "forcing_label": "CO2",
-        "source": str(CO2_XLSX.relative_to(PROJECT_ROOT)),
-        "mean": mean,
-        "min": vmin,
-        "max": vmax,
-        "range": value_range,
-    }
-    return scaled, {"raw": interpolated, "meta": meta}
-
-
-def load_precession_series() -> pd.DataFrame:
-    raw = pd.read_csv(PRE_TXT, sep=r"\s+", header=None, names=["age_raw_ka", "value"])
-    age, value = clean_series(-raw["age_raw_ka"].to_numpy(), raw["value"].to_numpy())
-    return pd.DataFrame({"age_ka": age, "precession_index": value})
-
-
-def enforce_alternating_extrema(extrema: pd.DataFrame) -> pd.DataFrame:
-    """Keep a clean min/max/min/max sequence for phase anchoring.
-
-    Peak detection can occasionally return adjacent extrema of the same type
-    when the orbital series has small-scale structure. Phase construction needs
-    alternating half-cycles, so adjacent duplicate maxima/minima are collapsed
-    by retaining the more extreme member.
-    """
-
-    rows: list[pd.Series] = []
-    for _, row in extrema.sort_values("age_ka").iterrows():
-        if not rows:
-            rows.append(row.copy())
-            continue
-        prev = rows[-1]
-        if row["extremum_type"] != prev["extremum_type"]:
-            rows.append(row.copy())
-            continue
-        if row["extremum_type"] == "maximum":
-            if float(row["precession_index"]) > float(prev["precession_index"]):
-                rows[-1] = row.copy()
-        else:
-            if float(row["precession_index"]) < float(prev["precession_index"]):
-                rows[-1] = row.copy()
-    out = pd.DataFrame(rows).reset_index(drop=True)
-    out["half_cycle_index"] = np.arange(len(out))
-    return out
-
-
-def build_precession_phase(centers_ka: np.ndarray) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Convert the raw precession index into a circular phase at bin centers.
-
-    The conversion is intentionally based on extrema rather than on calendar
-    angle. Minima of the precession index are assigned phase 0 and maxima are
-    assigned phase pi. Between two successive extrema, phase is linearly
-    interpolated in unwrapped radians. The wrapped phase is then represented as
-    sin(theta) and cos(theta) for regression.
-    """
-
-    pre = load_precession_series()
-    values = pre["precession_index"].to_numpy(dtype=float)
-    max_idx, _ = find_peaks(values)
-    min_idx, _ = find_peaks(-values)
-
-    maxima = pre.iloc[max_idx].copy()
-    maxima["extremum_type"] = "maximum"
-    minima = pre.iloc[min_idx].copy()
-    minima["extremum_type"] = "minimum"
-    extrema = pd.concat([minima, maxima], ignore_index=True).sort_values("age_ka")
-    extrema = enforce_alternating_extrema(extrema)
-    if len(extrema) < 3:
-        raise ValueError("Too few precession extrema detected.")
-
-    # Anchor the first detected extremum, then add pi for every half-cycle.
-    # The unwrapped phase is needed for interpolation; wrapping before
-    # interpolation would create artificial jumps at 2*pi -> 0.
-    first_phase = 0.0 if extrema.loc[0, "extremum_type"] == "minimum" else np.pi
-    extrema["anchor_phase_unwrapped_rad"] = first_phase + np.arange(len(extrema), dtype=float) * np.pi
-    extrema["anchor_phase_rad"] = np.mod(extrema["anchor_phase_unwrapped_rad"], 2.0 * np.pi)
-    extrema["anchor_phase_deg"] = np.degrees(extrema["anchor_phase_rad"])
-
-    phase_unwrapped = np.interp(
-        centers_ka,
-        extrema["age_ka"].to_numpy(dtype=float),
-        extrema["anchor_phase_unwrapped_rad"].to_numpy(dtype=float),
-    )
-    phase_rad = np.mod(phase_unwrapped, 2.0 * np.pi)
-    pre_at_center = np.interp(
-        centers_ka,
-        pre["age_ka"].to_numpy(dtype=float),
-        pre["precession_index"].to_numpy(dtype=float),
-    )
-    phase_table = pd.DataFrame(
-        {
-            "age_ka": centers_ka,
-            "precession_index": pre_at_center,
-            "pre_phase_unwrapped_rad": phase_unwrapped,
-            "pre_phase_rad": phase_rad,
-            "pre_phase_deg": np.degrees(phase_rad),
-            "pre_phase_sin": np.sin(phase_rad),
-            "pre_phase_cos": np.cos(phase_rad),
-        }
-    )
-    return phase_table, extrema
-
-
-def build_binned_inputs(events: list[EventDataset]) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Build the model matrix shared by all fitted hazard models.
-
-    Each event catalogue is histogrammed onto the same 0.2 kyr grid. The
-    climate/orbital predictors are interpolated to bin centers once, then
-    copied for strong and weak event datasets. LR04 and CO2 are range-scaled so
-    their coefficients are comparable as effects per full observed range.
-    """
-
-    edges = make_bin_edges()
-    centers = 0.5 * (edges[:-1] + edges[1:])
-    dt = np.diff(edges)
-
-    lr04_scaled, lr04_info = load_lr04(centers)
-    co2_scaled, co2_info = load_co2(centers)
-    phase_table, phase_extrema = build_precession_phase(centers)
-
-    base = pd.DataFrame(
-        {
-            "bin_start_ka": edges[:-1],
-            "bin_end_ka": edges[1:],
-            "bin_center_ka": centers,
-            "dt_ka": dt,
-            "lr04": lr04_info["raw"],
-            "lr04_scaled": lr04_scaled,
-            "co2": co2_info["raw"],
-            "co2_scaled": co2_scaled,
-        }
-    )
-    base = pd.concat([base, phase_table.drop(columns=["age_ka"])], axis=1)
-
-    rows = []
-    for dataset in events:
-        counts, _ = np.histogram(dataset.ages_ka, bins=edges)
-        dataset_frame = base.copy()
-        dataset_frame.insert(0, "dataset_id", dataset.dataset_id)
-        dataset_frame.insert(1, "dataset_label", dataset.label)
-        dataset_frame["event_count"] = counts.astype(int)
-        dataset_frame["n_events_total"] = int(len(dataset.ages_ka))
-        dataset_frame["source"] = dataset.source
-        rows.append(dataset_frame)
-
-    scale_summary = pd.DataFrame(
-        [
-            lr04_info["meta"],
-            co2_info["meta"],
-            {
-                "forcing_id": "pre_phase_sin",
-                "forcing_label": "sin(precession phase)",
-                "source": str(PRE_TXT.relative_to(PROJECT_ROOT)),
-                "mean": float(np.nanmean(base["pre_phase_sin"])),
-                "min": float(np.nanmin(base["pre_phase_sin"])),
-                "max": float(np.nanmax(base["pre_phase_sin"])),
-                "range": float(np.nanmax(base["pre_phase_sin"]) - np.nanmin(base["pre_phase_sin"])),
-            },
-            {
-                "forcing_id": "pre_phase_cos",
-                "forcing_label": "cos(precession phase)",
-                "source": str(PRE_TXT.relative_to(PROJECT_ROOT)),
-                "mean": float(np.nanmean(base["pre_phase_cos"])),
-                "min": float(np.nanmin(base["pre_phase_cos"])),
-                "max": float(np.nanmax(base["pre_phase_cos"])),
-                "range": float(np.nanmax(base["pre_phase_cos"]) - np.nanmin(base["pre_phase_cos"])),
-            },
-        ]
-    )
-    return pd.concat(rows, ignore_index=True), scale_summary, phase_extrema
-
-
-def design_matrix(frame: pd.DataFrame, terms: tuple[str, ...]) -> np.ndarray:
-    return make_design_matrix(frame, terms)
-
-
-def poisson_loglik(beta: np.ndarray, x: np.ndarray, y: np.ndarray, dt: np.ndarray) -> float:
-    """Poisson log-likelihood for binned event counts."""
-
-    return binned_poisson_loglik(beta, x, y, dt)
-
-
-def negative_loglik(beta: np.ndarray, x: np.ndarray, y: np.ndarray, dt: np.ndarray) -> float:
-    """Objective passed to scipy.optimize.minimize."""
-
-    return negative_binned_poisson_loglik(beta, x, y, dt)
-
-
-def fit_poisson_model(
-    dataset_frame: pd.DataFrame,
-    model_id: str,
-    terms: tuple[str, ...],
-    model_label: str,
-) -> FittedPoissonModel:
-    """Fit one binned Poisson hazard GLM for one event dataset.
-
-    The stationary model has only an intercept, so its MLE is analytic: total
-    events divided by total duration. Models with predictors are optimized with
-    L-BFGS-B. The returned fitted_rate_per_kyr is lambda_i; fitted_mu_per_bin is
-    lambda_i * dt_i, the expected number of events in each bin.
-    """
-
-    x = design_matrix(dataset_frame, terms)
-    y = dataset_frame["event_count"].to_numpy(dtype=float)
-    dt = dataset_frame["dt_ka"].to_numpy(dtype=float)
-    duration = float(dt.sum())
-    n_events = float(y.sum())
-    n_obs = len(y)
-    beta0 = np.zeros(1 + len(terms), dtype=float)
-    beta0[0] = np.log(max(n_events / duration, 1e-12))
-
-    if not terms:
-        beta = beta0
-        converged = True
-        message = "analytic stationary MLE"
-    else:
-        bounds = [(-20.0, 5.0)] + [(-20.0, 20.0)] * len(terms)
-        result = minimize(
-            negative_loglik,
-            beta0,
-            args=(x, y, dt),
-            method="L-BFGS-B",
-            bounds=bounds,
-            options={"maxiter": 4000, "ftol": 1e-11},
-        )
-        beta = result.x
-        converged = bool(result.success)
-        message = str(result.message)
-
-    # Convert fitted log-rates back to rates per kyr and expected bin counts.
-    rate, mu = fitted_rate_and_mu(beta, x, dt)
-    log_likelihood = poisson_loglik(beta, x, y, dt)
-    k = len(beta)
-    criteria = information_criteria(log_likelihood, k, n_obs)
-
-    return FittedPoissonModel(
-        dataset_id=str(dataset_frame["dataset_id"].iloc[0]),
-        dataset_label=str(dataset_frame["dataset_label"].iloc[0]),
-        model_id=model_id,
-        model_label=model_label,
-        terms=terms,
-        beta=beta,
-        converged=converged,
-        optimizer_message=message,
-        log_likelihood=log_likelihood,
-        aic=criteria["AIC"],
-        aicc=criteria["AICc"],
-        bic=criteria["BIC"],
-        fitted_rate_per_kyr=rate,
-        fitted_mu_per_bin=mu,
-    )
-
-
-def fit_all_models(binned_inputs: pd.DataFrame) -> list[FittedPoissonModel]:
     models = []
     for _, group in binned_inputs.groupby("dataset_id", sort=False):
         for model_id, terms, label in MODEL_SPECS:
-            models.append(fit_poisson_model(group, model_id, terms, label))
+            models.append(poisson.fit_poisson_model(group, model_id, terms, label))
     return models
 
 
-def build_model_summary(models: list[FittedPoissonModel], binned_inputs: pd.DataFrame) -> pd.DataFrame:
-    """Summarize fitted models and derive phase-response quantities."""
-
-    rows = []
-    for model in models:
-        subset = binned_inputs[binned_inputs["dataset_id"].eq(model.dataset_id)]
-        y = subset["event_count"].to_numpy(dtype=float)
-        row = {
-            "dataset_id": model.dataset_id,
-            "dataset_label": model.dataset_label,
-            "model_id": model.model_id,
-            "model_label": model.model_label,
-            "terms": "+".join(model.terms) if model.terms else "none",
-            "bin_width_ka": BIN_WIDTH_KA,
-            "n_bins": int(len(subset)),
-            "n_events": int(y.sum()),
-            "n_parameters": int(len(model.beta)),
-            "converged": model.converged,
-            "optimizer_message": model.optimizer_message,
-            "log_likelihood": model.log_likelihood,
-            "AIC": model.aic,
-            "AICc": model.aicc,
-            "BIC": model.bic,
-            "expected_events": float(np.sum(model.fitted_mu_per_bin)),
-            "max_fitted_rate_per_kyr": float(np.max(model.fitted_rate_per_kyr)),
-            "mean_fitted_rate_per_kyr": float(np.mean(model.fitted_rate_per_kyr)),
-        }
-        for term, beta in zip(("intercept",) + model.terms, model.beta):
-            row[f"beta_{term}"] = float(beta)
-        if "pre_phase_sin" in model.terms and "pre_phase_cos" in model.terms:
-            # For beta_s sin(theta) + beta_c cos(theta), the maximum occurs at
-            # theta = atan2(beta_s, beta_c). The amplitude is the vector length
-            # sqrt(beta_s^2 + beta_c^2), and the max/min rate ratio over the
-            # cycle is exp(2 * amplitude).
-            beta_map = dict(zip(model.terms, model.beta[1:]))
-            b_sin = float(beta_map["pre_phase_sin"])
-            b_cos = float(beta_map["pre_phase_cos"])
-            amplitude = float(np.hypot(b_sin, b_cos))
-            preferred = float(np.mod(np.arctan2(b_sin, b_cos), 2.0 * np.pi))
-            row["pre_phase_amplitude"] = amplitude
-            row["pre_phase_preferred_rad"] = preferred
-            row["pre_phase_preferred_deg"] = float(np.degrees(preferred))
-            row["pre_phase_rate_ratio_max_vs_min"] = float(np.exp(2.0 * amplitude))
-        rows.append(row)
-
-    summary = pd.DataFrame(rows)
-    summary["delta_AICc"] = summary["AICc"] - summary.groupby("dataset_id")["AICc"].transform("min")
-    summary["rank_AICc"] = summary.groupby("dataset_id")["AICc"].rank(method="first")
-    return summary.sort_values(["dataset_id", "AICc"]).reset_index(drop=True)
-
-
-def build_coefficient_table(models: list[FittedPoissonModel]) -> pd.DataFrame:
-    rows = []
-    for model in models:
-        names = ("intercept",) + model.terms
-        for name, beta in zip(names, model.beta):
-            rows.append(
-                {
-                    "dataset_id": model.dataset_id,
-                    "dataset_label": model.dataset_label,
-                    "model_id": model.model_id,
-                    "term": name,
-                    "beta": float(beta),
-                    "rate_ratio_per_unit": float(np.exp(beta)),
-                }
-            )
-    return pd.DataFrame(rows)
-
-
-def model_lookup(models: list[FittedPoissonModel]) -> dict[tuple[str, str], FittedPoissonModel]:
-    return {(model.dataset_id, model.model_id): model for model in models}
-
-
-def build_likelihood_tests(models: list[FittedPoissonModel]) -> pd.DataFrame:
+def build_likelihood_tests(models: list[poisson.FittedPoissonModel]) -> pd.DataFrame:
     """Compare nested models with likelihood-ratio tests.
 
     The most important comparison is ``phase_after_climate``:
@@ -603,7 +153,7 @@ def build_likelihood_tests(models: list[FittedPoissonModel]) -> pd.DataFrame:
     chi-square approximation.
     """
 
-    lookup = model_lookup(models)
+    lookup = poisson.model_lookup(models)
     rows = []
     comparisons = [
         ("climate_vs_stationary", "stationary", "climate_lr04_co2"),
@@ -636,31 +186,9 @@ def build_likelihood_tests(models: list[FittedPoissonModel]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def build_fitted_rate_table(models: list[FittedPoissonModel], binned_inputs: pd.DataFrame) -> pd.DataFrame:
-    rows = []
-    keep_cols = [
-        "dataset_id",
-        "dataset_label",
-        "bin_start_ka",
-        "bin_end_ka",
-        "bin_center_ka",
-        "dt_ka",
-        "event_count",
-    ]
-    for model in models:
-        subset = binned_inputs[binned_inputs["dataset_id"].eq(model.dataset_id)].copy()
-        for idx, (_, row) in enumerate(subset.iterrows()):
-            out = {col: row[col] for col in keep_cols}
-            out.update(
-                {
-                    "model_id": model.model_id,
-                    "model_label": model.model_label,
-                    "lambda_per_kyr": float(model.fitted_rate_per_kyr[idx]),
-                    "expected_events_per_bin": float(model.fitted_mu_per_bin[idx]),
-                }
-            )
-            rows.append(out)
-    return pd.DataFrame(rows)
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
 
 
 def plot_inputs_and_rates(
@@ -669,6 +197,8 @@ def plot_inputs_and_rates(
     likelihood_tests: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Plot model inputs and fitted climate/phase hazards for both event types."""
+
     fig, axes = plt.subplots(5, 1, figsize=(13, 10), sharex=True, height_ratios=[1.0, 1.0, 1.0, 1.4, 1.4])
     base = binned_inputs[binned_inputs["dataset_id"].eq("strong_monsoon_start")]
     axes[0].plot(base["bin_center_ka"], base["lr04"], color="#1b9e77", lw=1.0)
@@ -678,7 +208,7 @@ def plot_inputs_and_rates(
     axes[1].plot(base["bin_center_ka"], base["co2"], color="#d95f02", lw=1.0)
     axes[1].set_ylabel("CO2")
 
-    pre_raw = load_precession_series()
+    pre_raw = event_inputs.load_precession_series(PRE_TXT, project_root=PROJECT_ROOT)
     pre_raw = pre_raw[
         (pre_raw["age_ka"] >= ANALYSIS_START_KA)
         & (pre_raw["age_ka"] <= ANALYSIS_END_KA)
@@ -775,6 +305,8 @@ def plot_inputs_and_rates(
 
 
 def format_p_value(p_value: float) -> str:
+    """Format p values consistently for compact figure annotations."""
+
     return f"{p_value:.2e}"
 
 
@@ -785,6 +317,8 @@ def plot_fitted_hazards_only(
     summary: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Plot the two fitted hazard panels used as a standalone paper figure."""
+
     fig, axes = plt.subplots(2, 1, figsize=(13, 5.6), sharex=True)
     dataset_event_counts = {
         dataset_id: int(
@@ -893,6 +427,8 @@ def plot_fitted_hazards_only(
 
 
 def plot_model_comparison(summary: pd.DataFrame, likelihood_tests: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot candidate-model Delta AICc values and phase likelihood tests."""
+
     fig, axes = plt.subplots(1, 2, figsize=(12.8, 4.8), sharey=True)
     for ax, dataset_id in zip(axes, DATASET_SETTINGS):
         sub = summary[summary["dataset_id"].eq(dataset_id)].sort_values("AICc")
@@ -921,6 +457,8 @@ def plot_model_comparison(summary: pd.DataFrame, likelihood_tests: pd.DataFrame,
 
 
 def plot_phase_response(summary: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot the fitted rate multiplier over the precession cycle."""
+
     phase = np.linspace(0.0, 2.0 * np.pi, 361)
     fig, ax = plt.subplots(figsize=(8.8, 4.8))
     for dataset_id, settings in DATASET_SETTINGS.items():
@@ -956,6 +494,8 @@ def plot_phase_response(summary: pd.DataFrame, write_pdf: bool) -> None:
 
 
 def plot_event_phase_histograms(binned_inputs: pd.DataFrame, summary: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot observed event phases together with fitted phase-response maxima."""
+
     fig, axes = plt.subplots(1, 2, figsize=(12.4, 4.8), sharey=True)
     bins = np.linspace(0, 360, 19)
     for ax, dataset_id in zip(axes, DATASET_SETTINGS):
@@ -987,12 +527,14 @@ def write_outputs(
     binned_inputs: pd.DataFrame,
     scale_summary: pd.DataFrame,
     phase_extrema: pd.DataFrame,
-    models: list[FittedPoissonModel],
+    models: list[poisson.FittedPoissonModel],
     summary: pd.DataFrame,
     coefficients: pd.DataFrame,
     likelihood_tests: pd.DataFrame,
     fitted_rates: pd.DataFrame,
 ) -> None:
+    """Write analysis tables and run metadata to the processed-data directory."""
+
     ensure_dir(OUT_DATA_DIR)
     binned_inputs.to_csv(OUT_DATA_DIR / "binned_event_hazard_inputs_0p2kyr.csv", index=False)
     scale_summary.to_csv(OUT_DATA_DIR / "forcing_scale_summary.csv", index=False)
@@ -1017,16 +559,37 @@ def write_outputs(
     params.to_csv(OUT_DATA_DIR / "parameters.csv", index=False)
 
 
+# ---------------------------------------------------------------------------
+# Command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Run the full binned-hazard workflow and return the main result tables."""
+
     ensure_dir(OUT_DATA_DIR)
     ensure_dir(OUT_FIG_DIR)
-    events = load_all_events()
-    binned_inputs, scale_summary, phase_extrema = build_binned_inputs(events)
+    events = event_inputs.load_event_catalogues(
+        DATASET_SETTINGS,
+        analysis_start_ka=ANALYSIS_START_KA,
+        analysis_end_ka=ANALYSIS_END_KA,
+        project_root=PROJECT_ROOT,
+    )
+    binned_inputs, scale_summary, phase_extrema = event_inputs.build_binned_inputs(
+        events,
+        analysis_start_ka=ANALYSIS_START_KA,
+        analysis_end_ka=ANALYSIS_END_KA,
+        bin_width_ka=BIN_WIDTH_KA,
+        lr04_path=LR04_XLSX,
+        co2_path=CO2_XLSX,
+        precession_path=PRE_TXT,
+        project_root=PROJECT_ROOT,
+    )
     models = fit_all_models(binned_inputs)
-    summary = build_model_summary(models, binned_inputs)
-    coefficients = build_coefficient_table(models)
+    summary = poisson.build_model_summary(models, binned_inputs, bin_width_ka=BIN_WIDTH_KA)
+    coefficients = poisson.build_coefficient_table(models)
     likelihood_tests = build_likelihood_tests(models)
-    fitted_rates = build_fitted_rate_table(models, binned_inputs)
+    fitted_rates = poisson.build_fitted_rate_table(models, binned_inputs)
     write_outputs(
         binned_inputs,
         scale_summary,
@@ -1046,6 +609,8 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for this script."""
+
     parser = argparse.ArgumentParser(
         description="Fit 0.2 kyr bin Poisson hazard models for Rousseau monsoon starts."
     )
@@ -1054,6 +619,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     summary, likelihood_tests = run_analysis(write_pdf=not args.no_pdf)
     print(

@@ -27,17 +27,23 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 import Orbital_phase_rayleigh as rayleigh
-import Bin_hazard_phase_poisson as hazard
+import toolbox.event_inputs as event_inputs
+import toolbox.poisson as poisson
+from toolbox.project_config import (
+    ANALYSIS_END_KA,
+    ANALYSIS_START_KA,
+    BIN_WIDTH_KA,
+    CO2_XLSX,
+    LR04_XLSX,
+    PRE_TXT,
+    PROJECT_ROOT,
+)
 import Predictive_information_model as predictive
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent
 RUN_NAME = "KS_window_core_experiment_sensitivity"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
-
-ANALYSIS_START_KA = 0.0
-ANALYSIS_END_KA = 640.0
 
 KS_WINDOW_CATALOGUES = {
     "ks_0p4_4kyr": {
@@ -84,15 +90,26 @@ class EventCatalogue:
     ages_ka: np.ndarray
 
 
+# ---------------------------------------------------------------------------
+# Input preparation and model fitting
+# ---------------------------------------------------------------------------
+
+
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def relative_path(path: Path) -> str:
+    """Return a project-relative path for metadata tables."""
+
     return str(path.relative_to(PROJECT_ROOT))
 
 
 def unique_sorted(values: np.ndarray, decimals: int = 6) -> np.ndarray:
+    """Return finite sorted unique values after light decimal rounding."""
+
     values = np.asarray(values, dtype=float)
     values = values[np.isfinite(values)]
     values = np.round(values, decimals=decimals)
@@ -100,6 +117,8 @@ def unique_sorted(values: np.ndarray, decimals: int = 6) -> np.ndarray:
 
 
 def load_event_catalogue(ks_window_id: str, event_type: str) -> EventCatalogue:
+    """Load one event catalogue for a specific KS detection window."""
+
     window = KS_WINDOW_CATALOGUES[ks_window_id]
     settings = EVENT_SETTINGS[event_type]
     path = window[event_type]
@@ -137,6 +156,8 @@ def load_event_catalogue(ks_window_id: str, event_type: str) -> EventCatalogue:
 
 
 def load_catalogues_for_window(ks_window_id: str) -> list[EventCatalogue]:
+    """Load strong and weak catalogues for one KS-window setting."""
+
     return [
         load_event_catalogue(ks_window_id, "strong_monsoon_start"),
         load_event_catalogue(ks_window_id, "weak_monsoon_start"),
@@ -144,6 +165,8 @@ def load_catalogues_for_window(ks_window_id: str) -> list[EventCatalogue]:
 
 
 def build_events_used_table(catalogues: list[EventCatalogue]) -> pd.DataFrame:
+    """Concatenate event rows used in the KS-window sensitivity experiment."""
+
     rows = []
     for catalogue in catalogues:
         rows.append(catalogue.events)
@@ -151,10 +174,14 @@ def build_events_used_table(catalogues: list[EventCatalogue]) -> pd.DataFrame:
 
 
 def rayleigh_events_frame(catalogues: list[EventCatalogue]) -> pd.DataFrame:
+    """Return the event table layout expected by the Rayleigh helpers."""
+
     return pd.concat([catalogue.events for catalogue in catalogues], ignore_index=True)
 
 
 def run_rayleigh_for_all(catalogues_by_window: dict[str, list[EventCatalogue]]) -> pd.DataFrame:
+    """Run Rayleigh phase tests for every KS-window catalogue."""
+
     phase_products = {
         driver: rayleigh.build_phase_series(driver, settings)
         for driver, settings in rayleigh.DRIVER_SETTINGS.items()
@@ -173,12 +200,14 @@ def run_rayleigh_for_all(catalogues_by_window: dict[str, list[EventCatalogue]]) 
     return pd.concat(rows, ignore_index=True)
 
 
-def hazard_events_for_window(catalogues: list[EventCatalogue]) -> list[hazard.EventDataset]:
+def hazard_events_for_window(catalogues: list[EventCatalogue]) -> list[event_inputs.EventDataset]:
+    """Convert loaded catalogues into the EventDataset format used by models."""
+
     datasets = []
     for catalogue in catalogues:
         settings = EVENT_SETTINGS[catalogue.event_type]
         datasets.append(
-            hazard.EventDataset(
+            event_inputs.EventDataset(
                 dataset_id=catalogue.event_type,
                 label=settings["label"],
                 color=settings["color"],
@@ -191,29 +220,29 @@ def hazard_events_for_window(catalogues: list[EventCatalogue]) -> list[hazard.Ev
 
 def fit_sensitivity_poisson_models(
     binned_inputs: pd.DataFrame,
-) -> list[hazard.FittedPoissonModel]:
+) -> list[poisson.FittedPoissonModel]:
     """Fit the predictive model set for one KS catalogue.
 
     The KS window changes which transition ages enter the event histogram. The
-    model frame is otherwise identical to the main adjusted analysis: bins with
+    model frame is otherwise identical to the main predictive analysis: bins with
     incomplete same-type history are removed before fitting.
     """
 
-    models: list[hazard.FittedPoissonModel] = []
+    models: list[poisson.FittedPoissonModel] = []
     fit_frame = predictive.model_frame(binned_inputs)
     for _, group in fit_frame.groupby("dataset_id", sort=False):
         for model_id, terms, label in POISSON_MODEL_SPECS:
-            models.append(hazard.fit_poisson_model(group, model_id, terms, label))
+            models.append(poisson.fit_poisson_model(group, model_id, terms, label))
     return models
 
 
 def build_sensitivity_likelihood_tests(
-    models: list[hazard.FittedPoissonModel],
+    models: list[poisson.FittedPoissonModel],
     fit_frame: pd.DataFrame,
 ) -> pd.DataFrame:
     """Use the main predictive-model comparisons for the KS sensitivity."""
 
-    return predictive.build_adjusted_likelihood_tests(
+    return predictive.build_predictive_likelihood_tests(
         models,
         fit_frame,
         predictive.MAIN_HISTORY_WINDOW_KA,
@@ -221,6 +250,8 @@ def build_sensitivity_likelihood_tests(
 
 
 def add_window_columns(frame: pd.DataFrame, ks_window_id: str) -> pd.DataFrame:
+    """Attach KS-window identifiers and labels to a result table."""
+
     window = KS_WINDOW_CATALOGUES[ks_window_id]
     out = frame.copy()
     out.insert(0, "ks_window_id", ks_window_id)
@@ -236,7 +267,7 @@ def run_poisson_for_all(
 
     For each catalogue we rebuild the event histogram, append the Cheng
     sampling-resolution control and same-type history term, then reuse the
-    central adjusted likelihood-test definitions. This keeps the KS experiment
+    central predictive likelihood-test definitions. This keeps the KS experiment
     focused on catalogue construction rather than on changing the hazard model.
     """
 
@@ -247,7 +278,16 @@ def run_poisson_for_all(
 
     for ks_window_id, catalogues in catalogues_by_window.items():
         events = hazard_events_for_window(catalogues)
-        binned_inputs, _, _ = hazard.build_binned_inputs(events)
+        binned_inputs, _, _ = event_inputs.build_binned_inputs(
+            events,
+            analysis_start_ka=ANALYSIS_START_KA,
+            analysis_end_ka=ANALYSIS_END_KA,
+            bin_width_ka=BIN_WIDTH_KA,
+            lr04_path=LR04_XLSX,
+            co2_path=CO2_XLSX,
+            precession_path=PRE_TXT,
+            project_root=PROJECT_ROOT,
+        )
         binned_inputs, _, _ = predictive.add_resolution_control(binned_inputs)
         binned_inputs = predictive.add_same_type_history(
             binned_inputs,
@@ -255,8 +295,8 @@ def run_poisson_for_all(
         )
         fit_frame = predictive.model_frame(binned_inputs)
         models = fit_sensitivity_poisson_models(binned_inputs)
-        summary = hazard.build_model_summary(models, fit_frame)
-        coefficients = hazard.build_coefficient_table(models)
+        summary = poisson.build_model_summary(models, fit_frame)
+        coefficients = poisson.build_coefficient_table(models)
         likelihood_tests = build_sensitivity_likelihood_tests(models, fit_frame)
 
         binned_frames.append(add_window_columns(fit_frame, ks_window_id))
@@ -282,6 +322,8 @@ def consistency_row(
     extra_04: dict | None = None,
     extra_06: dict | None = None,
 ) -> dict:
+    """Build one row comparing p-value decisions between two KS windows."""
+
     sig_04 = bool(np.isfinite(p_04) and p_04 < 0.05)
     sig_06 = bool(np.isfinite(p_06) and p_06 < 0.05)
     row = {
@@ -308,6 +350,8 @@ def build_consistency_summary(
     poisson_lrt: pd.DataFrame,
     poisson_summary: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Summarize whether core conclusions are stable across KS windows."""
+
     rows = []
     for event_type in EVENT_SETTINGS:
         pre04 = rayleigh_results[
@@ -342,9 +386,9 @@ def build_consistency_summary(
 
         for comparison_id in [
             "climate_lr04_co2_after_baseline",
-            "phase_after_adjusted_climate",
-            "lr04_after_adjusted_co2_phase",
-            "co2_after_adjusted_lr04_phase",
+            "phase_after_climate_state",
+            "lr04_after_co2_phase",
+            "co2_after_lr04_phase",
             "full_vs_baseline",
         ]:
             p04 = poisson_lrt[
@@ -417,6 +461,8 @@ def write_outputs(
     poisson_likelihood_tests: pd.DataFrame,
     consistency: pd.DataFrame,
 ) -> None:
+    """Write KS-window sensitivity outputs."""
+
     ensure_dir(OUT_DATA_DIR)
     events_used.to_csv(OUT_DATA_DIR / "events_used_by_ks_window.csv", index=False)
     rayleigh_results.to_csv(OUT_DATA_DIR / "rayleigh_phase_results_by_ks_window.csv", index=False)
@@ -433,7 +479,14 @@ def write_outputs(
     consistency.to_csv(OUT_DATA_DIR / "core_experiment_consistency_summary.csv", index=False)
 
 
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+
 def format_p_value(value: float) -> str:
+    """Format p values for table figures."""
+
     if not np.isfinite(value):
         return ""
     if value < 1e-4:
@@ -444,24 +497,30 @@ def format_p_value(value: float) -> str:
 
 
 def significance_label(value: float) -> str:
+    """Return a compact significance label for p-value table cells."""
+
     if not np.isfinite(value):
         return ""
     return "sig" if value < 0.05 else "n.s."
 
 
 def metric_display_name(metric_id: str) -> str:
+    """Human-readable metric labels for the consistency table."""
+
     labels = {
         "precession_phase_uniformity": "Rayleigh: precession phase",
         "climate_lr04_co2_after_baseline": "Predictive: climate-state vs EP baseline",
-        "phase_after_adjusted_climate": "Predictive: phase vs climate-state",
-        "lr04_after_adjusted_co2_phase": "Predictive: full model vs -LR04",
-        "co2_after_adjusted_lr04_phase": "Predictive: full model vs -CO2",
+        "phase_after_climate_state": "Predictive: phase vs climate-state",
+        "lr04_after_co2_phase": "Predictive: full model vs -LR04",
+        "co2_after_lr04_phase": "Predictive: full model vs -CO2",
         "full_vs_baseline": "Predictive: full model vs EP baseline",
     }
     return labels.get(metric_id, metric_id)
 
 
 def event_display_name(event_type: str) -> str:
+    """Short event labels for the consistency table."""
+
     labels = {
         "strong_monsoon_start": "Strong",
         "weak_monsoon_start": "Weak",
@@ -470,15 +529,17 @@ def event_display_name(event_type: str) -> str:
 
 
 def plot_consistency_table(consistency: pd.DataFrame) -> None:
+    """Render the KS-window consistency summary as a table figure."""
+
     ensure_dir(OUT_FIG_DIR)
     plot_rows = consistency[
         consistency["metric_id"].isin(
             [
                 "precession_phase_uniformity",
                 "climate_lr04_co2_after_baseline",
-                "phase_after_adjusted_climate",
-                "lr04_after_adjusted_co2_phase",
-                "co2_after_adjusted_lr04_phase",
+                "phase_after_climate_state",
+                "lr04_after_co2_phase",
+                "co2_after_lr04_phase",
                 "full_vs_baseline",
             ]
         )
@@ -489,9 +550,9 @@ def plot_consistency_table(consistency: pd.DataFrame) -> None:
     metric_order = {
         "precession_phase_uniformity": 0,
         "climate_lr04_co2_after_baseline": 1,
-        "phase_after_adjusted_climate": 2,
-        "lr04_after_adjusted_co2_phase": 3,
-        "co2_after_adjusted_lr04_phase": 4,
+        "phase_after_climate_state": 2,
+        "lr04_after_co2_phase": 3,
+        "co2_after_lr04_phase": 4,
         "full_vs_baseline": 5,
     }
     plot_rows["metric_order"] = plot_rows["metric_id"].map(metric_order)
@@ -566,7 +627,14 @@ def plot_consistency_table(consistency: pd.DataFrame) -> None:
     plt.close(fig)
 
 
+# ---------------------------------------------------------------------------
+# Command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def run_analysis() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Run the KS-window sensitivity workflow."""
+
     catalogues_by_window = {
         ks_window_id: load_catalogues_for_window(ks_window_id)
         for ks_window_id in KS_WINDOW_CATALOGUES
@@ -604,6 +672,8 @@ def run_analysis() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the KS-window sensitivity script."""
+
     parser = argparse.ArgumentParser(
         description="Compare Rousseau 2023 core experiments across KS window catalogues."
     )
@@ -611,6 +681,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     parse_args()
     rayleigh_results, poisson_lrt, consistency = run_analysis()
 
@@ -633,9 +705,9 @@ def main() -> None:
             poisson_lrt["comparison_id"].isin(
                 [
                     "climate_lr04_co2_after_baseline",
-                    "phase_after_adjusted_climate",
-                    "lr04_after_adjusted_co2_phase",
-                    "co2_after_adjusted_lr04_phase",
+                    "phase_after_climate_state",
+                    "lr04_after_co2_phase",
+                    "co2_after_lr04_phase",
                 ]
             )
         ][

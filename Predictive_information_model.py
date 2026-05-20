@@ -60,16 +60,28 @@ from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 
-import Bin_hazard_phase_poisson as base
 from paper_figure_export import save_paper_pdf
+from toolbox.data_checks import require_unique_values
+import toolbox.event_inputs as event_inputs
+import toolbox.poisson as poisson
+from toolbox.project_config import (
+    ANALYSIS_END_KA,
+    ANALYSIS_START_KA,
+    BIN_WIDTH_KA,
+    CO2_XLSX,
+    DATASET_SETTINGS,
+    LR04_XLSX,
+    PRE_TXT,
+    PROJECT_ROOT,
+)
 from toolbox.model_stats import nested_likelihood_metrics
 
 
 RUN_NAME = "Predictive_information_model"
-OUT_DATA_DIR = base.PROJECT_ROOT / "data" / "processed" / RUN_NAME
-OUT_FIG_DIR = base.PROJECT_ROOT / "figures" / RUN_NAME
+OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
+OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
 
-CHENG_XLSX = base.PROJECT_ROOT / "data/raw/Cheng_2016.xlsx"
+CHENG_XLSX = PROJECT_ROOT / "data/raw/Cheng_2016.xlsx"
 
 MAIN_HISTORY_WINDOW_KA = 5.0
 HISTORY_WINDOW_GRID_KA = (1.0, 2.0, 5.0, 10.0)
@@ -148,19 +160,19 @@ LR_TEST_SPECS: list[tuple[str, str, str, str]] = [
         "Does precession phase improve over the event-process baseline?",
     ),
     (
-        "phase_after_adjusted_climate",
+        "phase_after_climate_state",
         "baseline_climate_lr04_co2",
         "baseline_climate_lr04_co2_pre_phase",
         "Does precession phase add information after the climate-state model?",
     ),
     (
-        "lr04_after_adjusted_co2_phase",
+        "lr04_after_co2_phase",
         "baseline_co2_pre_phase",
         "baseline_climate_lr04_co2_pre_phase",
         "Does LR04 add information within the full predictive model?",
     ),
     (
-        "co2_after_adjusted_lr04_phase",
+        "co2_after_lr04_phase",
         "baseline_lr04_pre_phase",
         "baseline_climate_lr04_co2_pre_phase",
         "Does CO2 add information within the full predictive model?",
@@ -191,9 +203,9 @@ LR_TEST_SHORT_LABELS = {
     "co2_after_baseline": "+CO$_2$ vs EP baseline",
     "climate_lr04_co2_after_baseline": "Climate-state vs EP baseline",
     "pre_phase_after_baseline": "+phase vs EP baseline",
-    "phase_after_adjusted_climate": "+phase vs climate-state",
-    "lr04_after_adjusted_co2_phase": "Full predictive model vs -LR04",
-    "co2_after_adjusted_lr04_phase": "Full predictive model vs -CO$_2$",
+    "phase_after_climate_state": "+phase vs climate-state",
+    "lr04_after_co2_phase": "Full predictive model vs -LR04",
+    "co2_after_lr04_phase": "Full predictive model vs -CO$_2$",
     "full_vs_baseline": "Full predictive model vs EP baseline",
 }
 
@@ -215,9 +227,9 @@ LR_TEST_PLOT_LABELS = {
     "co2_after_baseline": "+CO$_2$ vs EP baseline",
     "climate_lr04_co2_after_baseline": "Climate-state vs EP baseline",
     "pre_phase_after_baseline": "+phase vs EP baseline",
-    "phase_after_adjusted_climate": "+phase vs climate-state",
-    "lr04_after_adjusted_co2_phase": "Full predictive model vs -LR04",
-    "co2_after_adjusted_lr04_phase": "Full predictive model vs -CO$_2$",
+    "phase_after_climate_state": "+phase vs climate-state",
+    "lr04_after_co2_phase": "Full predictive model vs -LR04",
+    "co2_after_lr04_phase": "Full predictive model vs -CO$_2$",
     "full_vs_baseline": "Full predictive model vs EP baseline",
 }
 
@@ -238,20 +250,31 @@ plt.rcParams.update(
 )
 
 
+# ---------------------------------------------------------------------------
+# General utilities
+# ---------------------------------------------------------------------------
+
+
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
+    """Save a figure to the run directory and optional paper export path."""
+
     ensure_dir(OUT_FIG_DIR)
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
         fig.savefig(OUT_FIG_DIR / f"{stem}.pdf", bbox_inches="tight")
-        save_paper_pdf(fig, base.PROJECT_ROOT, stem)
+        save_paper_pdf(fig, PROJECT_ROOT, stem)
     plt.close(fig)
 
 
 def format_p_value(value: float) -> str:
+    """Format p values for compact figure/table labels."""
+
     if not np.isfinite(value):
         return "NA"
     if value < 1e-4:
@@ -259,6 +282,11 @@ def format_p_value(value: float) -> str:
     if value < 0.01:
         return f"{value:.4f}"
     return f"{value:.3f}"
+
+
+# ---------------------------------------------------------------------------
+# Input preparation and model fitting
+# ---------------------------------------------------------------------------
 
 
 def load_cheng_composite_resolution(centers_ka: np.ndarray) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -281,9 +309,10 @@ def load_cheng_composite_resolution(centers_ka: np.ndarray) -> tuple[pd.DataFram
     ok = np.isfinite(ages) & np.isfinite(values)
     frame = pd.DataFrame({"age_ka": ages[ok], "d18o": values[ok]})
     frame = frame[
-        frame["age_ka"].between(base.ANALYSIS_START_KA, base.ANALYSIS_END_KA, inclusive="both")
+        frame["age_ka"].between(ANALYSIS_START_KA, ANALYSIS_END_KA, inclusive="both")
     ].copy()
-    frame = frame.groupby("age_ka", as_index=False)["d18o"].mean().sort_values("age_ka")
+    require_unique_values(frame, "age_ka", context="Cheng composite resolution source")
+    frame = frame.sort_values("age_ka").reset_index(drop=True)
     age = frame["age_ka"].to_numpy(dtype=float)
     if len(age) < 3:
         raise ValueError("Too few Cheng composite ages to estimate sampling resolution.")
@@ -298,7 +327,7 @@ def load_cheng_composite_resolution(centers_ka: np.ndarray) -> tuple[pd.DataFram
 
     spacing_at_center = np.interp(centers_ka, age, frame["local_spacing_ka"].to_numpy(dtype=float))
     log_spacing = np.log(np.clip(spacing_at_center, 1e-6, None))
-    scaled, mean, vmin, vmax, value_range = base.scale_to_zero_mean_range_one(log_spacing)
+    scaled, mean, vmin, vmax, value_range = event_inputs.scale_to_zero_mean_range_one(log_spacing)
     by_bin = pd.DataFrame(
         {
             "bin_center_ka": centers_ka,
@@ -312,7 +341,7 @@ def load_cheng_composite_resolution(centers_ka: np.ndarray) -> tuple[pd.DataFram
             {
                 "forcing_id": RESOLUTION_TERM,
                 "forcing_label": "log Cheng composite local age spacing",
-                "source": str(CHENG_XLSX.relative_to(base.PROJECT_ROOT)),
+                "source": str(CHENG_XLSX.relative_to(PROJECT_ROOT)),
                 "mean": mean,
                 "min": vmin,
                 "max": vmax,
@@ -324,6 +353,8 @@ def load_cheng_composite_resolution(centers_ka: np.ndarray) -> tuple[pd.DataFram
 
 
 def add_resolution_control(binned: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Append Cheng composite sampling-resolution control to every event bin."""
+
     centers = (
         binned[["bin_center_ka"]]
         .drop_duplicates()
@@ -365,14 +396,17 @@ def add_same_type_history(binned: pd.DataFrame, history_window_ka: float) -> pd.
         group["same_type_history_rate_per_kyr"] = history / history_window_ka
         group["same_type_history_window_ka"] = float(history_window_ka)
         group["same_type_history_coverage_ka"] = coverage
+        bin_width_ka = float(np.nanmedian(group["dt_ka"].to_numpy(dtype=float)))
         group["same_type_history_complete"] = coverage >= (
-            history_window_ka - 0.5 * base.BIN_WIDTH_KA
+            history_window_ka - 0.5 * bin_width_ka
         )
         frames.append(group)
     return pd.concat(frames, ignore_index=True)
 
 
 def load_cheng_composite_record() -> pd.DataFrame:
+    """Load the Cheng composite d18O record for the input-data figure."""
+
     raw = pd.read_excel(CHENG_XLSX, sheet_name="Composite record")
     age_col = next(col for col in raw.columns if "age" in str(col).lower())
     value_col = next(col for col in raw.columns if "18" in str(col).lower() or "δ" in str(col))
@@ -384,21 +418,41 @@ def load_cheng_composite_record() -> pd.DataFrame:
     )
     out = out.dropna(subset=["age_ka", "d18o"])
     out = out[
-        out["age_ka"].between(base.ANALYSIS_START_KA, base.ANALYSIS_END_KA, inclusive="both")
+        out["age_ka"].between(ANALYSIS_START_KA, ANALYSIS_END_KA, inclusive="both")
     ]
     return out.sort_values("age_ka").reset_index(drop=True)
 
 
-def build_adjusted_inputs(history_window_ka: float) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Build the adjusted design table used by the main and sensitivity fits.
+def build_predictive_inputs(
+    history_window_ka: float,
+    *,
+    analysis_start_ka: float = ANALYSIS_START_KA,
+    analysis_end_ka: float = ANALYSIS_END_KA,
+    bin_width_ka: float = BIN_WIDTH_KA,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Build the predictive design table used by the main and sensitivity fits.
 
     This starts from the original LR04/CO2/precession event-bin table, then
     appends the two nuisance controls introduced in this script: Cheng
     composite sampling resolution and same-type event history.
     """
 
-    events = base.load_all_events()
-    binned, scale_summary, phase_extrema = base.build_binned_inputs(events)
+    events = event_inputs.load_event_catalogues(
+        DATASET_SETTINGS,
+        analysis_start_ka=analysis_start_ka,
+        analysis_end_ka=analysis_end_ka,
+        project_root=PROJECT_ROOT,
+    )
+    binned, scale_summary, phase_extrema = event_inputs.build_binned_inputs(
+        events,
+        analysis_start_ka=analysis_start_ka,
+        analysis_end_ka=analysis_end_ka,
+        bin_width_ka=bin_width_ka,
+        lr04_path=LR04_XLSX,
+        co2_path=CO2_XLSX,
+        precession_path=PRE_TXT,
+        project_root=PROJECT_ROOT,
+    )
     binned, resolution_by_bin, resolution_meta = add_resolution_control(binned)
     binned = add_same_type_history(binned, history_window_ka)
     scale_summary = pd.concat([scale_summary, resolution_meta], ignore_index=True)
@@ -416,23 +470,23 @@ def model_frame(binned: pd.DataFrame) -> pd.DataFrame:
     return binned[binned["same_type_history_complete"].astype(bool)].copy()
 
 
-def fit_adjusted_models(binned: pd.DataFrame) -> list[base.FittedPoissonModel]:
-    """Fit all adjusted candidate models for each event type."""
+def fit_predictive_models(binned: pd.DataFrame) -> list[poisson.FittedPoissonModel]:
+    """Fit all predictive candidate models for each event type."""
 
     fit_frame = model_frame(binned)
-    models: list[base.FittedPoissonModel] = []
+    models: list[poisson.FittedPoissonModel] = []
     for _, group in fit_frame.groupby("dataset_id", sort=False):
         for model_id, terms, label in MODEL_SPECS:
-            models.append(base.fit_poisson_model(group, model_id, terms, label))
+            models.append(poisson.fit_poisson_model(group, model_id, terms, label))
     return models
 
 
-def build_adjusted_likelihood_tests(
-    models: list[base.FittedPoissonModel],
+def build_predictive_likelihood_tests(
+    models: list[poisson.FittedPoissonModel],
     fit_frame: pd.DataFrame,
     history_window_ka: float,
 ) -> pd.DataFrame:
-    """Compare nested adjusted models with LR and predictive-information scores.
+    """Compare nested predictive models with LR and information-gain scores.
 
     Each comparison uses two models fitted on the same rows. The log-likelihood
     gain is first kept in nats, then divided by log(2) to express the gain in
@@ -440,7 +494,7 @@ def build_adjusted_likelihood_tests(
     dividing by the number of bins gives a time-grid-normalized score.
     """
 
-    lookup = base.model_lookup(models)
+    lookup = poisson.model_lookup(models)
     rows = []
     for dataset_id, group in fit_frame.groupby("dataset_id", sort=False):
         n_events = int(group["event_count"].sum())
@@ -475,17 +529,17 @@ def build_adjusted_likelihood_tests(
 
 
 def build_sensitivity_tables() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Repeat the adjusted analysis for each candidate history-window length."""
+    """Repeat the predictive analysis for each candidate history-window length."""
 
     binned_rows = []
     summary_rows = []
     lrt_rows = []
     for history_window in HISTORY_WINDOW_GRID_KA:
-        binned, _, _, _ = build_adjusted_inputs(history_window)
+        binned, _, _, _ = build_predictive_inputs(history_window)
         fit_frame = model_frame(binned)
-        models = fit_adjusted_models(binned)
-        summary = base.build_model_summary(models, fit_frame)
-        lrt = build_adjusted_likelihood_tests(models, fit_frame, history_window)
+        models = fit_predictive_models(binned)
+        summary = poisson.build_model_summary(models, fit_frame)
+        lrt = build_predictive_likelihood_tests(models, fit_frame, history_window)
         summary.insert(0, "history_window_ka", float(history_window))
         fit_frame = fit_frame.copy()
         fit_frame.insert(0, "history_window_ka", float(history_window))
@@ -504,11 +558,11 @@ def build_history_sensitivity_summary(model_summary: pd.DataFrame, likelihood_te
 
     rows = []
     for history_window in HISTORY_WINDOW_GRID_KA:
-        for dataset_id in base.DATASET_SETTINGS:
+        for dataset_id in DATASET_SETTINGS:
             phase_test = likelihood_tests[
                 likelihood_tests["history_window_ka"].eq(history_window)
                 & likelihood_tests["dataset_id"].eq(dataset_id)
-                & likelihood_tests["comparison_id"].eq("phase_after_adjusted_climate")
+                & likelihood_tests["comparison_id"].eq("phase_after_climate_state")
             ].iloc[0]
             full = model_summary[
                 model_summary["history_window_ka"].eq(history_window)
@@ -531,12 +585,12 @@ def build_history_sensitivity_summary(model_summary: pd.DataFrame, likelihood_te
                     "full_AICc": float(full["AICc"]),
                     "full_delta_AICc_ranked_within_window": float(full["delta_AICc"]),
                     "full_rank_AICc": float(full["rank_AICc"]),
-                    "phase_after_adjusted_climate_LR": float(phase_test["LR_statistic"]),
-                    "phase_after_adjusted_climate_p": float(phase_test["LR_p_value"]),
-                    "phase_after_adjusted_climate_delta_AICc": float(
+                    "phase_after_climate_state_LR": float(phase_test["LR_statistic"]),
+                    "phase_after_climate_state_p": float(phase_test["LR_p_value"]),
+                    "phase_after_climate_state_delta_AICc": float(
                         phase_test["delta_AICc_full_minus_reduced"]
                     ),
-                    "phase_after_adjusted_climate_bits_per_event": float(
+                    "phase_after_climate_state_bits_per_event": float(
                         phase_test["info_bits_per_event"]
                     ),
                     "pre_phase_preferred_deg": float(full["pre_phase_preferred_deg"]),
@@ -564,16 +618,18 @@ def write_outputs(
     sensitivity_lrt: pd.DataFrame,
     history_sensitivity: pd.DataFrame,
 ) -> None:
+    """Write predictive-model tables, sensitivity tables, and run metadata."""
+
     ensure_dir(OUT_DATA_DIR)
-    binned.to_csv(OUT_DATA_DIR / "adjusted_binned_inputs_0p2kyr_full_support.csv", index=False)
-    fit_frame.to_csv(OUT_DATA_DIR / "adjusted_binned_inputs_0p2kyr_model_support.csv", index=False)
-    scale_summary.to_csv(OUT_DATA_DIR / "adjusted_forcing_scale_summary.csv", index=False)
-    phase_extrema.to_csv(OUT_DATA_DIR / "adjusted_precession_phase_extrema.csv", index=False)
+    binned.to_csv(OUT_DATA_DIR / "predictive_binned_inputs_0p2kyr_full_support.csv", index=False)
+    fit_frame.to_csv(OUT_DATA_DIR / "predictive_binned_inputs_0p2kyr_model_support.csv", index=False)
+    scale_summary.to_csv(OUT_DATA_DIR / "predictive_forcing_scale_summary.csv", index=False)
+    phase_extrema.to_csv(OUT_DATA_DIR / "predictive_precession_phase_extrema.csv", index=False)
     resolution_by_bin.to_csv(OUT_DATA_DIR / "cheng_composite_sampling_resolution_by_bin.csv", index=False)
-    model_summary.to_csv(OUT_DATA_DIR / "adjusted_poisson_model_summary_5kyr_history.csv", index=False)
-    coefficients.to_csv(OUT_DATA_DIR / "adjusted_poisson_coefficients_5kyr_history.csv", index=False)
-    likelihood_tests.to_csv(OUT_DATA_DIR / "adjusted_likelihood_tests_5kyr_history.csv", index=False)
-    fitted_rates.to_csv(OUT_DATA_DIR / "adjusted_fitted_rates_5kyr_history.csv", index=False)
+    model_summary.to_csv(OUT_DATA_DIR / "predictive_model_summary_5kyr_history.csv", index=False)
+    coefficients.to_csv(OUT_DATA_DIR / "predictive_coefficients_5kyr_history.csv", index=False)
+    likelihood_tests.to_csv(OUT_DATA_DIR / "predictive_likelihood_tests_5kyr_history.csv", index=False)
+    fitted_rates.to_csv(OUT_DATA_DIR / "predictive_fitted_rates_5kyr_history.csv", index=False)
     sensitivity_binned.to_csv(OUT_DATA_DIR / "history_window_binned_inputs.csv", index=False)
     sensitivity_summary.to_csv(OUT_DATA_DIR / "history_window_model_summary.csv", index=False)
     sensitivity_lrt.to_csv(OUT_DATA_DIR / "history_window_likelihood_tests.csv", index=False)
@@ -582,9 +638,9 @@ def write_outputs(
         [
             {
                 "run_name": RUN_NAME,
-                "analysis_start_ka": base.ANALYSIS_START_KA,
-                "analysis_end_ka": base.ANALYSIS_END_KA,
-                "bin_width_ka": base.BIN_WIDTH_KA,
+                "analysis_start_ka": ANALYSIS_START_KA,
+                "analysis_end_ka": ANALYSIS_END_KA,
+                "bin_width_ka": BIN_WIDTH_KA,
                 "main_history_window_ka": MAIN_HISTORY_WINDOW_KA,
                 "history_window_grid_ka": ",".join(f"{v:g}" for v in HISTORY_WINDOW_GRID_KA),
                 "history_definition": "same-type event count in older interval (t, t + W]",
@@ -598,6 +654,11 @@ def write_outputs(
     ).to_csv(OUT_DATA_DIR / "parameters.csv", index=False)
 
 
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+
 def plot_inputs_and_rates(
     binned: pd.DataFrame,
     fit_frame: pd.DataFrame,
@@ -605,6 +666,8 @@ def plot_inputs_and_rates(
     likelihood_tests: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Plot predictive inputs and fitted event rates for the main model set."""
+
     fig = plt.figure(figsize=(13, 9.6))
     outer = fig.add_gridspec(
         2,
@@ -671,9 +734,9 @@ def plot_inputs_and_rates(
     axes[4].set_ylabel("density")
     axes[4].set_ylim(0.0, np.nanpercentile(density_values, 98.0) * 1.05)
 
-    for ax_idx, dataset_id in enumerate(base.DATASET_SETTINGS, start=5):
+    for ax_idx, dataset_id in enumerate(DATASET_SETTINGS, start=5):
         ax = axes[ax_idx]
-        settings = base.DATASET_SETTINGS[dataset_id]
+        settings = DATASET_SETTINGS[dataset_id]
         data = fit_frame[fit_frame["dataset_id"].eq(dataset_id)]
         event_bins = data[data["event_count"] > 0]
         ax.vlines(
@@ -731,7 +794,7 @@ def plot_inputs_and_rates(
             )
         phase_test = likelihood_tests[
             likelihood_tests["dataset_id"].eq(dataset_id)
-            & likelihood_tests["comparison_id"].eq("phase_after_adjusted_climate")
+            & likelihood_tests["comparison_id"].eq("phase_after_climate_state")
         ].iloc[0]
         ax.text(
             0.99,
@@ -753,7 +816,7 @@ def plot_inputs_and_rates(
                     linestyle="None",
                     markersize=13,
                     markeredgewidth=1.6,
-                    color=base.DATASET_SETTINGS["strong_monsoon_start"]["color"],
+                    color=DATASET_SETTINGS["strong_monsoon_start"]["color"],
                     label="Strong monsoon starts",
                 ),
                 Line2D(
@@ -763,7 +826,7 @@ def plot_inputs_and_rates(
                     linestyle="None",
                     markersize=13,
                     markeredgewidth=1.6,
-                    color=base.DATASET_SETTINGS["weak_monsoon_start"]["color"],
+                    color=DATASET_SETTINGS["weak_monsoon_start"]["color"],
                     label="Weak monsoon starts",
                 ),
                 Line2D(
@@ -801,7 +864,7 @@ def plot_inputs_and_rates(
 
     for ax in top_axes:
         ax.grid(False)
-        ax.set_xlim(base.ANALYSIS_START_KA, base.ANALYSIS_END_KA)
+        ax.set_xlim(ANALYSIS_START_KA, ANALYSIS_END_KA)
         ax.tick_params(axis="x", labelbottom=False, length=0)
         ax.tick_params(axis="y", length=2.5, pad=2)
         for spine in ax.spines.values():
@@ -823,9 +886,9 @@ def plot_inputs_and_rates(
 
     for ax in rate_axes:
         ax.grid(False)
-        ax.set_xlim(base.ANALYSIS_START_KA, base.ANALYSIS_END_KA)
+        ax.set_xlim(ANALYSIS_START_KA, ANALYSIS_END_KA)
     pre_ax.grid(False)
-    pre_ax.set_xlim(base.ANALYSIS_START_KA, base.ANALYSIS_END_KA)
+    pre_ax.set_xlim(ANALYSIS_START_KA, ANALYSIS_END_KA)
     rate_axes[0].tick_params(axis="x", labelbottom=False)
     axes[-1].set_xlabel("Age (kyr BP)")
 
@@ -872,17 +935,19 @@ def plot_inputs_and_rates(
             zorder=20,
         )
     )
-    save_figure(fig, "fig01_adjusted_inputs_and_fitted_hazards", write_pdf)
+    save_figure(fig, "fig01_predictive_inputs_and_fitted_rates", write_pdf)
 
 
 def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot AICc rankings and nested predictive-information tests."""
+
     fig, axes = plt.subplots(
         2,
         2,
         figsize=(13.6, 9.6),
         gridspec_kw={"height_ratios": [1.0, 1.08]},
     )
-    for ax_idx, (ax, dataset_id) in enumerate(zip(axes[0], base.DATASET_SETTINGS)):
+    for ax_idx, (ax, dataset_id) in enumerate(zip(axes[0], DATASET_SETTINGS)):
         sub = model_summary[model_summary["dataset_id"].eq(dataset_id)].sort_values("AICc")
         colors = [MODEL_COLORS.get(mid, "#777777") for mid in sub["model_id"]]
         y = np.arange(len(sub)) * 1.30
@@ -897,7 +962,7 @@ def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.Data
             ax.tick_params(axis="y", length=0)
         ax.set_ylim(y[-1] + 0.70, -0.70)
         ax.set_xlabel("Delta AICc from best model")
-        ax.set_title(base.DATASET_SETTINGS[dataset_id]["label"], loc="left", fontsize=15.0)
+        ax.set_title(DATASET_SETTINGS[dataset_id]["label"], loc="left", fontsize=15.0)
         ax.tick_params(axis="both", labelsize=13.0)
         ax.xaxis.label.set_size(13.5)
         ax.grid(False)
@@ -924,7 +989,7 @@ def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.Data
     )
     xlim = max(max_x, -np.log10(0.05)) + 0.8
     threshold = -np.log10(0.05)
-    for ax_idx, (ax, dataset_id) in enumerate(zip(axes[1], base.DATASET_SETTINGS)):
+    for ax_idx, (ax, dataset_id) in enumerate(zip(axes[1], DATASET_SETTINGS)):
         sub = (
             likelihood_tests[
                 likelihood_tests["dataset_id"].eq(dataset_id)
@@ -963,13 +1028,15 @@ def plot_model_comparison(model_summary: pd.DataFrame, likelihood_tests: pd.Data
             clip_on=False,
         )
     fig.subplots_adjust(left=0.33, right=0.985, top=0.94, bottom=0.08, hspace=0.34, wspace=0.28)
-    save_figure(fig, "fig02_adjusted_model_comparison_delta_aicc", write_pdf)
+    save_figure(fig, "fig02_predictive_model_comparison_delta_aicc", write_pdf)
 
 
 def plot_phase_response(model_summary: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot the fitted precession-phase multiplier in the full model."""
+
     phase = np.linspace(0.0, 2.0 * np.pi, 361)
     fig, ax = plt.subplots(figsize=(8.8, 4.8))
-    for dataset_id, settings in base.DATASET_SETTINGS.items():
+    for dataset_id, settings in DATASET_SETTINGS.items():
         row = model_summary[
             model_summary["dataset_id"].eq(dataset_id)
             & model_summary["model_id"].eq("baseline_climate_lr04_co2_pre_phase")
@@ -994,20 +1061,22 @@ def plot_phase_response(model_summary: pd.DataFrame, write_pdf: bool) -> None:
     ax.set_xlim(0, 360)
     ax.set_xticks([0, 90, 180, 270, 360])
     ax.set_xlabel("Precession phase (deg; 0=min, 180=max)")
-    ax.set_ylabel("Relative rate multiplier\n(adjusted terms held constant)")
-    ax.set_title("Adjusted precession-phase effect", loc="left")
+    ax.set_ylabel("Relative rate multiplier\n(non-phase terms held constant)")
+    ax.set_title("Predictive precession-phase effect", loc="left")
     ax.grid(True, color="#e6e6e6", lw=0.6)
     ax.legend(frameon=False, loc="upper right")
-    save_figure(fig, "fig03_adjusted_phase_response", write_pdf)
+    save_figure(fig, "fig03_predictive_phase_response", write_pdf)
 
 
 def plot_history_window_sensitivity(history_sensitivity: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot how the phase result changes with the history-window length."""
+
     fig, axes = plt.subplots(1, 3, figsize=(13.2, 4.2))
-    for dataset_id, settings in base.DATASET_SETTINGS.items():
+    for dataset_id, settings in DATASET_SETTINGS.items():
         sub = history_sensitivity[history_sensitivity["dataset_id"].eq(dataset_id)]
         axes[0].plot(
             sub["history_window_ka"],
-            sub["phase_after_adjusted_climate_p"],
+            sub["phase_after_climate_state_p"],
             marker="o",
             color=settings["color"],
             lw=1.6,
@@ -1015,7 +1084,7 @@ def plot_history_window_sensitivity(history_sensitivity: pd.DataFrame, write_pdf
         )
         axes[1].plot(
             sub["history_window_ka"],
-            sub["phase_after_adjusted_climate_bits_per_event"],
+            sub["phase_after_climate_state_bits_per_event"],
             marker="o",
             color=settings["color"],
             lw=1.6,
@@ -1055,6 +1124,8 @@ def plot_history_window_sensitivity(history_sensitivity: pd.DataFrame, write_pdf
 
 
 def plot_history_window_table(history_sensitivity: pd.DataFrame, write_pdf: bool) -> None:
+    """Render history-window sensitivity metrics as a compact table figure."""
+
     rows = []
     for _, row in history_sensitivity.sort_values(["dataset_id", "history_window_ka"]).iterrows():
         rows.append(
@@ -1062,10 +1133,10 @@ def plot_history_window_table(history_sensitivity: pd.DataFrame, write_pdf: bool
                 row["dataset_label"].replace(" monsoon starts", ""),
                 f"{row['history_window_ka']:.0f}",
                 f"{row['n_events']:.0f}",
-                f"{row['phase_after_adjusted_climate_LR']:.2f}",
-                format_p_value(float(row["phase_after_adjusted_climate_p"])),
-                f"{row['phase_after_adjusted_climate_delta_AICc']:.2f}",
-                f"{row['phase_after_adjusted_climate_bits_per_event']:.3f}",
+                f"{row['phase_after_climate_state_LR']:.2f}",
+                format_p_value(float(row["phase_after_climate_state_p"])),
+                f"{row['phase_after_climate_state_delta_AICc']:.2f}",
+                f"{row['phase_after_climate_state_bits_per_event']:.3f}",
                 f"{row['pre_phase_preferred_deg']:.1f}",
                 f"{row['pre_phase_rate_ratio_max_vs_min']:.2f}",
             ]
@@ -1092,19 +1163,26 @@ def plot_history_window_table(history_sensitivity: pd.DataFrame, write_pdf: bool
     save_figure(fig, "fig05_history_window_summary_table", write_pdf)
 
 
+# ---------------------------------------------------------------------------
+# Command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Run the predictive-information workflow."""
+
     ensure_dir(OUT_DATA_DIR)
     ensure_dir(OUT_FIG_DIR)
 
-    binned, scale_summary, phase_extrema, resolution_by_bin = build_adjusted_inputs(
+    binned, scale_summary, phase_extrema, resolution_by_bin = build_predictive_inputs(
         MAIN_HISTORY_WINDOW_KA
     )
     fit_frame = model_frame(binned)
-    models = fit_adjusted_models(binned)
-    model_summary = base.build_model_summary(models, fit_frame)
-    coefficients = base.build_coefficient_table(models)
-    likelihood_tests = build_adjusted_likelihood_tests(models, fit_frame, MAIN_HISTORY_WINDOW_KA)
-    fitted_rates = base.build_fitted_rate_table(models, fit_frame)
+    models = fit_predictive_models(binned)
+    model_summary = poisson.build_model_summary(models, fit_frame)
+    coefficients = poisson.build_coefficient_table(models)
+    likelihood_tests = build_predictive_likelihood_tests(models, fit_frame, MAIN_HISTORY_WINDOW_KA)
+    fitted_rates = poisson.build_fitted_rate_table(models, fit_frame)
 
     sensitivity_binned, sensitivity_model_summary, sensitivity_lrt = build_sensitivity_tables()
     history_sensitivity = build_history_sensitivity_summary(
@@ -1136,6 +1214,8 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFr
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for this script."""
+
     parser = argparse.ArgumentParser(
         description="Fit event-process-baseline predictive Poisson hazard models."
     )
@@ -1144,6 +1224,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     model_summary, likelihood_tests, history_sensitivity = run_analysis(
         write_pdf=not args.no_pdf
@@ -1186,17 +1268,17 @@ def main() -> None:
                 "history_window_ka",
                 "dataset_id",
                 "n_events",
-                "phase_after_adjusted_climate_LR",
-                "phase_after_adjusted_climate_p",
-                "phase_after_adjusted_climate_delta_AICc",
-                "phase_after_adjusted_climate_bits_per_event",
+                "phase_after_climate_state_LR",
+                "phase_after_climate_state_p",
+                "phase_after_climate_state_delta_AICc",
+                "phase_after_climate_state_bits_per_event",
                 "pre_phase_preferred_deg",
                 "pre_phase_rate_ratio_max_vs_min",
             ]
         ].to_string(index=False)
     )
-    print(f"\nWrote tables to: {OUT_DATA_DIR.relative_to(base.PROJECT_ROOT)}")
-    print(f"Wrote figures to: {OUT_FIG_DIR.relative_to(base.PROJECT_ROOT)}")
+    print(f"\nWrote tables to: {OUT_DATA_DIR.relative_to(PROJECT_ROOT)}")
+    print(f"Wrote figures to: {OUT_FIG_DIR.relative_to(PROJECT_ROOT)}")
 
 
 if __name__ == "__main__":

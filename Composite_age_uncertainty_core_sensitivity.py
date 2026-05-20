@@ -30,14 +30,16 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm, truncnorm
 from paper_figure_export import save_paper_pdf
+from toolbox.data_checks import require_unique_values
 from toolbox.model_stats import bits_from_loglik_gain, likelihood_gain, likelihood_ratio_p_value
 
 import Orbital_phase_rayleigh as rayleigh
-import Bin_hazard_phase_poisson as hazard
+import toolbox.event_inputs as event_inputs
+import toolbox.poisson as poisson
+from toolbox.project_config import BIN_WIDTH_KA, CO2_XLSX, LR04_XLSX, PRE_TXT, PROJECT_ROOT
 import Predictive_information_model as predictive
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent
 RUN_NAME = "Composite_age_uncertainty_core_sensitivity"
 OUT_DATA_DIR = PROJECT_ROOT / "data" / "processed" / RUN_NAME
 OUT_FIG_DIR = PROJECT_ROOT / "figures" / RUN_NAME
@@ -80,20 +82,29 @@ EVENT_SETTINGS = {
     },
 }
 
-ADJUSTED_BASELINE_MODEL_ID = "history_resolution_baseline"
-ADJUSTED_BASELINE_MODEL_LABEL = "Event-process baseline"
-ADJUSTED_CLIMATE_MODEL_ID = "baseline_climate_lr04_co2"
-ADJUSTED_CLIMATE_MODEL_LABEL = "Climate-state model"
+EP_BASELINE_MODEL_ID = "history_resolution_baseline"
+EP_BASELINE_MODEL_LABEL = "Event-process baseline"
+CLIMATE_STATE_MODEL_ID = "baseline_climate_lr04_co2"
+CLIMATE_STATE_MODEL_LABEL = "Climate-state model"
 FULL_MODEL_ID = "baseline_climate_lr04_co2_pre_phase"
 FULL_MODEL_LABEL = "Full predictive model"
 FULL_MODEL_TERMS = predictive.FULL_TERMS
 
 
+# ---------------------------------------------------------------------------
+# General utilities and input preparation
+# ---------------------------------------------------------------------------
+
+
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
+    """Save an age-uncertainty sensitivity figure."""
+
     ensure_dir(OUT_FIG_DIR)
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
@@ -103,10 +114,14 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
 
 
 def relative_path(path: Path) -> str:
+    """Return a project-relative path for metadata tables."""
+
     return str(path.relative_to(PROJECT_ROOT))
 
 
 def best_match_uncertainty_source_path() -> Path:
+    """Pick the preferred best-match uncertainty file, with a fallback."""
+
     return (
         BEST_MATCH_UNCERTAINTY_CSV
         if BEST_MATCH_UNCERTAINTY_CSV.exists()
@@ -115,6 +130,8 @@ def best_match_uncertainty_source_path() -> Path:
 
 
 def find_column(columns: pd.Index, *needles: str) -> str:
+    """Return the first column whose normalized name contains all needles."""
+
     normalized = {str(column).strip().lower(): column for column in columns}
     for key, column in normalized.items():
         if all(needle.lower() in key for needle in needles):
@@ -123,6 +140,8 @@ def find_column(columns: pd.Index, *needles: str) -> str:
 
 
 def age_error_2sigma_kyr(age_ka: np.ndarray | float) -> np.ndarray:
+    """Evaluate the exponential 2-sigma age-error envelope."""
+
     age = np.asarray(age_ka, dtype=float)
     clipped = np.clip(age, ANALYSIS_START_KA, ANALYSIS_END_KA)
     fraction = (clipped - ANALYSIS_START_KA) / (ANALYSIS_END_KA - ANALYSIS_START_KA)
@@ -131,6 +150,8 @@ def age_error_2sigma_kyr(age_ka: np.ndarray | float) -> np.ndarray:
 
 
 def load_cheng_composite_with_error() -> pd.DataFrame:
+    """Load the Cheng composite and attach the age-error envelope."""
+
     raw = pd.read_excel(CHENG_XLSX, sheet_name=CHENG_COMPOSITE_SHEET)
     age_col = find_column(raw.columns, "age")
     value_col = find_column(raw.columns, "18")
@@ -142,11 +163,17 @@ def load_cheng_composite_with_error() -> pd.DataFrame:
     )
     out = out.dropna(subset=["age_ka", "d18o"])
     out = out[(out["age_ka"] >= ANALYSIS_START_KA) & (out["age_ka"] <= ANALYSIS_END_KA)]
-    out = out.groupby("age_ka", as_index=False)["d18o"].mean().sort_values("age_ka")
+    require_unique_values(out, "age_ka", context="Cheng composite age-uncertainty source")
+    out = out.sort_values("age_ka").reset_index(drop=True)
 
-    anchors = pd.DataFrame({"age_ka": [ANALYSIS_START_KA, ANALYSIS_END_KA], "d18o": [np.nan, np.nan]})
-    out = pd.concat([out, anchors], ignore_index=True)
-    out = out.sort_values("age_ka").drop_duplicates("age_ka", keep="first").reset_index(drop=True)
+    anchor_rows = []
+    for age_ka in (ANALYSIS_START_KA, ANALYSIS_END_KA):
+        if not np.any(np.isclose(out["age_ka"].to_numpy(dtype=float), age_ka, rtol=0.0, atol=1e-10)):
+            anchor_rows.append({"age_ka": age_ka, "d18o": np.nan})
+    if anchor_rows:
+        out = pd.concat([out, pd.DataFrame(anchor_rows)], ignore_index=True)
+    out = out.sort_values("age_ka").reset_index(drop=True)
+    require_unique_values(out, "age_ka", context="Cheng composite age-uncertainty source with anchors")
     out["age_error_2sigma_kyr"] = age_error_2sigma_kyr(out["age_ka"].to_numpy(dtype=float))
     out["age_sigma_kyr"] = out["age_error_2sigma_kyr"] / 2.0
     out["source"] = relative_path(CHENG_XLSX)
@@ -155,6 +182,8 @@ def load_cheng_composite_with_error() -> pd.DataFrame:
 
 
 def load_best_match_uncertainty() -> pd.DataFrame:
+    """Load best-match age-uncertainty points used to calibrate the envelope."""
+
     source_path = best_match_uncertainty_source_path()
     if not source_path.exists():
         raise FileNotFoundError(
@@ -190,6 +219,8 @@ def load_best_match_uncertainty() -> pd.DataFrame:
 
 
 def load_event_catalogues(error_series: pd.DataFrame) -> pd.DataFrame:
+    """Load published event catalogues and assign event-age uncertainty bounds."""
+
     rows = []
     error_age = error_series["age_ka"].to_numpy(dtype=float)
     error_2sigma = error_series["age_error_2sigma_kyr"].to_numpy(dtype=float)
@@ -263,6 +294,8 @@ def sample_rank_preserving_catalogues(
     n_realizations: int,
     seed: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Draw age-randomized catalogues while preserving event order."""
+
     rng = np.random.default_rng(seed)
     sample_frames = []
     diagnostic_rows = []
@@ -355,12 +388,12 @@ def build_hazard_base() -> tuple[pd.DataFrame, np.ndarray]:
     once.
     """
 
-    edges = hazard.make_bin_edges()
+    edges = event_inputs.make_bin_edges(ANALYSIS_START_KA, ANALYSIS_END_KA, BIN_WIDTH_KA)
     centers = 0.5 * (edges[:-1] + edges[1:])
     dt = np.diff(edges)
-    lr04_scaled, lr04_info = hazard.load_lr04(centers)
-    co2_scaled, co2_info = hazard.load_co2(centers)
-    phase_table, _ = hazard.build_precession_phase(centers)
+    lr04_scaled, lr04_info = event_inputs.load_lr04(centers, LR04_XLSX, project_root=PROJECT_ROOT)
+    co2_scaled, co2_info = event_inputs.load_co2(centers, CO2_XLSX, project_root=PROJECT_ROOT)
+    phase_table, _ = event_inputs.build_precession_phase(centers, PRE_TXT, project_root=PROJECT_ROOT)
     base = pd.DataFrame(
         {
             "bin_start_ka": edges[:-1],
@@ -382,6 +415,8 @@ def rayleigh_precession_metrics(
     ages: np.ndarray,
     phase_product: rayleigh.OrbitalPhase,
 ) -> dict[str, float]:
+    """Compute precession Rayleigh metrics for one age-realized catalogue."""
+
     phase_unwrapped, extrapolated = rayleigh.interpolate_unwrapped_phase(
         ages,
         phase_product.extrema["age_ka"].to_numpy(dtype=float),
@@ -434,29 +469,29 @@ def full_hazard_metrics(
     frame["source"] = "age_uncertainty_realization"
     frame = predictive.add_same_type_history(frame, predictive.MAIN_HISTORY_WINDOW_KA)
     fit_frame = predictive.model_frame(frame)
-    stationary = hazard.fit_poisson_model(fit_frame, "stationary", (), "Stationary")
-    adjusted_baseline = hazard.fit_poisson_model(
+    stationary = poisson.fit_poisson_model(fit_frame, "stationary", (), "Stationary")
+    ep_baseline = poisson.fit_poisson_model(
         fit_frame,
-        ADJUSTED_BASELINE_MODEL_ID,
+        EP_BASELINE_MODEL_ID,
         predictive.BASELINE_TERMS,
-        ADJUSTED_BASELINE_MODEL_LABEL,
+        EP_BASELINE_MODEL_LABEL,
     )
-    adjusted_climate = hazard.fit_poisson_model(
+    climate_state = poisson.fit_poisson_model(
         fit_frame,
-        ADJUSTED_CLIMATE_MODEL_ID,
+        CLIMATE_STATE_MODEL_ID,
         predictive.BASELINE_TERMS + predictive.CLIMATE_TERMS,
-        ADJUSTED_CLIMATE_MODEL_LABEL,
+        CLIMATE_STATE_MODEL_LABEL,
     )
-    full = hazard.fit_poisson_model(fit_frame, FULL_MODEL_ID, FULL_MODEL_TERMS, FULL_MODEL_LABEL)
-    full_ll_gain = likelihood_gain(full.log_likelihood, adjusted_baseline.log_likelihood)
+    full = poisson.fit_poisson_model(fit_frame, FULL_MODEL_ID, FULL_MODEL_TERMS, FULL_MODEL_LABEL)
+    full_ll_gain = likelihood_gain(full.log_likelihood, ep_baseline.log_likelihood)
     full_lr_stat, full_p_value = likelihood_ratio_p_value(
         full_ll_gain,
-        len(full.beta) - len(adjusted_baseline.beta),
+        len(full.beta) - len(ep_baseline.beta),
     )
-    phase_ll_gain = likelihood_gain(full.log_likelihood, adjusted_climate.log_likelihood)
+    phase_ll_gain = likelihood_gain(full.log_likelihood, climate_state.log_likelihood)
     phase_lr_stat, phase_p_value = likelihood_ratio_p_value(
         phase_ll_gain,
-        len(full.beta) - len(adjusted_climate.beta),
+        len(full.beta) - len(climate_state.beta),
     )
     beta_map = dict(zip(full.terms, full.beta[1:]))
     b_sin = float(beta_map["pre_phase_sin"])
@@ -467,20 +502,20 @@ def full_hazard_metrics(
     return {
         "n_hazard_bins_after_history_filter": int(len(fit_frame)),
         "n_hazard_events_after_history_filter": n_hazard_events,
-        "precession_phase_after_adjusted_climate_LR_statistic": phase_lr_stat,
-        "precession_phase_after_adjusted_climate_LR_p_value": phase_p_value,
-        "precession_phase_after_adjusted_climate_delta_AICc": full.aicc - adjusted_climate.aicc,
-        "precession_phase_after_adjusted_climate_bits_per_event": bits_from_loglik_gain(
+        "precession_phase_after_climate_state_LR_statistic": phase_lr_stat,
+        "precession_phase_after_climate_state_LR_p_value": phase_p_value,
+        "precession_phase_after_climate_state_delta_AICc": full.aicc - climate_state.aicc,
+        "precession_phase_after_climate_state_bits_per_event": bits_from_loglik_gain(
             phase_ll_gain,
             n_hazard_events,
         ),
-        "full_vs_adjusted_baseline_LR_statistic": full_lr_stat,
-        "full_vs_adjusted_baseline_LR_p_value": full_p_value,
-        "full_vs_adjusted_baseline_delta_AICc": full.aicc - adjusted_baseline.aicc,
+        "full_vs_ep_baseline_LR_statistic": full_lr_stat,
+        "full_vs_ep_baseline_LR_p_value": full_p_value,
+        "full_vs_ep_baseline_delta_AICc": full.aicc - ep_baseline.aicc,
         "full_model_converged": bool(full.converged),
         "full_model_log_likelihood": full.log_likelihood,
-        "adjusted_climate_model_log_likelihood": adjusted_climate.log_likelihood,
-        "adjusted_baseline_log_likelihood": adjusted_baseline.log_likelihood,
+        "climate_state_model_log_likelihood": climate_state.log_likelihood,
+        "ep_baseline_log_likelihood": ep_baseline.log_likelihood,
         "stationary_log_likelihood": stationary.log_likelihood,
         "full_model_pre_phase_preferred_deg": float(np.degrees(preferred)),
         "full_model_pre_phase_rate_ratio_max_vs_min": float(np.exp(2.0 * amplitude)),
@@ -494,6 +529,8 @@ def run_sensitivity_experiments(
     n_realizations: int,
     progress_every: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Evaluate Rayleigh and predictive metrics for all randomized catalogues."""
+
     pre_phase = rayleigh.build_phase_series("pre", rayleigh.DRIVER_SETTINGS["pre"])
     base_binned, bin_edges = build_hazard_base()
 
@@ -553,10 +590,12 @@ def run_sensitivity_experiments(
 
 
 def build_summary(results: pd.DataFrame) -> pd.DataFrame:
+    """Summarize randomized-catalogue p-value distributions."""
+
     metric_map = {
         "rayleigh_pre_p_value": "Rayleigh precession phase",
-        "precession_phase_after_adjusted_climate_LR_p_value": "Precession phase after climate-state model",
-        "full_vs_adjusted_baseline_LR_p_value": "Full predictive model vs event-process baseline",
+        "precession_phase_after_climate_state_LR_p_value": "Precession phase after climate-state model",
+        "full_vs_ep_baseline_LR_p_value": "Full predictive model vs event-process baseline",
     }
     rows = []
     randomized = results[results["catalogue_kind"].eq("age_randomized")]
@@ -589,6 +628,11 @@ def build_summary(results: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+# ---------------------------------------------------------------------------
+# Output tables
+# ---------------------------------------------------------------------------
+
+
 def write_outputs(
     *,
     error_series: pd.DataFrame,
@@ -600,6 +644,8 @@ def write_outputs(
     summary: pd.DataFrame,
     parameters: dict,
 ) -> None:
+    """Write randomized-catalogue outputs and metadata."""
+
     ensure_dir(OUT_DATA_DIR)
     error_series.to_csv(OUT_DATA_DIR / "composite_exponential_age_error_series.csv", index=False)
     best_match_uncertainty.to_csv(
@@ -614,11 +660,18 @@ def write_outputs(
     pd.DataFrame([parameters]).to_csv(OUT_DATA_DIR / "parameters.csv", index=False)
 
 
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+
 def plot_error_model(
     error_series: pd.DataFrame,
     best_match_uncertainty: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Plot the Cheng record and the age-error envelope used for sampling."""
+
     fig, (ax1, ax2) = plt.subplots(
         2,
         1,
@@ -657,6 +710,8 @@ def plot_error_model(
 
 
 def plot_event_uncertainties(event_uncertainties: pd.DataFrame, error_series: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot interpolated 2-sigma uncertainty assigned to each event."""
+
     fig, axes = plt.subplots(2, 1, figsize=(10.2, 7.2), sharex=True)
     for ax in axes:
         ax.plot(
@@ -688,6 +743,8 @@ def plot_event_uncertainties(event_uncertainties: pd.DataFrame, error_series: pd
 
 
 def plot_sampling_bounds(event_uncertainties: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot rank-preserving sampling bounds and retained Gaussian mass."""
+
     fig, axes = plt.subplots(2, 1, figsize=(10.4, 7.2), sharex=False)
     for ax, (event_type, group) in zip(axes, event_uncertainties.groupby("event_type", sort=False)):
         settings = EVENT_SETTINGS[event_type]
@@ -730,6 +787,8 @@ def plot_randomized_catalogue_checks(
     sampling_diagnostics: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Plot randomized-age envelopes by event index."""
+
     fig, axes = plt.subplots(2, 1, figsize=(10.4, 7.2), sharex=False)
     for ax, (event_type, group) in zip(axes, sampling_diagnostics.groupby("event_type", sort=False)):
         settings = EVENT_SETTINGS[event_type]
@@ -760,6 +819,8 @@ def plot_randomized_catalogue_checks(
 
 
 def draw_age_offset_histogram(ax: plt.Axes, samples_long: pd.DataFrame) -> None:
+    """Draw the distribution of sampled-minus-published age offsets."""
+
     lower = float(samples_long["sampled_minus_published_ka"].quantile(0.005))
     upper = float(samples_long["sampled_minus_published_ka"].quantile(0.995))
     max_abs = max(abs(lower), abs(upper))
@@ -798,6 +859,8 @@ def draw_age_offset_histogram(ax: plt.Axes, samples_long: pd.DataFrame) -> None:
 
 
 def significance_fraction_pivot(summary: pd.DataFrame) -> pd.DataFrame:
+    """Pivot significant-fraction results into figure-table layout."""
+
     pivot = summary.pivot(
         index="event_label",
         columns="metric_label",
@@ -813,6 +876,8 @@ def significance_fraction_pivot(summary: pd.DataFrame) -> pd.DataFrame:
 
 
 def soft_significance_cmap() -> LinearSegmentedColormap:
+    """Return the soft sequential colormap used for significance fractions."""
+
     return LinearSegmentedColormap.from_list(
         "soft_significance",
         ["#fffaf0", "#eaf4ff", "#cfe8f7", "#9fd3e6"],
@@ -827,6 +892,8 @@ def draw_significance_fraction_heatmap(
     fig: plt.Figure | None = None,
     cbar_ax: plt.Axes | None = None,
 ) -> None:
+    """Draw a heatmap of the fraction of realizations with p < 0.05."""
+
     pivot = significance_fraction_pivot(summary)
     im = ax.imshow(
         pivot.to_numpy(dtype=float),
@@ -862,6 +929,8 @@ def draw_significance_fraction_heatmap(
 
 
 def plot_age_offset_distribution(samples_long: pd.DataFrame, write_pdf: bool) -> None:
+    """Save the standalone age-offset distribution figure."""
+
     fig, ax = plt.subplots(figsize=(9.4, 4.2))
     draw_age_offset_histogram(ax, samples_long)
     fig.tight_layout()
@@ -869,6 +938,8 @@ def plot_age_offset_distribution(samples_long: pd.DataFrame, write_pdf: bool) ->
 
 
 def plot_result_heatmap(summary: pd.DataFrame, write_pdf: bool) -> None:
+    """Save the standalone significance-fraction heatmap."""
+
     fig, ax = plt.subplots(figsize=(11.2, 3.0))
     draw_significance_fraction_heatmap(ax, summary, add_colorbar=True, fig=fig)
     fig.tight_layout()
@@ -880,6 +951,8 @@ def plot_combined_age_offsets_and_significance(
     summary: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Save the combined age-offset and significance-fraction SI figure."""
+
     fig = plt.figure(figsize=(9.8, 6.8))
     grid = fig.add_gridspec(
         2,
@@ -947,6 +1020,8 @@ def make_plots(
     summary: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Generate all age-uncertainty diagnostic and summary figures."""
+
     plot_error_model(error_series, best_match_uncertainty, write_pdf)
     plot_event_uncertainties(event_uncertainties, error_series, write_pdf)
     plot_sampling_bounds(event_uncertainties, write_pdf)
@@ -956,7 +1031,14 @@ def make_plots(
     plot_combined_age_offsets_and_significance(samples_long, summary, write_pdf)
 
 
+# ---------------------------------------------------------------------------
+# Command-line workflow
+# ---------------------------------------------------------------------------
+
+
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for age-uncertainty sensitivity."""
+
     parser = argparse.ArgumentParser(
         description="Composite age-uncertainty sensitivity for Rousseau 0.4-4 kyr start catalogues."
     )
@@ -968,6 +1050,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     error_series = load_cheng_composite_with_error()
     best_match_uncertainty = load_best_match_uncertainty()

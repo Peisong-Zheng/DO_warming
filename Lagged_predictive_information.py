@@ -65,14 +65,16 @@ from toolbox.poisson import (
     negative_binned_poisson_loglik,
 )
 
-from Bin_hazard_phase_poisson import (
+import toolbox.event_inputs as event_inputs
+from toolbox.project_config import (
     ANALYSIS_END_KA,
     ANALYSIS_START_KA,
     BIN_WIDTH_KA,
+    CO2_XLSX,
     DATASET_SETTINGS,
+    LR04_XLSX,
+    PRE_TXT,
     PROJECT_ROOT,
-    build_binned_inputs,
-    load_all_events,
 )
 import Predictive_information_model as predictive
 
@@ -126,11 +128,20 @@ plt.rcParams.update(
 )
 
 
+# ---------------------------------------------------------------------------
+# General utilities
+# ---------------------------------------------------------------------------
+
+
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
+    """Save a figure to the run directory and optional paper export path."""
+
     ensure_dir(OUT_FIG_DIR)
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
@@ -144,6 +155,11 @@ def lag_grid(max_lag_ka: float | None = None) -> np.ndarray:
 
     upper = MAX_LAG_KA if max_lag_ka is None else float(max_lag_ka)
     return np.round(np.arange(0.0, upper + LAG_STEP_KA / 2.0, LAG_STEP_KA), 10)
+
+
+# ---------------------------------------------------------------------------
+# Input preparation and model fitting
+# ---------------------------------------------------------------------------
 
 
 def add_event_history_feature(binned: pd.DataFrame, max_lag_ka: float = MAX_LAG_KA) -> pd.DataFrame:
@@ -180,8 +196,22 @@ def add_event_history_feature(binned: pd.DataFrame, max_lag_ka: float = MAX_LAG_
 def load_binned_inputs_with_history(max_lag_ka: float = MAX_LAG_KA) -> pd.DataFrame:
     """Load binned covariates and append history/resolution controls."""
 
-    events = load_all_events()
-    binned, _, _ = build_binned_inputs(events)
+    events = event_inputs.load_event_catalogues(
+        DATASET_SETTINGS,
+        analysis_start_ka=ANALYSIS_START_KA,
+        analysis_end_ka=ANALYSIS_END_KA,
+        project_root=PROJECT_ROOT,
+    )
+    binned, _, _ = event_inputs.build_binned_inputs(
+        events,
+        analysis_start_ka=ANALYSIS_START_KA,
+        analysis_end_ka=ANALYSIS_END_KA,
+        bin_width_ka=BIN_WIDTH_KA,
+        lr04_path=LR04_XLSX,
+        co2_path=CO2_XLSX,
+        precession_path=PRE_TXT,
+        project_root=PROJECT_ROOT,
+    )
     return add_event_history_feature(binned, max_lag_ka=max_lag_ka)
 
 
@@ -414,11 +444,11 @@ def bh_q_values(p_values: np.ndarray) -> np.ndarray:
     order = np.argsort(pv)
     ranked = pv[order]
     m = len(ranked)
-    adjusted = ranked * m / np.arange(1, m + 1)
-    adjusted = np.minimum.accumulate(adjusted[::-1])[::-1]
-    adjusted = np.clip(adjusted, 0.0, 1.0)
-    q_valid = np.empty_like(adjusted)
-    q_valid[order] = adjusted
+    bh_values = ranked * m / np.arange(1, m + 1)
+    bh_values = np.minimum.accumulate(bh_values[::-1])[::-1]
+    bh_values = np.clip(bh_values, 0.0, 1.0)
+    q_valid = np.empty_like(bh_values)
+    q_valid[order] = bh_values
     q[valid] = q_valid
     return q
 
@@ -727,8 +757,17 @@ def run_core_component_diagnostic_scan(
     return out
 
 
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+
 def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot lagged information gain for each driver against the EP baseline."""
+
     def darken(color: str, factor: float = 0.48) -> tuple[float, float, float]:
+        """Darken an RGB/Matplotlib color for FDR-significant overlays."""
+
         rgb = np.array(to_rgb(color))
         return tuple(np.clip(rgb * factor, 0.0, 1.0))
 
@@ -820,6 +859,8 @@ def plot_single_driver_curves(single: pd.DataFrame, best_summary: pd.DataFrame, 
 
 
 def plot_single_driver_delta_aicc(single: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot Delta AICc for the single-driver lag scans."""
+
     fig, axes = plt.subplots(2, 1, figsize=(12.8, 7.2), sharex=True)
     for ax, dataset_id in zip(axes, DATASET_SETTINGS):
         sub = single[
@@ -851,6 +892,8 @@ def plot_single_driver_delta_aicc(single: pd.DataFrame, write_pdf: bool) -> None
 
 
 def plot_conditional_pre_phase(same_lag: pd.DataFrame, best_climate: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot precession-phase lag scans after climate-state controls."""
+
     fig, axes = plt.subplots(2, 1, figsize=(5.4, 8.8), sharex=True)
     control_styles = [
         (same_lag, "LR04+CO$_2$ at same lag", "#0072B2"),
@@ -910,6 +953,8 @@ def plot_core_component_diagnostic(scan: pd.DataFrame, write_pdf: bool) -> None:
     """Plot the compact core-component lagged-information diagnostic."""
 
     def darken(color: str, factor: float = 0.48) -> tuple[float, float, float]:
+        """Darken an RGB/Matplotlib color for FDR-significant overlays."""
+
         rgb = np.array(to_rgb(color))
         return tuple(np.clip(rgb * factor, 0.0, 1.0))
 
@@ -997,6 +1042,8 @@ def plot_core_component_diagnostic(scan: pd.DataFrame, write_pdf: bool) -> None:
 
 
 def plot_best_lag_summary(best_summary: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot the best lag and information gain for each lagged comparison."""
+
     plot_data = best_summary[
         best_summary["analysis_type"].isin(
             [
@@ -1045,6 +1092,8 @@ def write_outputs(
     best_climate: pd.DataFrame,
     best_summary: pd.DataFrame,
 ) -> None:
+    """Write lag-scan tables and run metadata."""
+
     ensure_dir(OUT_DATA_DIR)
     binned.to_csv(
         OUT_DATA_DIR / "binned_event_inputs_with_history_resolution_0p2kyr.csv",
@@ -1073,6 +1122,11 @@ def write_outputs(
         ]
     )
     params.to_csv(OUT_DATA_DIR / "parameters.csv", index=False)
+
+
+# ---------------------------------------------------------------------------
+# Command-line workflow
+# ---------------------------------------------------------------------------
 
 
 def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -1105,6 +1159,8 @@ def run_analysis(write_pdf: bool) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFr
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the lagged-information script."""
+
     parser = argparse.ArgumentParser(
         description="Lagged model-based TE-like predictive information for Rousseau monsoon starts."
     )
@@ -1113,6 +1169,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     _, same_lag, best_climate, best_summary = run_analysis(write_pdf=not args.no_pdf)
     print("Best lag summary:")

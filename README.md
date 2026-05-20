@@ -112,8 +112,8 @@ These scripts are not run by `run_main_paper_workflow.py`.
 
 | Script | Purpose |
 |---|---|
-| `Bin_hazard_phase_poisson_sensitivity.py` | Tests whether Antarctic temperature, obliquity, eccentricity, and 65N summer-solstice insolation add information beyond the full predictive model. |
-| `Bin_hazard_phase_poisson_binwidth_sensitivity.py` | Repeats the core predictive-model comparisons for bin widths from 0.2 to 1.0 kyr. |
+| `Predictive_information_extra_forcing_sensitivity.py` | Tests whether Antarctic temperature, obliquity, eccentricity, and 65N summer-solstice insolation add information beyond the full predictive model. |
+| `Predictive_information_binwidth_sensitivity.py` | Repeats the core predictive-model comparisons for bin widths from 0.2 to 1.0 kyr. |
 | `Composite_age_uncertainty_core_sensitivity.py` | Perturbs event ages using a conservative Cheng composite age-uncertainty envelope and repeats Rayleigh and predictive-information checks. |
 | `KS_window_core_experiment_sensitivity.py` | Compares Rousseau 0.4--4 kyr and 0.6--4 kyr KS-window catalogues. |
 | `Predictive_information_bootstrap_diagnostics.py` | Runs reduced-model parametric bootstrap null tests for the two central LR comparisons. This is slower than the other diagnostics; the default is 2000 bootstrap replicates. |
@@ -124,9 +124,16 @@ These scripts are not run by `run_main_paper_workflow.py`.
 `toolbox/` contains small shared utilities:
 
 - `toolbox/poisson.py`: binned Poisson log likelihood, optimization objective,
-  design matrix construction, and fitted-rate conversion.
+  design matrix construction, fitted-model records, model summaries, and
+  fitted-rate conversion.
+- `toolbox/event_inputs.py`: event-catalogue loading, shared bin grids, LR04,
+  CO2, precession-phase construction, and common binned input tables.
 - `toolbox/model_stats.py`: AIC, AICc, BIC, likelihood-ratio p values,
   log-likelihood gains, and bits/event summaries.
+- `toolbox/project_config.py`: project paths, core analysis constants, and
+  default Rousseau strong/weak catalogue settings.
+- `toolbox/data_checks.py`: small input-validation checks used before
+  interpolation or model fitting.
 
 Plotting code remains inside the individual analysis scripts. Several figures
 share a broad structure but differ in small, hand-tuned details, so keeping the

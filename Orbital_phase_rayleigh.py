@@ -93,10 +93,14 @@ class OrbitalPhase:
 
 
 def ensure_dir(path: Path) -> None:
+    """Create an output directory if it is missing."""
+
     path.mkdir(parents=True, exist_ok=True)
 
 
 def load_rousseau_events(path: Path, event_type: str, label: str) -> pd.DataFrame:
+    """Load one Rousseau monsoon-start catalogue for phase analysis."""
+
     df = pd.read_csv(path, encoding="utf-8-sig")
     if "start_time_ka_BP" not in df.columns:
         raise ValueError(f"{path} must contain start_time_ka_BP.")
@@ -116,6 +120,8 @@ def load_rousseau_events(path: Path, event_type: str, label: str) -> pd.DataFram
 
 
 def load_all_events() -> pd.DataFrame:
+    """Load and combine the strong and weak monsoon-start catalogues."""
+
     return pd.concat(
         [
             load_rousseau_events(
@@ -134,6 +140,8 @@ def load_all_events() -> pd.DataFrame:
 
 
 def load_orbital_series(path: Path, driver: str, label: str) -> pd.DataFrame:
+    """Load one orbital time series and convert signed ages to kyr BP."""
+
     raw = pd.read_csv(path, sep=r"\s+", header=None, names=["age_raw_ka", "value"])
     out = pd.DataFrame(
         {
@@ -155,6 +163,8 @@ def load_orbital_series(path: Path, driver: str, label: str) -> pd.DataFrame:
 
 
 def enforce_alternating_extrema(extrema: pd.DataFrame) -> pd.DataFrame:
+    """Collapse adjacent extrema of the same type into an alternating sequence."""
+
     rows: list[pd.Series] = []
     for _, row in extrema.sort_values("age_ka").iterrows():
         if not rows:
@@ -176,6 +186,8 @@ def enforce_alternating_extrema(extrema: pd.DataFrame) -> pd.DataFrame:
 
 
 def detect_extrema(orbital: pd.DataFrame) -> pd.DataFrame:
+    """Detect local minima and maxima used as phase anchors."""
+
     value = orbital["value"].to_numpy(dtype=float)
     max_idx, _ = find_peaks(value)
     min_idx, _ = find_peaks(-value)
@@ -193,6 +205,8 @@ def detect_extrema(orbital: pd.DataFrame) -> pd.DataFrame:
 
 
 def assign_anchor_phases(extrema: pd.DataFrame) -> pd.DataFrame:
+    """Assign unwrapped phase values to the alternating extrema."""
+
     out = extrema.copy().reset_index(drop=True)
     first_phase = 0.0 if out.loc[0, "extremum_type"] == "minimum" else np.pi
     out["anchor_phase_unwrapped_rad"] = first_phase + np.arange(len(out), dtype=float) * np.pi
@@ -207,6 +221,8 @@ def interpolate_unwrapped_phase(
     extrema_phase_unwrapped_rad: np.ndarray,
     warn_on_extrapolation: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
+    """Interpolate unwrapped phase and flag ages outside the anchor range."""
+
     ages = np.asarray(ages_ka, dtype=float)
     x = np.asarray(extrema_age_ka, dtype=float)
     y = np.asarray(extrema_phase_unwrapped_rad, dtype=float)
@@ -275,6 +291,8 @@ def evaluate_phase_at_ages(
 
 
 def build_phase_series(driver: str, settings: dict) -> OrbitalPhase:
+    """Construct raw, extrema, and phase columns for one orbital driver."""
+
     orbital = load_orbital_series(settings["path"], driver, settings["label"])
     extrema = detect_extrema(orbital)
     extrema = assign_anchor_phases(extrema)
@@ -291,10 +309,14 @@ def build_phase_series(driver: str, settings: dict) -> OrbitalPhase:
 
 
 def circular_distance_to_phase(theta: np.ndarray, target: float) -> np.ndarray:
+    """Return signed circular distance from target phase in radians."""
+
     return np.angle(np.exp(1j * (theta - target)))
 
 
 def sample_event_phases(events: pd.DataFrame, phase_products: dict[str, OrbitalPhase]) -> pd.DataFrame:
+    """Interpolate orbital value and phase for every event age."""
+
     rows = []
     for phase_product in phase_products.values():
         series = phase_product.series
@@ -419,6 +441,8 @@ def rayleigh_rbar_threshold(n: int, alpha: float = RAYLEIGH_ALPHA) -> float:
 
 
 def rayleigh_test(phases_rad: np.ndarray) -> dict[str, float]:
+    """Compute the Rayleigh circular-uniformity test for event phases."""
+
     theta = np.asarray(phases_rad, dtype=float)
     theta = theta[np.isfinite(theta)]
     n = theta.size
@@ -455,6 +479,8 @@ def rayleigh_test(phases_rad: np.ndarray) -> dict[str, float]:
 
 
 def build_rayleigh_results(event_phases: pd.DataFrame) -> pd.DataFrame:
+    """Apply the Rayleigh test to every driver/event-type combination."""
+
     rows = []
     for (driver, driver_label, event_type, event_label), group in event_phases.groupby(
         ["driver", "driver_label", "event_type", "event_label"],
@@ -571,6 +597,8 @@ def print_debug_summary(
 
 
 def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
+    """Save a figure to the run directory and optional paper export path."""
+
     ensure_dir(OUT_FIG_DIR)
     fig.savefig(OUT_FIG_DIR / f"{stem}.png", dpi=300, bbox_inches="tight")
     if write_pdf:
@@ -580,6 +608,8 @@ def save_figure(fig: plt.Figure, stem: str, write_pdf: bool) -> None:
 
 
 def plot_extrema_phase_check(phase_products: dict[str, OrbitalPhase], write_pdf: bool) -> None:
+    """Plot detected extrema and the resulting wrapped phase curves."""
+
     fig, axes = plt.subplots(2, 2, figsize=(13, 6.8), sharex="col")
     for row_idx, phase_product in enumerate(phase_products.values()):
         series = phase_product.series
@@ -646,6 +676,8 @@ def plot_event_phase_sampling(
     event_phases: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Plot event ages sampled on each orbital phase curve."""
+
     fig, axes = plt.subplots(len(phase_products), 1, figsize=(13, 5.8), sharex=True)
     axes = np.atleast_1d(axes)
     for ax, phase_product in zip(axes, phase_products.values()):
@@ -702,6 +734,8 @@ def plot_polar_rayleigh(
     rayleigh: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Plot the combined precession/obliquity polar Rayleigh figure."""
+
     drivers = list(DRIVER_SETTINGS)
     event_types = ["strong_monsoon_start", "weak_monsoon_start"]
     fig, axes = plt.subplots(
@@ -942,6 +976,8 @@ def plot_split_polar_rayleigh(
     rayleigh: pd.DataFrame,
     write_pdf: bool,
 ) -> None:
+    """Save separate precession and obliquity versions of the polar figure."""
+
     plot_polar_rayleigh_single_driver(
         event_phases,
         rayleigh,
@@ -959,6 +995,8 @@ def plot_split_polar_rayleigh(
 
 
 def plot_phase_ecdf(event_phases: pd.DataFrame, write_pdf: bool) -> None:
+    """Plot empirical phase CDFs against the circular-uniform expectation."""
+
     fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.2), sharey=True)
     for ax_idx, (ax, driver) in enumerate(zip(axes, DRIVER_SETTINGS)):
         driver_events = event_phases[
@@ -1069,6 +1107,8 @@ def write_outputs(
     event_phases: pd.DataFrame,
     rayleigh: pd.DataFrame,
 ) -> None:
+    """Write phase series, event phases, and Rayleigh statistics."""
+
     ensure_dir(OUT_DATA_DIR)
     pd.concat([product.series for product in phase_products.values()], ignore_index=True).to_csv(
         OUT_DATA_DIR / "orbital_phase_series_pre_obl.csv",
@@ -1084,6 +1124,8 @@ def write_outputs(
 
 
 def run_analysis(write_pdf: bool, debug: bool = False, debug_plots: bool = False) -> pd.DataFrame:
+    """Run the orbital-phase Rayleigh workflow."""
+
     ensure_dir(OUT_DATA_DIR)
     ensure_dir(OUT_FIG_DIR)
     events = load_all_events()
@@ -1107,6 +1149,8 @@ def run_analysis(write_pdf: bool, debug: bool = False, debug_plots: bool = False
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the Rayleigh script."""
+
     parser = argparse.ArgumentParser(
         description="Rayleigh tests of Rousseau 2023 monsoon-start phases relative to precession and obliquity."
     )
@@ -1117,6 +1161,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Command-line entry point."""
+
     args = parse_args()
     rayleigh = run_analysis(
         write_pdf=not args.no_pdf,
